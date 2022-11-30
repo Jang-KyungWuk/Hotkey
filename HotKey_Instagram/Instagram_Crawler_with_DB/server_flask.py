@@ -14,7 +14,8 @@ def home():
 @app.route('/search') #method = GET으로해서
 def search():
     #single search 알고리즘 실행 => 분석
-    return '검색 및 분석 결과 리턴'
+    status, corpus, image = single_search('핫')
+    return corpus
 
 #---------------------------------------------------------------------
 @app.route('/login') #로그인 체크용
