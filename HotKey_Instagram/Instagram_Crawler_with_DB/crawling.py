@@ -9,25 +9,41 @@ import random
 import copy
 from db import *
 
-#초기값!!###
-#구분자
-delimiter = 'HOTKEY123!@#'
+# total_acc_info, acc_info, sessions 생성코드 (전역 변수로 활용)
+# total_acc_info를 DB로부터 받아와서 리턴하는 로직
+def gen_total_acc():
+    conn, cur = access_db()
+    acc_info = []
+    cur.execute('select * from accounts')
+    all_blocked = True
+    for row in cur.fetchall():
+        tmp = dict()
+        tmp['id'] = row['id']
+        tmp['pw'] = row['pw']
+        tmp['user_agent'] = row['user_agent']
+        tmp['blocked'] = True if row['blocked'] == 1 else False
+        tmp['up_date'] = row['up_date']
+        if not tmp['blocked']:  # 하나라도 blocked라면
+            all_blocked = False
+        acc_info.append(tmp)
+    close_db(conn)
+    return acc_info, all_blocked
 
-#Account, 세션 관련 정보들
+# 현재 가지고 있는(변화된) total_acc_info를 DB에 업데이트하는 로직
+def to_db_total_acc():
+    global total_acc_info, all_blocked
 
-#####임시 테스트용 할당, 실제 서비스 시에는 정책에 따라 잘 할당할것.
-total_acc_info = [
-                 {'id': 'seungirumd+1@gmail.com',
-                  'pw': 'pinstaw25',
-                  'agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.56',
-                  'blocked':False
-                 },
-                {'id' : 'kj10522002@korea.ac.kr',
-                  'pw' : 'kj76081460!',
-                  'agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.56',
-                  'blocked' : False} #checkpoint 이슈 발생했었음(해결됨)
-                ]
+    conn, cur = access_db()
+    all_blocked = True
+    for row in total_acc_info:
+        cur.execute('update accounts set blocked=(%s), up_date=(%s) where id=(%s);',
+                    (1 if row['blocked'] == True else 0, str(time.strftime('%Y-%m-%d %H:%M:%S')), row['id']))
+        if row['blocked'] == False:
+            all_blocked = False
+    close_db(conn)
 
+### 매우 중요!!! 초기 할당 코드 (전역변수 할당 코드)
+total_acc_info, all_blocked = gen_total_acc() #all_blocked : 계정이 전부 막혔는지, single_search()에서 활용!! -> 다 막혔으면 서비스가 안됨.
 sessions = [
     {
     'session' : Session(),
@@ -38,20 +54,35 @@ sessions = [
      'orig_idx' : i#total_acc_info에서의 index
     } for i in range(len(total_acc_info))
 ]
-
-all_blocked = False #계정이 전부 막혔는지, single_search()에서 활용!! -> 다 막혔으면 서비스가 안됨.
 acc_inuse = list() #사용중인 세션의 account index
+####여기까지 초기 할당
 
-#######
+### all_blocked인 경우에 30분~1시간 정도 주기적으로 로그인 시도(+로그아웃)해보면서 total_acc_info랑 all_blocked수정하기
+# =>  주기적으로 다음 코드 실행
+# 주기적으로 실행할 코드
+def check_avail():
+    global all_blocked
+    for row in total_acc_info:
+        h, session, status = login(row['id'], row['pw'])
+        print(row['id'], row['pw'], status)
+        if status == 0:  # 로그인 성공시
+            row['blocked'] = False
+            all_blocked = False
+        time.sleep(random.randint(2, 10))
+        logout(session)
+        time.sleep(random.randint(7, 10))
 
-#헤더 생성 함수
+    to_db_total_acc()
+
+#헤더생성함수 => 1201기준, 서비스전에는 반드시 로직 변경해야함!!
 def gen_header(): #header에 app_id랑 user-agent만 기본적으로 넣어주는 함수
+    #user-agent id별로 바꾸는 로직 필요!! 나중에!!
     header = dict()
     header['user-agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.56'
     header['x-ig-app-id'] = '936619743392459'
     return header
 
-#로그인 함수
+#로그인함수
 def login(id, pw):
     # 새로운 헤더, 세션 생성 (새로운 세션 리턴)
     # 헤더, 세션, status를 리턴
@@ -111,7 +142,7 @@ def logout(session):
 
     return False
 
-#최근게시물 수집 함수
+#최근 게시물 수집 함수
 def hot_key_instagram_recent(query, session, max_page=40):
     # input : query, session
     # return (status, recent_list, timestamp, image_list)
@@ -170,10 +201,10 @@ def hot_key_instagram_recent(query, session, max_page=40):
                     ###--------------------------1123 추가
                     #######################################################################
                     try:
-                        image_list[0].append(k['media']['image_versions2']['candidates'][0]['url'])  # 포스트의 이미지 URL
+                        image_list[0].append(k['media']['image_versions2']['candidates'][0]['url'])  # 포스트의 이미지 URL 
                     except:
                         image_list[0].append(k['media']['carousel_media'][0]['image_versions2']['candidates'][0]['url'])
-                        # 복수의 이미지가 있는 포스트의 첫이미지 URL
+                        # 복수의 이미지가 있는 포스트의 첫이미지 URL 
                     #########################################################
                     postcnt += 1
     print('누적 게시물 수 :', postcnt)
@@ -223,11 +254,11 @@ def hot_key_instagram_recent(query, session, max_page=40):
                         #######################################################################
                         try:
                             image_list[data['page']].append(
-                                k['media']['image_versions2']['candidates'][0]['url'])  # 포스트의 이미지 URL
+                                k['media']['image_versions2']['candidates'][0]['url'])  # 포스트의 이미지 URL 
                         except:
                             image_list[data['page']].append(
                                 k['media']['carousel_media'][0]['image_versions2']['candidates'][0]['url'])
-                            # 복수의 이미지가 있는 포스트의 첫이미지 URL
+                            # 복수의 이미지가 있는 포스트의 첫이미지 URL 
                         #########################################################
                         postcnt += 1
                         if (postcnt >= 300):
@@ -254,7 +285,6 @@ def hot_key_instagram_recent(query, session, max_page=40):
     print('총 소요시간 : ', datetime.now() - before, '\n')
     return (0, recent_list, timestamp, image_list)
 
-#check session
 def check_session():  # 1130 코드
     # 가용가능한 세션을 검사하고 교체해서 해당 세션의 original index를 전달해줌.
 
@@ -323,15 +353,10 @@ def check_session():  # 1130 코드
                 break
 
     # 세션 교체 끝. 계정 다 막혔는지 체크
-    for i in total_acc_info:
-        if i['blocked'] == False:
-            all_blocked = False
-            return
-
-    all_blocked = True
+    to_db_total_acc()  # 전체 계정정보 업데이트
     return
 
-#Single_Search Algorithm
+#메인) Single_Search Algorithm
 def single_search(keyword):  # 성공여부, corpus랑 image를 반환
     # return T/F, corpus, image
     #############################DB존재여부 확인##########################################
@@ -342,6 +367,7 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
 
     # DB에 존재할 경우
     if len(res) >= 1:
+        print('DB에서 해당 키워드를 찾았습니다.. keyword :', keyword)
         tid, ttable = res[0]['tid'], res[0]['ttable']
         corpus, image = '', ''
         if ttable == 1:  # s_corpus
@@ -366,10 +392,11 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
     ########################DB에 존재하지 않을경우, 크롤링->DB적재->값 반환#####################
 
     global total_acc_info, sessions, acc_inuse, all_blocked
-    global delimiter
+    delimiter = 'HOTKEY123!@#'
 
     check_session()  # 가용가능한 세션이있는지 확인
     if all_blocked:  # 전부 막혔으면
+        print('가용가능한 세션이 없습니다')
         return (False, '', '')
 
     # acc_inuse[0]['session'], acc_inuse[1]['session']이 가용가능한 세션임
@@ -422,6 +449,7 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
 
             # account block됨. => block로직 (total_acc_info에서 block으로 바꾸기, sessions바꾸기, acc_info바꾸기)
             total_acc_info[s['orig_idx']]['blocked'] = True
+            to_db_total_acc()  # 디비에 차단 정보 업데이트
 
             # session로그아웃, 세션 정보 변경
             # logout(s['session']) 자동으로 세션이 만료되므로 로그아웃할필요가 없어보임 (status가 1인 경우...)

@@ -1,5 +1,4 @@
 import pymysql
-
 def access_db():
     # db 연결정보
     host = 'hotkey.czighwjgpkkz.ap-northeast-2.rds.amazonaws.com'

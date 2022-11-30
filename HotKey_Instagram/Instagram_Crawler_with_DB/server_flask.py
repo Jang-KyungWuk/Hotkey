@@ -11,24 +11,17 @@ app.config['JSON_AS_ASCII'] = False #한글 깨짐 방지 (jsonify 사용시)
 def home():
     return 'This is the backend server for HOTKEY project__...'
 
-@app.route('/search') #method = GET으로해서
+@app.route('/manage/accounts')
+#현재 DB에 저장된 accounts테이블의 정보를 보여준다.
+def show_accounts():
+    acc_info, blocked = gen_total_acc()
+    return jsonify(blocked, acc_info)
+
+@app.route('/test') #method = GET으로해서
 def search():
-    #single search 알고리즘 실행 => 분석
-    status, corpus, image = single_search('핫')
-    return corpus
+    status, corpus, image = single_search('한효주')
+    return jsonify(status, corpus)
 
 #---------------------------------------------------------------------
-@app.route('/login') #로그인 체크용
-def dd():
-    return jsonify(login('kj10522002@korea.ac.kr', 'kj76081460!')[2])
-
-@app.route('/db') #db연결 체크용.. 임시!
-def db():
-    conn, cur = access_db() #db access
-    cur.execute('select image from images;')
-    val = cur.fetchall()
-    close_db(conn) #db close
-    return jsonify(val)
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True) #배포시 디버그 옵션 없애야함.
