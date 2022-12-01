@@ -44,6 +44,7 @@ def to_db_total_acc():
 
 ### 매우 중요!!! 초기 할당 코드 (전역변수 할당 코드)
 total_acc_info, all_blocked = gen_total_acc() #all_blocked : 계정이 전부 막혔는지, single_search()에서 활용!! -> 다 막혔으면 서비스가 안됨.
+random.shuffle(total_acc_info) #디버깅 단계에서.. 같은 계정이 계속 사용되는 것 방지
 sessions = [
     {
     'session' : Session(),
@@ -297,7 +298,7 @@ def check_session():  # 1130 코드
             # 해당 세션 찾기
             for idx, i in enumerate(sessions):
                 if s['orig_idx'] == i['orig_idx']:
-                    if i['inuse'] == True and (i['usage'] > 3 or int(datetime.now().timestamp()) - i[
+                    if i['inuse'] == True and (i['usage'] > 2 or int(datetime.now().timestamp()) - i[
                         'last_time'] > 3600):  # 3600
                         # 세션 종료(교체) 조건 충족하면 로그아웃 및 세션 종료
                         logout(i['session'])
@@ -359,6 +360,9 @@ def check_session():  # 1130 코드
 #메인) Single_Search Algorithm
 def single_search(keyword):  # 성공여부, corpus랑 image를 반환
     # return T/F, corpus, image
+    if len(keyword) == 0:
+        print("to client: 한 글자 이상의 키워드를 입력하세요..")
+        return (False, '', '')
     #############################DB존재여부 확인##########################################
     # db연결
     conn, cur = access_db()
