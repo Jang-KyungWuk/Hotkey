@@ -35,6 +35,12 @@ def keyword_search(keyword):
     status, corpus, image = single_search(keyword)
     return jsonify(status, corpus)
 
+@app.route('/manage/test/keyword_search/enforce/<keyword>')
+def keyword_search2(keyword):
+    #한 글자 이상 입력하라고 client 단에서 예외처리해줘야함!! (#빈 문자열은 받을 수 없음)
+    status, corpus, image = single_search(keyword, True)
+    return jsonify(status, corpus)
+
 #네트워크 불러오기
 @app.route('/manage/test/network/<name>')
 def network_ex(name):

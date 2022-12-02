@@ -293,7 +293,8 @@ def check_session():  # 1202 수정 코드
     return
 
 #메인) Single_Search Algorithm
-def single_search(keyword):  # 성공여부, corpus랑 image를 반환
+def single_search(keyword, enforce = False):  # 성공여부, corpus랑 image를 반환
+    # enforce => DB에 있어도 강제 크롤링 (최신화)
     # return T/F, corpus, image
     if len(keyword) == 0:
         print("to client: 한 글자 이상의 키워드를 입력하세요..")
@@ -304,7 +305,7 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
     cur.execute('SELECT tid, ttable FROM is_tag NATURAL JOIN tag_info WHERE tname = (%s);', (keyword))
     res = cur.fetchall()
     # DB에 존재할 경우
-    if len(res) >= 1:
+    if len(res) >= 1 and not enforce:
         print('DB에서 해당 키워드를 찾았습니다.. keyword :', keyword)
         tid, ttable = res[0]['tid'], res[0]['ttable']
         corpus, image = '', ''
@@ -359,21 +360,44 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
             for page in recent_list:
                 for post in page:
                     corpus = corpus + delimiter + post
-            cur.execute('insert into is_tag (tname) values (%s);', keyword)
-            cur.execute('SELECT tid FROM is_tag ORDER BY tid DESC LIMIT 1;')
-            tid = cur.fetchone()['tid']
-            # n_corpus에 저장
-            cur.execute('insert into tag_info (tid, ttable, up_date, time_stamp) values (%s, %s, %s, %s);',
-                        (tid, 3, time.strftime('%Y-%m-%d'), timestamp))
-            cur.execute('insert into n_corpus (tid, corpus) values (%s, %s);', (tid, corpus[12:]))
-            # image추가하는 로직
+                    # image추가하는 로직
             image = ''
             for page in image_list:
                 for post in page:
                     image = image + delimiter + post
-            cur.execute('insert into images (tid, image) values (%s, %s);', (tid, image[12:]))
-            close_db(conn)
 
+            if len(res) >= 1 and enforce: #Db에 있는데도 enforce인경우
+                cur.execute('SELECT tid FROM is_tag WHERE tname = (%s)', (keyword))
+                tid = cur.fetchone()['tid']
+                cur.execute('select ttable FROM tag_info WHERE tid= (%s)', (tid))
+                ttable = cur.fetchone()['ttable']
+                # tag_info 업데이트
+                cur.execute('update tag_info set up_date=(%s), time_stamp=(%s) where tid=(%s)', (time.strftime('%Y-%m-%d'), timestamp, tid))
+                # 1 = s_corpus, 2 = t_corpus, 3 = n_corpus
+                # corpus 업데이트
+                if ttable == 1: #s_corpus
+                    cur.execute('update s_corpus set corpus=(%s) where tid=(%s)', (corpus[12:], tid))
+                    pass
+                elif ttable == 2: #t_corpus
+                    cur.execute('update t_corpus set corpus=(%s) where tid=(%s)', (corpus[12:], tid))
+                    pass
+                else: #n_corpus
+                    cur.execute('update n_corpus set corpus=(%s) where tid=(%s)', (corpus[12:], tid))
+                    pass
+                # images 업데이트
+                cur.execute('update images set image=(%s) where tid=(%s)', (image[12:], tid))
+            else: #DB에 없으면 enforce여부에 관계없이
+                cur.execute('insert into is_tag (tname) values (%s);', keyword)
+                cur.execute('SELECT tid FROM is_tag ORDER BY tid DESC LIMIT 1;')
+                tid = cur.fetchone()['tid']
+                #tag_info에 저장
+                cur.execute('insert into tag_info (tid, ttable, up_date, time_stamp) values (%s, %s, %s, %s);',
+                        (tid, 3, time.strftime('%Y-%m-%d'), timestamp))
+                # n_corpus에 저장
+                cur.execute('insert into n_corpus (tid, corpus) values (%s, %s);', (tid, corpus[12:]))
+                # images에 저장
+                cur.execute('insert into images (tid, image) values (%s, %s);', (tid, image[12:]))
+            close_db(conn)
             ############(corpus, image들 전달)#############
             return (True, corpus[12:], image[12:])
 
