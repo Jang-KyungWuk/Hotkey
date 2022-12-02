@@ -34,10 +34,23 @@ def keyword_search(keyword):
     #한 글자 이상 입력하라고 client 단에서 예외처리해줘야함!! (#빈 문자열은 받을 수 없음)
     status, corpus, image = single_search(keyword)
     return jsonify(status, corpus)
-@app.route('/manage/test/network')
-def network_ex():
+
+#네트워크 불러오기
+@app.route('/manage/test/network/<name>')
+def network_ex(name):
     #네트워크 예시보여주기
-    return render_template('network.html')
+    #return render_template('iframe.html')
+    filename = './templates/'+name
+    with open(filename, 'r') as fp:
+        html = fp.read()
+    return html
+#네트워크 불러올때 request 대처용 로직.. 나 천재
+@app.route('/manage/test/network/lib/<a>/<b>')
+def js(a,b):
+    filedir = './lib/'+a+'/'+b
+    with open(filedir, 'r', encoding='utf-8-sig') as fp:
+        file = fp.read()
+    return file
 @app.route('/manage/accounts')
 # 현재 전역변수로 저장된 계정 정보를 보여준다.
 def show_accounts():
@@ -47,6 +60,7 @@ def show_accounts():
 def checkavail():
     check_avail()
     return jsonify('check_avail()실행 후 DB 반영 완료')
+#테스트좀
 
 # ---------------------------------------------------------------------
 if __name__ == '__main__':
