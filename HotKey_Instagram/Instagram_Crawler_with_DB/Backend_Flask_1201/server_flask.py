@@ -14,7 +14,6 @@ def getdb():
     g.acc_inuse = list()
     print('before_request : DB정보 가져오기 성공')
     ####여기까지 초기 할당
-
 @app.after_request
 def afterrequest(response):
     print('after_request실행')
@@ -30,13 +29,15 @@ def home():
     return 'This is the backend server for HOTKEY project__...'
 
 # ---------------------------관리/테스트용 API-------------------------------
-@app.route('/manage/test/keyword_search', methods=['GET'])  # method = GET으로해서
-#http://127.0.0.1:5000/manage/test/keyword_search?keyword=hello와 같이 사용
-#빈 문자열은 받을 수 없음
-def keyword_search():
-    status, corpus, image = single_search(request.args.get('keyword'))
+@app.route('/manage/test/keyword_search/<keyword>')
+def keyword_search(keyword):
+    #한 글자 이상 입력하라고 client 단에서 예외처리해줘야함!! (#빈 문자열은 받을 수 없음)
+    status, corpus, image = single_search(keyword)
     return jsonify(status, corpus)
-
+@app.route('/manage/test/network')
+def network_ex():
+    #네트워크 예시보여주기
+    return render_template('network.html')
 @app.route('/manage/accounts')
 # 현재 전역변수로 저장된 계정 정보를 보여준다.
 def show_accounts():
