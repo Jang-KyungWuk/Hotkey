@@ -1,3 +1,4 @@
+from flask import g
 from requests import get, post, Session
 from urllib import parse
 import json
@@ -11,7 +12,7 @@ from db import *
 
 # total_acc_info, acc_info, sessions 생성코드 (전역 변수로 활용)
 # total_acc_info를 DB로부터 받아와서 리턴하는 로직
-def gen_total_acc():
+def get_accounts():
     conn, cur = access_db()
     acc_info = []
     cur.execute('select * from accounts')
@@ -30,50 +31,32 @@ def gen_total_acc():
     return acc_info, all_blocked
 
 # 현재 가지고 있는(변화된) total_acc_info를 DB에 업데이트하는 로직
-def to_db_total_acc():
-    global total_acc_info, all_blocked
-
+def set_accounts():
     conn, cur = access_db()
-    all_blocked = True
-    for row in total_acc_info:
+    g.all_blocked = True
+    for row in g.total_acc_info:
         cur.execute('update accounts set blocked=(%s), up_date=(%s) where id=(%s);',
                     (1 if row['blocked'] == True else 0, str(time.strftime('%Y-%m-%d %H:%M:%S')), row['id']))
         if row['blocked'] == False:
-            all_blocked = False
+            g.all_blocked = False
     close_db(conn)
-
-### 매우 중요!!! 초기 할당 코드 (전역변수 할당 코드)
-total_acc_info, all_blocked = gen_total_acc() #all_blocked : 계정이 전부 막혔는지, single_search()에서 활용!! -> 다 막혔으면 서비스가 안됨.
-random.shuffle(total_acc_info) #디버깅 단계에서.. 같은 계정이 계속 사용되는 것 방지
-sessions = [
-    {
-    'session' : Session(),
-    'inuse' : False,
-     'last_time' : 0,
-     'logout': 0,
-     'usage' : 0,
-     'orig_idx' : i#total_acc_info에서의 index
-    } for i in range(len(total_acc_info))
-]
-acc_inuse = list() #사용중인 세션의 account index
-####여기까지 초기 할당
 
 ### all_blocked인 경우에 30분~1시간 정도 주기적으로 로그인 시도(+로그아웃)해보면서 total_acc_info랑 all_blocked수정하기
 # =>  주기적으로 다음 코드 실행
-# 주기적으로 실행할 코드
-def check_avail():
-    global all_blocked
-    for row in total_acc_info:
-        h, session, status = login(row['id'], row['pw'])
-        print(row['id'], row['pw'], status)
-        if status == 0:  # 로그인 성공시
-            row['blocked'] = False
-            all_blocked = False
-        time.sleep(random.randint(2, 10))
-        logout(session)
-        time.sleep(random.randint(7, 10))
 
-    to_db_total_acc()
+# 매뉴얼하게 실행할 코드
+def check_avail():
+    for row in g.total_acc_info:
+        if row['blocked'] == True:
+            h, session, status = login(row['id'], row['pw'])
+            print(row['id'], row['pw'], status)
+            if status == 0:  # 로그인 성공시
+                row['blocked'] = False
+                g.all_blocked = False
+            time.sleep(random.randint(2, 10))
+            logout(session)
+            time.sleep(random.randint(7, 10))
+    set_accounts()
 
 #헤더생성함수 => 1201기준, 서비스전에는 반드시 로직 변경해야함!!
 def gen_header(): #header에 app_id랑 user-agent만 기본적으로 넣어주는 함수
@@ -88,7 +71,6 @@ def login(id, pw):
     # 새로운 헤더, 세션 생성 (새로운 세션 리턴)
     # 헤더, 세션, status를 리턴
     # status = 0 : success , 1 : checkpoint_needed 에러 (수동 인증 필요) 2 : incorrect pw 에러 (임시 차단) 3. CSRF 에러 (IP문제) 4. 그 외
-
     header, session = gen_header(), Session()
 
     resp = session.get('https://www.instagram.com/data/manifest.json', headers=header)
@@ -286,75 +268,31 @@ def hot_key_instagram_recent(query, session, max_page=40):
     print('총 소요시간 : ', datetime.now() - before, '\n')
     return (0, recent_list, timestamp, image_list)
 
-def check_session():  # 1130 코드
-    # 가용가능한 세션을 검사하고 교체해서 해당 세션의 original index를 전달해줌.
-
-    global total_acc_info, sessions, all_blocked, acc_inuse
-
-    if len(acc_inuse) > 0:  # 이미 사용중인 세션이 있다면
-        # 만료 조건 검사 후 교체(할수도 안할수도)
-
-        for s in acc_inuse:  # 사용중인 세션에 대해
-            # 해당 세션 찾기
-            for idx, i in enumerate(sessions):
-                if s['orig_idx'] == i['orig_idx']:
-                    if i['inuse'] == True and (i['usage'] > 2 or int(datetime.now().timestamp()) - i[
-                        'last_time'] > 3600):  # 3600
-                        # 세션 종료(교체) 조건 충족하면 로그아웃 및 세션 종료
-                        logout(i['session'])
-                        i['inuse'] = False
-                        i['logout'] = int(datetime.now().timestamp())
-                        i['usage'] = 0
-                        # acc_inuse에서 삭제
-                        for i, a in enumerate(acc_inuse):
-                            if a['orig_idx'] == s['orig_idx']:
-                                acc_inuse.pop(i)
-                                break
-
-        if len(acc_inuse) < 2:
-            # 다른 세션 로그인
-            sessions.sort(key=lambda x: x['logout'])  # 로그아웃한지 오래된 순으로 정렬
-
-            for s in sessions:
-                if total_acc_info[s['orig_idx']]['blocked'] == False and s['inuse'] == False:  # 막히지 않고, 사용중이지 않은것
-                    header, session, status = login(total_acc_info[s['orig_idx']]['id'],
-                                                    total_acc_info[s['orig_idx']]['pw'])
-                    if status != 0:  # 로그인 실패시
-                        # total_acc_info에서 block으로 처리
-                        total_acc_info[s['orig_idx']]['blocked'] = True
-                    else:
-                        # 새로운 세션 추가.
-                        acc_inuse.append({'session': session, 'orig_idx': s['orig_idx']})
-                        s['session'] = session
-                        s['inuse'] = True
-                        s['last_time'] = int(datetime.now().timestamp())
-                        s['usage'] = 0
-                if len(acc_inuse) >= 2:
-                    break  # 최대 두개까지만 추가
-
-    else:  # 이미 사용중인 세션이 없는경우, 가장 사용한지 오래된 세션부터 로그인
-        # 사용한지 오래된 순으로 sort
-        sessions.sort(key=lambda x: x['last_time'])
-        for s in sessions:
-            if not (total_acc_info[s['orig_idx']]['blocked']):  # 막히지 않은 계정 중에서
-                # 로그인 시도
-                header, session, status = login(total_acc_info[s['orig_idx']]['id'],
-                                                total_acc_info[s['orig_idx']]['pw'])
-                if status != 0:  # 로그인 실패시
-                    # total_acc_info에서 block으로 처리
-                    total_acc_info[s['orig_idx']]['blocked'] = True
-                else:  # 로그인 성공시
-                    s['session'] = session  # 세션 할당
-                    s['inuse'] = True
-                    s['last_time'] = int(datetime.now().timestamp())
-                    s['logout'] = 0
-                    s['usage'] = 0
-                    acc_inuse.append({'session': session, 'orig_idx': s['orig_idx']})
-            if len(acc_inuse) >= 2:  # 최대 두개까지 추가
-                break
-
-    # 세션 교체 끝. 계정 다 막혔는지 체크
-    to_db_total_acc()  # 전체 계정정보 업데이트
+def check_session():  # 1202 수정 코드
+    #로그인함수
+    #가장 사용한지 오래된 세션부터 로그인
+    #사용한지 오래된 순으로 sort
+    g.sessions.sort(key=lambda x: x['last_time'])
+    for s in g.sessions:
+        if not (g.total_acc_info[s['orig_idx']]['blocked']):  # 막히지 않은 계정 중에서
+            # 로그인 시도
+            header, session, status = login(g.total_acc_info[s['orig_idx']]['id'],
+                                            g.total_acc_info[s['orig_idx']]['pw'])
+            if status != 0:  # 로그인 실패시
+                # total_acc_info에서 block으로 처리
+                g.total_acc_info[s['orig_idx']]['blocked'] = True
+            else:  # 로그인 성공시
+                s['session'] = session  # 세션 할당
+                s['inuse'] = True
+                s['last_time'] = int(datetime.now().timestamp())
+                s['logout'] = 0
+                s['usage'] = 0
+                g.acc_inuse.append({'session': session, 'orig_idx': s['orig_idx']})
+        if len(g.acc_inuse) >= 2:  # 최대 두개까지 추가
+            break
+    # 세션 생성 끝
+    # 다 막혓는지 체크하기
+    set_accounts()  # 전체 계정정보 업데이트
     return
 
 #메인) Single_Search Algorithm
@@ -395,25 +333,23 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
 
     ########################DB에 존재하지 않을경우, 크롤링->DB적재->값 반환#####################
 
-    global total_acc_info, sessions, acc_inuse, all_blocked
     delimiter = 'HOTKEY123!@#'
 
     check_session()  # 가용가능한 세션이있는지 확인
-    if all_blocked:  # 전부 막혔으면
+    if g.all_blocked:  # 전부 막혔으면
         print('가용가능한 세션이 없습니다')
         return (False, '', '')
 
     # acc_inuse[0]['session'], acc_inuse[1]['session']이 가용가능한 세션임
     # 세션 두개로 다 시도해봤는데 에러가 뜨면, ㅈㅈ
     # 중간에 오류나는 경우 세션 만료시키고 account block 처리할것.
-    for s in copy.deepcopy(acc_inuse):  # 가용가능한 세션을 돌면서
+    for s in copy.deepcopy(g.acc_inuse):  # 가용가능한 세션을 돌면서
         recent_list, image_list = [], []
-        print('Currently trying with ...', total_acc_info[s['orig_idx']]['id'], total_acc_info[s['orig_idx']]['pw'])
+        print('Currently trying with ...', g.total_acc_info[s['orig_idx']]['id'], g.total_acc_info[s['orig_idx']]['pw'])
         # hot_key_instagram_recent(query, session, max_page=40)
         # return (0, recent_list, timestamp, image_list)
         # status = 0 : success, 1 : 크롤링 중 문제 발생 (CSRF error), code는 200 , 2 : 400error - 계정에 checkpoint 필요
         # 3 : 검열 혹은 페이지 x,  4 : 그 외, 5 : 인스타그램에서 최근 게시물을 제공하지 않는 태그 ( len(recent_list[0]) == 0 )
-        s['session']  # 이미 로그인 되어있음.
         print('Start Crawling... keyword :', keyword)
         status, recent_list, timestamp, image_list = hot_key_instagram_recent(keyword, s['session'])
         # status 상태 따라서 분기. 0이나 3이나 5면 계정문제 x, 1이나 2면 계정문제 o, 4는 그 외.
@@ -439,7 +375,7 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
             cur.execute('insert into images (tid, image) values (%s, %s);', (tid, image[12:]))
             close_db(conn)
             ##session에서 last_time이랑 usage 정보 변경
-            for i in sessions:
+            for i in g.sessions:
                 if i['orig_idx'] == s['orig_idx']:
                     i['last_time'] = int(datetime.now().timestamp())
                     i['usage'] += 1
@@ -452,12 +388,12 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
             # CSRF Error(IP혹은 계정 block 혹은 크롤링 block) or 계정 임시block(checkpoint필요)
 
             # account block됨. => block로직 (total_acc_info에서 block으로 바꾸기, sessions바꾸기, acc_info바꾸기)
-            total_acc_info[s['orig_idx']]['blocked'] = True
+            g.total_acc_info[s['orig_idx']]['blocked'] = True
             to_db_total_acc()  # 디비에 차단 정보 업데이트
 
             # session로그아웃, 세션 정보 변경
             # logout(s['session']) 자동으로 세션이 만료되므로 로그아웃할필요가 없어보임 (status가 1인 경우...)
-            for i in sessions:
+            for i in g.sessions:
                 if i['orig_idx'] == s['orig_idx']:
                     i['inuse'] = False
                     i['logout'] = int(datetime.now().timestamp())
@@ -465,16 +401,16 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
                     break
 
             # acc_inuse에서 삭제
-            for i, a in enumerate(acc_inuse):
+            for i, a in enumerate(g.acc_inuse):
                 if a['orig_idx'] == s['orig_idx']:
-                    acc_inuse.pop(i)
+                    g.acc_inuse.pop(i)
                     break
 
         elif status == 3:
             # 검열 키워드 혹은 페이지 x (404error)
             print('to client : 해당 태그는 인스타그램에서 검색이 제한되어있거나, 결과를 제공하지 않습니다. 다른 키워드를 입력하세요...')
             ##session에서 last_time이랑 usage 정보 변경
-            for i in sessions:
+            for i in g.sessions:
                 if i['orig_idx'] == s['orig_idx']:
                     i['last_time'] = int(datetime.now().timestamp())
                     i['usage'] += 1
@@ -486,7 +422,7 @@ def single_search(keyword):  # 성공여부, corpus랑 image를 반환
             # 인스타그램에서 최근 게시물을 제공하지 않는 태그 ( len(recent_list[0]) == 0 )
             print('to client : 인스타그램에서 최근 게시물을 제공하지 않습니다. 다른 키워드를 입력하세요..')
             ##session에서 last_time이랑 usage 정보 변경
-            for i in sessions:
+            for i in g.sessions:
                 if i['orig_idx'] == s['orig_idx']:
                     i['last_time'] = int(datetime.now().timestamp())
                     i['usage'] += 1
