@@ -1,29 +1,23 @@
-import React, {useState, useEffect} from 'react'
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Start from "./pages/Start.js";
+import SearchInput from "./pages/SearchInput.js";
+import Test from "./pages/Test.js";
 
-function App(){
-  const [data, setData] = useState([{}])
-  useEffect(()=>{
-    fetch("/manage/accounts").then(
-      res => res.json()
-    ).then(
-      data => {
-        setData(data)
-        console.log(data)
-      }
-    )
-  }, [])
-  return(
-<div>
-  {(typeof(data.all_blocked) === 0) ? (
-    <p>Loading...</p>
-  ) : (
-    <p>
-      {/* {data.total_acc_info[0].aid} */}
-      오예 성공,, 이제 데이터를 어떤식으로 받아오고 렌더링해서 보여주는지, javascript의 객체 다루는 법 등.. 공부
-    </p>
-  )}
-</div>
-  )
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route exact path="/" element={<Start />}></Route>
+        {/*키워드 입력하는 페이지*/}
+        <Route exact path="/search_input" element={<SearchInput />}></Route>
+        {/*키워드 입력 후 결과 페이지*/}
+        <Route exact path="/search_result"></Route>
+        {/*테스트용 페이지, 개발 완료 시 삭제 */}
+        <Route exact path="/test" element={<Test />}></Route>
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

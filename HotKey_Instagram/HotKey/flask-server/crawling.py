@@ -29,7 +29,6 @@ def get_accounts():
             all_blocked = False
         acc_info.append(tmp)
     close_db(conn)
-    random.shuffle(acc_info)  # 같은 계정이 계속 사용되는 것 방지
     return acc_info, all_blocked
 
 # 현재 가지고 있는(변화된) total_acc_info를 DB에 업데이트하는 로직
@@ -332,7 +331,10 @@ def single_search(keyword, enforce = False):  # 성공여부, corpus랑 image를
     delimiter = 'HOTKEY123!@#'
 
     check_session()  # 가용가능한 세션이있는지 확인, g.acc_inuse에 가용가능한 세션 정보 들어있음.
-    print('가용중인 세션 :', g.acc_inuse)
+    tmp = list()
+    for i in g.acc_inuse:
+        tmp.append(i['aid'])
+    print('가용중인 세션 (aid) :', tmp)
 
     if g.all_blocked:  # 전부 막혔으면
         print('가용가능한 세션이 없습니다')
