@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const SearchInput = () => {
   const [query, setQuery] = useState("");
+  const navigate = useNavigate();
   return (
     <div>
       <div style={{ height: "700px" }}>
@@ -17,6 +18,12 @@ const SearchInput = () => {
             maxLength="20"
             onChange={(e) => {
               setQuery(e.target.value);
+            }}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                console.log("엔터입력됨");
+                navigate("/search_result", { state: { keyword: query } });
+              }
             }}
             style={styles.input}
           ></input>
@@ -31,8 +38,6 @@ const SearchInput = () => {
             </button>
           ) : (
             <Link to="/search_result" state={{ keyword: query }}>
-              {" "}
-              {/*아오,, searchresult 컴포넌트로 안넘어가네..*/}
               <button
                 style={styles.button}
                 onClick={() => {
@@ -73,6 +78,7 @@ const styles = {
   },
   button: {
     backgroundColor: "ivory",
+    cursor: "pointer",
     height: 60,
     width: 90,
     fontSize: 30,
