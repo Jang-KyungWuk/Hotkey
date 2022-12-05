@@ -25,6 +25,7 @@ def get_accounts():
         tmp['blocked'] = True if row['blocked'] == 1 else False
         tmp['up_date'] = row['up_date'] #datetime 형식
         tmp['last_used'] = row['last_used'] #timestamp 형식
+        tmp['in_use'] = True if row['in_use'] == 1 else False #현재 타 쓰레드에서 사용중인지 여부
         if not tmp['blocked']:  # 하나라도 차단되지 않았다면
             all_blocked = False
         acc_info.append(tmp)
@@ -36,8 +37,8 @@ def set_accounts():
     conn, cur = access_db()
     g.all_blocked = True
     for row in g.total_acc_info:
-        cur.execute('update accounts set blocked=(%s), up_date=(%s), last_used=(%s) where id=(%s);',
-                    (1 if row['blocked'] == True else 0, str(time.strftime('%Y-%m-%d %H:%M:%S')), row['last_used'],row['id']))
+        cur.execute('update accounts set blocked=(%s), up_date=(%s), last_used=(%s), in_use=(%s) where id=(%s);',
+                    (1 if row['blocked'] == True else 0, str(time.strftime('%Y-%m-%d %H:%M:%S')), row['last_used'],1 if row['in_use'] == True else 0,row['id']))
         if row['blocked'] == False:
             g.all_blocked = False
     close_db(conn)
@@ -277,18 +278,19 @@ def check_session():  # 1202 수정 코드
     g.mapping = dict()
     for idx,acc in enumerate(g.total_acc_info):
         g.mapping[acc['aid']] = idx
-        if not(acc['blocked']): #막히지 않은 계정 중에서
-            header, session, status = login(acc['id'], acc['pw'])
+        if not(acc['blocked']) and not(acc['in_use']): #막히지 않고 사용중이지 않은 계정 중에서
+            h, session, status = login(acc['id'], acc['pw'])
             if status != 0: #로그인 실패시
                 acc['blocked'] = True
             else: #로그인 성공시 세션할당
                 g.acc_inuse.append({'session' : session, 'aid' : acc['aid']})
                 acc['last_used'] = int(datetime.now().timestamp())
+                acc['in_use'] = True
         if len(g.acc_inuse) >= 2:  # 최대 두개까지 추가
             break
     # 세션 생성 끝
     #print('g.mapping :', g.mapping)
-    set_accounts()  # 전체 계정정보 업데이트 + 다 막혓는지 체크하기 (all_blocked 업데이트)
+    set_accounts()  # 전체 계정정보 업데이트 + 사용중여부 업데이트하기 + (all_blocked 업데이트)
     return
 
 #메인) Single_Search Algorithm
@@ -331,15 +333,21 @@ def single_search(keyword, enforce = False):  # 성공여부, corpus랑 image를
     delimiter = 'HOTKEY123!@#'
 
     check_session()  # 가용가능한 세션이있는지 확인, g.acc_inuse에 가용가능한 세션 정보 들어있음.
+    
+    if g.all_blocked:  # 전부 막혔으면
+        print('All accounts are blocked by instagram.. please try "check_session" manually later..')
+        return (False, '', '')
+    
+    if len(g.acc_inuse) == 0 :
+        print('No sessions available..')
+        return (False, '', '')
+    
+    print('세션 생성 완료')
     tmp = list()
     for i in g.acc_inuse:
         tmp.append(i['aid'])
     print('가용중인 세션 (aid) :', tmp)
-
-    if g.all_blocked:  # 전부 막혔으면
-        print('가용가능한 세션이 없습니다')
-        return (False, '', '')
-
+    
     # 세션 두개로 다 시도해봤는데 에러가 뜨면, ㅈㅈ
     # 중간에 오류나는 경우 세션 만료시키고 account block 처리할것.
 
@@ -407,6 +415,7 @@ def single_search(keyword, enforce = False):  # 성공여부, corpus랑 image를
             # CSRF Error(IP혹은 계정 block 혹은 크롤링 block) or 계정 임시block(checkpoint필요)
             # account block됨. => block로직 (total_acc_info에서 block으로 바꾸기)
             g.total_acc_info[map[s['aid']]]['blocked'] = True
+            g.total_acc_info[map[s['aid']]]['in_use'] = False
             # 디비에 차단 정보 업데이트
 
             # session로그아웃, 세션 정보 변경

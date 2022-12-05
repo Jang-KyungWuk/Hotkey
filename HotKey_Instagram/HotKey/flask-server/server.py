@@ -19,6 +19,7 @@ def after_search():
     print('after_search : 가용중 세션 로그아웃 및 DB 업로드')
     for s in g.acc_inuse:
         logout(s['session'])
+        g.total_acc_info[g.mapping[s['aid']]]['in_use'] = False
     set_accounts()
     print('all_blocked :', g.all_blocked)
 
