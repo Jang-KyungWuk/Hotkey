@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
 import Footer from "../components/Footer";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const SearchInput = () => {
   const [query, setQuery] = useState("");
@@ -21,7 +21,6 @@ const SearchInput = () => {
             }}
             onKeyPress={(e) => {
               if (e.key === "Enter") {
-                console.log("엔터입력됨");
                 navigate("/search_result", { state: { keyword: query } });
               }
             }}
@@ -37,16 +36,15 @@ const SearchInput = () => {
               검색
             </button>
           ) : (
-            <Link to="/search_result" state={{ keyword: query }}>
-              <button
-                style={styles.button}
-                onClick={() => {
-                  console.log("검색결과 페이지로 이동");
-                }}
-              >
-                검색
-              </button>
-            </Link>
+            <button
+              style={styles.button}
+              onClick={() => {
+                console.log("검색결과 페이지로 이동");
+                navigate("/search_result", { state: { keyword: query } });
+              }}
+            >
+              검색
+            </button>
           )}
           <h1 style={{ textAlign: "center" }}>
             검색칸 밑에서 트렌드키워드 추천!{"\n"}trend1, trend2, trend3, ...
