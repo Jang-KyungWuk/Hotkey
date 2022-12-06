@@ -1,0 +1,341 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+                <link href="lib/tom-select/tom-select.css" rel="stylesheet">
+                <script src="lib/tom-select/tom-select.complete.min.js"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 1000px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+             #config {
+                 float: left;
+                 width: 400px;
+                 height: 600px;
+             }
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+              <div id="filter-menu" class="card-header">
+                <div class="row no-gutters">
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'item')"
+                            id="select-item"
+                        >
+                        <option value="">Select a network item</option>
+                        <option value="edge">edge</option>
+                        <option value="node">node</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            onchange="updateFilter(value, 'property')"
+                            id="select-property"
+                        >
+                        <option value="">Select a property...</option>
+                    </select>
+                  </div>
+                  <div class="col-3 pb-2">
+                    <select
+                            class="form-select"
+                            aria-label="Default select example"
+                            id="select-value"
+                        >
+                        <option value="">Select value(s)...</option>
+                    </select>
+                  </div>
+                  <div class="col-1 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="highlightFilter(filter);">Filter</button>
+                  </div>
+                  <div class="col-2 pb-2">
+                    <button type="button" class="btn btn-primary btn-block" onclick="clearFilter(true)">Reset Selection</button>
+                  </div>
+                </div>
+              </div>
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+            <div id="config"></div>
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+                  // explicitly using onItemAdd and this function as we need to save multiple values
+                  let updateValueFilter = function() {
+                      return function () {
+                      filter['value'].push(arguments[0])
+                      }
+                  }
+
+                  let valueControl = new TomSelect("#select-value",{
+                      maxItems: null,
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: updateValueFilter()
+                  });
+
+                  let addValues = function() {
+                      return function () {
+                          // clear the current value options and add the selected attribute values
+                          // tom-select handles duplicates
+                          let selectedProperty = arguments[0];
+                          valueControl.clear();
+                          valueControl.clearOptions();
+                          filter['value'] = []
+                          if (filter['item'] === 'node') {
+                              for (let each in allNodes) {
+                                  valueControl.addOption({
+                                      id:allNodes[each][selectedProperty],
+                                      title:allNodes[each][selectedProperty]
+                                  })
+                              }
+                          }
+                          else if (filter['item'] === 'edge') {
+                              for (let each in allEdges) {
+                                  valueControl.addOption({
+                                      id:allEdges[each][selectedProperty],
+                                      title:allEdges[each][selectedProperty]
+                                  })
+                              }
+                          }
+                      }
+                  };
+
+                  let propControl = new TomSelect("#select-property",{
+                      valueField: 'id',
+                      labelField: 'title',
+                      searchField: 'title',
+                      create: false,
+                      sortField: {
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addValues()
+                  });
+
+                  let addProperties = function() {
+                      return function () {
+                          // loops through the selected network item and adds the attributes to dropdown
+                          // tom-select handles duplicates
+                          clearFilter(false)
+                          if (arguments[0] === 'edge') {
+                              for (let each in allEdges) {
+                                  if (allEdges.hasOwnProperty(each)) {
+                                      for (let eachProp in allEdges[each]) {
+                                          if (allEdges[each].hasOwnProperty(eachProp)) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                          else if (arguments[0] === 'node') {
+                              for (let each in allNodes) {
+                                  if (allNodes.hasOwnProperty(each)) {
+                                      for (let eachProp in allNodes[each]) {
+                                          if (allNodes[each].hasOwnProperty(eachProp)
+                                              && (eachProp !== 'hidden' && eachProp !== 'savedLabel'
+                                                  && eachProp !== 'hiddenLabel')) {
+                                              propControl.addOption({id: eachProp, title: eachProp})
+
+                                          }
+                                      }
+                                  }
+                              }
+                          }
+                      }
+                  };
+
+                  let itemControl = new TomSelect("#select-item",{
+                      create: false,
+                      sortField:{
+                          field: "text",
+                          direction: "asc"
+                      },
+                      onItemAdd: addProperties()
+                  });
+
+                  function clearFilter(reset) {
+                      // utility function to clear all the selected filter options
+                      // if reset is set to true, the existing filter will be removed
+                      // else, only the dropdown options are cleared
+                      propControl.clear();
+                      propControl.clearOptions();
+                      valueControl.clear();
+                      valueControl.clearOptions();
+                      filter = {
+                          item : '',
+                          property : '',
+                          value : []
+                      }
+                      if (reset) {
+                          itemControl.clear();
+                          filterHighlight({nodes: []})
+                      }
+                  }
+
+                  function updateFilter(value, key) {
+                      // key could be 'item' or 'property' and value is as selected in dropdown
+                      filter[key] = value
+                  }
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc6d0\ub354", "label": "\uc6d0\ub354", "shape": "diamond", "size": 20}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc720\ud29c\ube0c", "label": "\uc720\ud29c\ube0c", "shape": "diamond", "size": 20}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "label": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "shape": "diamond", "size": 20}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc724\ub3c4\ud604", "label": "\uc724\ub3c4\ud604", "shape": "diamond", "size": 30}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ub313\uae00", "label": "\ub313\uae00", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ub124\uc774\ubc84", "label": "\ub124\uc774\ubc84", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc5d0\uc5b4\ud31f", "label": "\uc5d0\uc5b4\ud31f", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc720\ud68c\uc2b9", "label": "\uc720\ud68c\uc2b9", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc720\ud68c", "label": "\uc720\ud68c", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc778\uc2a4\ud0c0\uadf8\ub7a8", "label": "\uc778\uc2a4\ud0c0\uadf8\ub7a8", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc544\ub9ac\ub791", "label": "\uc544\ub9ac\ub791", "shape": "triangle", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc544\uc911", "label": "\uc544\uc911", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc190\uc218\uacbd", "label": "\uc190\uc218\uacbd", "shape": "diamond", "size": 20}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ub300\ud55c\ubbfc\uad6d", "label": "\ub300\ud55c\ubbfc\uad6d", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc815\uc740\uc9c0", "label": "\uc815\uc740\uc9c0", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc601\uc0c1", "label": "\uc601\uc0c1", "shape": "triangle", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ub9c1\ud06c", "label": "\ub9c1\ud06c", "shape": "triangle", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uacf5\uc720\ub9c8\ub2f9", "label": "\uacf5\uc720\ub9c8\ub2f9", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc7a5\ub798\ud76c\ub9dd", "label": "\uc7a5\ub798\ud76c\ub9dd", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ud140\ube14\ub7ec", "label": "\ud140\ube14\ub7ec", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uae40\uc815\uc77c", "label": "\uae40\uc815\uc77c", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ud6a8\uc11d", "label": "\ud6a8\uc11d", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc190\uc2b9\uc5f0", "label": "\uc190\uc2b9\uc5f0", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc720\uc131\uc740", "label": "\uc720\uc131\uc740", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc6b0\ud61c\ubbf8", "label": "\uc6b0\ud61c\ubbf8", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc9c0\uc138\ud76c", "label": "\uc9c0\uc138\ud76c", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ud06c\ub85c\uc2a4\uc624\ubc84", "label": "\ud06c\ub85c\uc2a4\uc624\ubc84", "shape": "triangle", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uce74\ud0c0\ub974", "label": "\uce74\ud0c0\ub974", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc0c1\ub0a8\uc790", "label": "\uc0c1\ub0a8\uc790", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ub3d9\uc6d0", "label": "\ub3d9\uc6d0", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uacf5\uc8fc", "label": "\uacf5\uc8fc", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ubc18\uc904", "label": "\ubc18\uc904", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc6b8\uc0b0", "label": "\uc6b8\uc0b0", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc6b8\uc0b0\uc2dc", "label": "\uc6b8\uc0b0\uc2dc", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uc911\uad6c", "label": "\uc911\uad6c", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ubc0d\uc9c0\uc158", "label": "\ubc0d\uc9c0\uc158", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uba4d\ud0a4\ud5e4\ub4dc", "label": "\uba4d\ud0a4\ud5e4\ub4dc", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ubc15\uc900\ud615", "label": "\ubc15\uc900\ud615", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ucda9\ub0a8", "label": "\ucda9\ub0a8", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\ucda9\uccad\ub0a8\ub3c4", "label": "\ucda9\uccad\ub0a8\ub3c4", "shape": "diamond", "size": 10}, {"color": "#97c2fc", "font": {"color": "white"}, "id": "\uacf5\uc8fc\uc2dc", "label": "\uacf5\uc8fc\uc2dc", "shape": "diamond", "size": 10}]);
+                  edges = new vis.DataSet([{"from": "\uc6d0\ub354", "to": "\uc720\ud29c\ube0c", "width": 5.0}, {"from": "\uc6d0\ub354", "to": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "width": 4.3312101910828025}, {"from": "\uc6d0\ub354", "to": "\uc724\ub3c4\ud604", "width": 2.9936305732484074}, {"from": "\uc6d0\ub354", "to": "\ub313\uae00", "width": 2.71656050955414}, {"from": "\uc6d0\ub354", "to": "\ub124\uc774\ubc84", "width": 2.4203821656050954}, {"from": "\uc6d0\ub354", "to": "\uc5d0\uc5b4\ud31f", "width": 2.3248407643312103}, {"from": "\uc6d0\ub354", "to": "\uc720\ud68c\uc2b9", "width": 2.229299363057325}, {"from": "\uc6d0\ub354", "to": "\uc720\ud68c", "width": 2.038216560509554}, {"from": "\uc720\ud29c\ube0c", "to": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "width": 4.3312101910828025}, {"from": "\uc720\ud29c\ube0c", "to": "\ub313\uae00", "width": 2.71656050955414}, {"from": "\uc720\ud29c\ube0c", "to": "\uc5d0\uc5b4\ud31f", "width": 2.3248407643312103}, {"from": "\uc720\ud29c\ube0c", "to": "\ub124\uc774\ubc84", "width": 2.2770700636942673}, {"from": "\uc720\ud29c\ube0c", "to": "\uc720\ud68c\uc2b9", "width": 2.229299363057325}, {"from": "\uc720\ud29c\ube0c", "to": "\uc720\ud68c", "width": 2.038216560509554}, {"from": "\uc720\ud29c\ube0c", "to": "\uc724\ub3c4\ud604", "width": 3.2802547770700636}, {"from": "\uc724\ub3c4\ud604", "to": "\uc778\uc2a4\ud0c0\uadf8\ub7a8", "width": 2.0859872611464967}, {"from": "\uc724\ub3c4\ud604", "to": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "width": 3.089171974522293}, {"from": "\uc724\ub3c4\ud604", "to": "\uc544\ub9ac\ub791", "width": 2.4299363057324843}, {"from": "\uc724\ub3c4\ud604", "to": "\uc544\uc911", "width": 2.4203821656050954}, {"from": "\uc724\ub3c4\ud604", "to": "\uc190\uc218\uacbd", "width": 2.3248407643312103}, {"from": "\uc724\ub3c4\ud604", "to": "\ub300\ud55c\ubbfc\uad6d", "width": 2.229299363057325}, {"from": "\uc724\ub3c4\ud604", "to": "\ub124\uc774\ubc84", "width": 2.0859872611464967}, {"from": "\uc724\ub3c4\ud604", "to": "\uc815\uc740\uc9c0", "width": 2.038216560509554}, {"from": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "to": "\uc720\ud68c\uc2b9", "width": 2.3248407643312103}, {"from": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "to": "\uc720\ud68c", "width": 2.229299363057325}, {"from": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "to": "\uc5d0\uc5b4\ud31f", "width": 2.229299363057325}, {"from": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "to": "\uc601\uc0c1", "width": 2.0}, {"from": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "to": "\ub9c1\ud06c", "width": 2.0}, {"from": "\ud55c\uad6d\uad00\uad11\uacf5\uc0ac", "to": "\ub313\uae00", "width": 2.343949044585987}, {"from": "\uc544\ub9ac\ub791", "to": "\ub300\ud55c\ubbfc\uad6d", "width": 2.81687898089172}, {"from": "\uc544\ub9ac\ub791", "to": "\uacf5\uc720\ub9c8\ub2f9", "width": 2.0429936305732483}, {"from": "\uc544\uc911", "to": "\uc7a5\ub798\ud76c\ub9dd", "width": 2.038216560509554}, {"from": "\uc544\uc911", "to": "\ud140\ube14\ub7ec", "width": 2.038216560509554}, {"from": "\uc544\uc911", "to": "\uae40\uc815\uc77c", "width": 2.038216560509554}, {"from": "\uc190\uc218\uacbd", "to": "\ud6a8\uc11d", "width": 2.3248407643312103}, {"from": "\uc190\uc218\uacbd", "to": "\uc190\uc2b9\uc5f0", "width": 2.3248407643312103}, {"from": "\uc190\uc218\uacbd", "to": "\uc720\uc131\uc740", "width": 2.3248407643312103}, {"from": "\uc190\uc218\uacbd", "to": "\uc6b0\ud61c\ubbf8", "width": 2.3248407643312103}, {"from": "\uc190\uc218\uacbd", "to": "\uc9c0\uc138\ud76c", "width": 2.3248407643312103}, {"from": "\uc190\uc218\uacbd", "to": "\ud06c\ub85c\uc2a4\uc624\ubc84", "width": 2.0573248407643314}, {"from": "\ub300\ud55c\ubbfc\uad6d", "to": "\uce74\ud0c0\ub974", "width": 2.038216560509554}, {"from": "\uc0c1\ub0a8\uc790", "to": "\ub3d9\uc6d0", "width": 2.0859872611464967}, {"from": "\uacf5\uc8fc", "to": "\ubc18\uc904", "width": 2.0764331210191083}, {"from": "\uc6b8\uc0b0", "to": "\uc6b8\uc0b0\uc2dc", "width": 2.038216560509554}, {"from": "\uc6b8\uc0b0", "to": "\uc911\uad6c", "width": 2.038216560509554}, {"from": "\uc815\uc740\uc9c0", "to": "\ubc0d\uc9c0\uc158", "width": 2.038216560509554}, {"from": "\uba4d\ud0a4\ud5e4\ub4dc", "to": "\ubc15\uc900\ud615", "width": 2.038216560509554}, {"from": "\ucda9\ub0a8", "to": "\ubc18\uc904", "width": 2.038216560509554}, {"from": "\ucda9\uccad\ub0a8\ub3c4", "to": "\ubc18\uc904", "width": 2.038216560509554}, {"from": "\uacf5\uc8fc\uc2dc", "to": "\ubc18\uc904", "width": 2.038216560509554}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": true,
+        "filter": [
+            "physics"
+        ]
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+                  // if this network requires displaying the configure window,
+                  // put it in its div
+                  options.configure["container"] = document.getElementById("config");
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>
