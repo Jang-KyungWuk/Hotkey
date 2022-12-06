@@ -45,8 +45,8 @@ const SearchResult = () => {
     //여기서 로딩중/ 검색결과로 나누기!!
     return (
       <div>
-        <div>
-          <Header />
+        <Header />
+        <div style={{ height: "1500px" }}>
           <h1 style={{ textAlign: "center" }}>검색결과 여기서 구현...</h1>
           <h6>{result}</h6>
         </div>

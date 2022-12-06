@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
+import Header from "../components/Header";
 import Footer from "../components/Footer";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
 import styled from "styled-components";
-import search_insert from "../images/search_insert.jpg";
+import loading from "../images/loading.jpg";
 
 const Test2 = () => {
   //레이아웃 테스트용
   return (
     <div>
+      <Header></Header>
       <Wrapper></Wrapper>
       <Footer></Footer>
     </div>
@@ -17,9 +19,10 @@ const Test2 = () => {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 95vh;
+  height: 2000px; //수정하기
   width: 100vw;
   align-items: center;
+  background-color: ivory;
 `;
 //로고 들어갈거
 const Div1 = styled.div`
