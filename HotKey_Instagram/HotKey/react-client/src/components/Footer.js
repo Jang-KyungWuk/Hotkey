@@ -1,22 +1,14 @@
 import React from "react";
-
+import styled from "styled-components";
 const Footer = () => {
-  return (
-    <div
-      style={{
-        backgroundColor: "beige",
-        height: "150px",
-        width: "100%",
-        borderTop: "2px solid teal",
-        textAlign: "center",
-        // 수직정렬하는법 ㅠㅠ
-      }}
-    >
-      <h1 style={{ textAlign: "center", lineHeight: "100px" }}>
-        Footer입니다. 구현 예정...
-      </h1>
-    </div>
-  );
+  return <Foot></Foot>;
 };
+
+const Foot = styled.div`
+  display: flex;
+  height: 100px;
+  width: 100vw;
+  border-top: 2px solid;
+`;
 
 export default Footer;
