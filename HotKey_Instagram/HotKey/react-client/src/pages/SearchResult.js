@@ -14,11 +14,16 @@ const SearchResult = () => {
   const keyword = location.state?.keyword;
   const [result, setResult] = useState("");
 
+  const [loading, setLoading] = useState(true); //로딩중인경우 true
+  const [lstate, setLstate] = useState(0); //로딩중 단계 => lstate가 2에서 다 끝나면 setLoading(false) & setLstate(0)
+  //분기 : keyword가 존재하는 경우 => loading이 있는가? -> lstate에 따라 분기. (3항 연산자 중첩 사용하거나? 어떻게 할지 생각..ㅇㅇ 최대한 state안꼬이게)
+
   console.log("keyword : " + keyword);
   //keyword와 enforce에 맞게 적절하게 실행
 
   useEffect(() => {
     if (keyword) {
+      //여기서 fetch 실행 (keyword가 전달된 경우)
       // fetch("/manage/test/keyword_search/" + keyword) //without enforcing... for test
       // .then((res) => res.json())
       // .then((data) => {

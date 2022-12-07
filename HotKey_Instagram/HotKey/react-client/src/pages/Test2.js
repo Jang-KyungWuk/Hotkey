@@ -18,6 +18,7 @@ const Test2 = () => {
   */
   useEffect(() => {
     console.log("useEffect시작");
+
     setTimeout(() => {
       console.log("아오1");
       setLstate(1);
@@ -28,8 +29,8 @@ const Test2 = () => {
           console.log("아오3");
           setLstate(0);
         }, 1000);
-      }, 1000);
-    }, 1000);
+      }, 2000);
+    }, 3000);
   }, []);
   if (lstate === 0)
     return (
