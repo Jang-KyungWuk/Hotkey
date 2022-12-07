@@ -1,7 +1,8 @@
 from flask import Flask, jsonify, request, g, render_template
 # customized modules import (사용 라이브러리들 포함)
-# from db import *
-from crawling import *  # db 모듈 포함
+from crawling import *
+from db import *
+from analyze import *
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False  # 한글 깨짐 방지 (jsonify 사용시)
@@ -39,35 +40,42 @@ def trend_client():
     trendlist = trend_crawler_client()
     return jsonify(trendlist)
 
-# 실제 검색 -> 크롤링 -> 분석 -> 결과보여주는 API구현할때 무조건 before_search, after_search실행시켜줘야함!! + showaccount, checkavail, keywordsearch(test)
 
-# ---------------------------관리/테스트용 API-------------------------------
-
-
-@app.route('/manage/test/keyword_search/<keyword>')
+@app.route('/keyword_search/<keyword>')
 def keyword_search(keyword):
-    # 한 글자 이상 입력하라고 client 단에서 예외처리해줘야함!! (#빈 문자열은 받을 수 없음)
-
+    # (true, tid), (false, tid)만 반환
+    # 대소문자 구분, 띄어쓰기 예외처리해야함!!!
     # 실행전 before_search
     before_search()
     print('keyword_search 실행, enforce = False')
-    status, corpus, image = single_search(keyword)
+    status, tid = single_search(keyword)
     # 실행 후 after_search
     after_search()
-    return jsonify(status, corpus)
+    time.sleep(2)  # DB에서 온 경우, 지나치게 빨리 return되는것을 방지 ㅠ
+    return jsonify({'status': status, 'tid': tid})
+
+
+@app.route('/analyze/<tid>')
+def analyze(tid):
+    # tid를 받아서 분석 후 결과를 jsonify해서 프론트로전달 (이미지의 경우, 경로를 react-client안에 넣어두기?)
+    print("analyze API 실행")
+    time.sleep(3)  # 임시 sleep => 코드 수정시 삭제
+    return jsonify({'status': True, 'result': {}})  # 임시 요청응답 ㅇㅇ
+
+# 실제 검색 -> 크롤링 -> 분석 -> 결과보여주는 API구현할때 무조건 before_search, after_search실행시켜줘야함!! + showaccount, checkavail, keywordsearch(test)
+# ---------------------------관리/테스트용 API-------------------------------
 
 
 @app.route('/manage/test/keyword_search/enforce/<keyword>')
 def keyword_search2(keyword):
-    # 한 글자 이상 입력하라고 client 단에서 예외처리해줘야함!! (#빈 문자열은 받을 수 없음)
-
+    # 대소문자 구분, 띄어쓰기 예외처리해야함!!!
     # 실행전 before_search
     before_search()
     print('keyword_search 실행, enforce = True')
-    status, corpus, image = single_search(keyword, True)
+    status, tid = single_search(keyword, True)
     # 실행 후 after_search
     after_search()
-    return jsonify(status, corpus)
+    return jsonify({'status': status, 'tid': tid})
 
 # 네트워크 불러오기
 
@@ -112,9 +120,8 @@ def checkavail():
     # after_search실행
     after_search()
     return 'check_avail()실행 후 DB 반영 완료'
-# 테스트좀
 
 
 # ---------------------------------------------------------------------
 if __name__ == '__main__':
-    app.run(debug=False)  # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..
+    app.run(debug=True)  # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..

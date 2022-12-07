@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import HotKey_Logo from "../images/HotKey_Logo.jpg";
+import Header_Logo from "../images/Header_Logo.jpg";
+import Logo2 from "../images/Logo2.png";
 import { useNavigate } from "react-router-dom";
 const Header = ({ loading }) => {
   //loading => 분석결과페이지가 로딩중... (loading == True)
@@ -11,7 +12,7 @@ const Header = ({ loading }) => {
     <Headerdiv>
       <Logodiv>
         <Logo
-          src={HotKey_Logo}
+          src={Header_Logo}
           onClick={() => {
             if (loading) {
               var confirmed = window.confirm(
@@ -60,6 +61,14 @@ const Header = ({ loading }) => {
           >
             SEARCH
           </Button>
+          <Logodiv2>
+            <Logoimg2
+              src={Logo2}
+              onClick={() => {
+                navigate("/info");
+              }}
+            ></Logoimg2>
+          </Logodiv2>
         </Div2>
       </Searchdiv>
     </Headerdiv>
@@ -73,44 +82,56 @@ const Headerdiv = styled.div`
   position: fixed;
   top: 0px;
   left: 2px;
-  background-color: white;
 `;
 const Logodiv = styled.div`
   display: flex;
   height: 100%;
-  width: 30%;
+  width: 17%;
   align-items: center;
 `;
 const Logo = styled.img`
   margin-top: 2%;
-  margin-left: 20%;
+  margin-left: 15%;
   display: block;
-  height: 80%;
+  height: 3.7vw;
   cursor: pointer;
 `;
 const Searchdiv = styled.div`
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
+  justify-content: center;
+  align-items: flex-end;
   height: 100%;
-  width: 70%;
-`;
-const Div2 = styled.div`
-  margin-right: 10%;
-  display: flex;
   width: 80%;
+`;
+const Logodiv2 = styled.div`
+  margin-left: 3%;
+  display: flex;
+  height: 100%;
+  width: 20%;
+  align-items: center;
+  justify-content: center;
+`;
+const Logoimg2 = styled.img`
+  display: block;
+  height: 3vw;
+  cursor: pointer;
+`;
+//searchbox를 감싸는 div
+const Div2 = styled.div`
+  display: flex;
+  width: 100%;
   height: 80%;
-  justify-content: space-around;
   align-items: center;
   background-color: #d94925;
   border-radius: 20px;
 `;
 //input이 들어갈 Div
 const Inputdiv = styled.div`
+  margin-left: 3%;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 70%;
+  width: 55%;
   height: 65%;
   border-radius: 30px;
   border: 0px solid;
@@ -130,9 +151,10 @@ const Input = styled.input`
 `;
 //검색button 박스
 const Button = styled.button`
+  margin-left: 3%;
   cursor: pointer;
   background-color: black;
-  width: 17%;
+  width: 13%;
   height: 65%;
   border-width: 1px;
   border-radius: 30px;

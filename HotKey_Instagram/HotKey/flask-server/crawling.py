@@ -322,12 +322,12 @@ def check_session():  # 1202 수정 코드
 # 메인) Single_Search Algorithm
 
 
-def single_search(keyword, enforce=False):  # 성공여부, corpus랑 image를 반환
+# 성공여부와 tid를 반환. ex) (True, 1) 혹은 (False, -1) => 없는 경우 tid는 -1이다.
+def single_search(keyword, enforce=False):
     # enforce => DB에 있어도 강제 크롤링 (최신화)
-    # return T/F, corpus, image
     if len(keyword) == 0:
         print("to client: 한 글자 이상의 키워드를 입력하세요..")
-        return (False, '', '')
+        return (False, -1)
     ############################# DB존재여부 확인##########################################
     # db연결
     conn, cur = access_db()
@@ -356,7 +356,7 @@ def single_search(keyword, enforce=False):  # 성공여부, corpus랑 image를 �
         cur.execute('select image from images where tid = (%s)', (tid))
         image = cur.fetchall()[0]['image']
         conn.close()
-        return (True, corpus, image)
+        return (True, tid)
 
     ######################## DB에 존재하지 않을경우, 크롤링->DB적재->값 반환#####################
     delimiter = 'HOTKEY123!@#'
@@ -364,12 +364,12 @@ def single_search(keyword, enforce=False):  # 성공여부, corpus랑 image를 �
     check_session()  # 가용가능한 세션이있는지 확인, g.acc_inuse에 가용가능한 세션 정보 들어있음.
 
     if g.all_blocked:  # 전부 막혔으면
-        print('All accounts are blocked by instagram.. please try "check_session" manually later..')
-        return (False, '', '')
+        print('All accounts are blocked by instagram.. please try "check_avail" manually later..')
+        return (False, -1)
 
     if len(g.acc_inuse) == 0:
         print('No sessions available..')
-        return (False, '', '')
+        return (False, -1)
 
     print('세션 생성 완료')
     tmp = list()
@@ -435,6 +435,8 @@ def single_search(keyword, enforce=False):  # 성공여부, corpus랑 image를 �
                 # images 업데이트
                 cur.execute(
                     'update images set image=(%s) where tid=(%s)', (image[12:], tid))
+                close_db(conn)
+                return (True, tid)
             else:  # DB에 없으면 enforce여부에 관계없이
                 cur.execute('insert into is_tag (tname) values (%s);', keyword)
                 cur.execute(
@@ -449,9 +451,8 @@ def single_search(keyword, enforce=False):  # 성공여부, corpus랑 image를 �
                 # images에 저장
                 cur.execute(
                     'insert into images (tid, image) values (%s, %s);', (tid, image[12:]))
-            close_db(conn)
-            ############ (corpus, image들 전달)#############
-            return (True, corpus[12:], image[12:])
+                close_db(conn)
+                return (True, tid)
 
         elif 1 <= status <= 2:
             # CSRF Error(IP혹은 계정 block 혹은 크롤링 block) or 계정 임시block(checkpoint필요)
@@ -473,13 +474,13 @@ def single_search(keyword, enforce=False):  # 성공여부, corpus랑 image를 �
             print(
                 'to client : 해당 태그는 인스타그램에서 검색이 제한되어있거나, 결과를 제공하지 않습니다. 다른 키워드를 입력하세요...')
             close_db(conn)
-            return (False, '', '')
+            return (False, -1)
 
         elif status == 5:
             # 인스타그램에서 최근 게시물을 제공하지 않는 태그 ( len(recent_list[0]) == 0 )
             print('to client : 인스타그램에서 최근 게시물을 제공하지 않습니다. 다른 키워드를 입력하세요..')
             close_db(conn)
-            return (False, '', '')
+            return (False, -1)
 
         else:  # status가 4인경우
             # 그 외 알수없는 에러
@@ -491,7 +492,7 @@ def single_search(keyword, enforce=False):  # 성공여부, corpus랑 image를 �
     # 여기까지 왔으면, 가용가능한 세션을 다 썼지만 결과 도출이 되지않았음.
     print('to client : 현재 서비스가 원활하지 않습니다. 나중에 다시 시도하세요..')
     close_db(conn)
-    return (False, '', '')
+    return (False, -1)
 
 
 # 클라이언트에게 페이지 띄울때 필요

@@ -5,6 +5,7 @@ import SearchInput from "./pages/SearchInput.js";
 import SearchResult from "./pages/SearchResult.js";
 import Test from "./pages/Test.js";
 import Test2 from "./pages/Test2.js";
+import Info from "./pages/Info.js";
 
 function App() {
   return (
@@ -15,6 +16,8 @@ function App() {
         <Route exact path="/search" element={<SearchInput />}></Route>
         {/*키워드 입력 후 결과 페이지*/}
         <Route exact path="/search_result" element={<SearchResult />}></Route>
+        {/*핫키 사용법 클릭시 이동*/}
+        <Route exact path="/info" element={<Info />}></Route>
         {/*테스트용 페이지, 개발 완료 시 삭제 */}
         <Route exact path="/test" element={<Test />}></Route>
         {/*테스트용 페이지, 개발 완료 시 삭제 */}

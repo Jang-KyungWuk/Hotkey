@@ -33,22 +33,23 @@ const Load11 = styled.div`
   height: 100%;
   width: 60%;
   align-items: center;
+  justify-content: center;
 `;
 //loading div1-1-1 => Load11내부에서 Pacman이 들어갈 div
 const Load111 = styled.div`
   display: flex;
-  width: 20%;
   height: 100%;
   align-items: center;
   justify-content: center;
 `;
-//loading div1-1-2 => Load12내부에서 Text가 들어갈 div
+//loading div1-1-2 => Load12내부에서 Text Img가 들어갈 div
 const Load112 = styled.div`
   display: flex;
-  margin-left: 15%;
+  margin-left: 10%;
   width: 65%;
   height: 100%;
   align-items: center;
+  justify-content: center;
 `;
 //로딩 중 텍스트 이미지
 const Img = styled.img`

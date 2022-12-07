@@ -28,7 +28,6 @@ const SearchInput = () => {
       state: { keyword: word },
     });
   };
-
   return (
     <div>
       <Wrapper>
@@ -88,61 +87,119 @@ const SearchInput = () => {
             </Button>
           </Div2>
         )}
-        <Div3>
-          <Trenddiv>
-            <Trendbtn
-              onClick={() => {
-                onClick(trendlist[0]);
-              }}
-            >
-              {trendlist[0]}
-            </Trendbtn>
-            <Trendbtn
-              onClick={() => {
-                onClick(trendlist[1]);
-              }}
-            >
-              {trendlist[1]}
-            </Trendbtn>
-            <Trendbtn
-              onClick={() => {
-                onClick(trendlist[2]);
-              }}
-            >
-              {trendlist[2]}
-            </Trendbtn>
-            <Trendbtn
-              onClick={() => {
-                onClick(trendlist[3]);
-              }}
-            >
-              {trendlist[3]}
-            </Trendbtn>
-          </Trenddiv>
-          <Trenddiv>
-            <Trendbtn
-              onClick={() => {
-                onClick(trendlist[4]);
-              }}
-            >
-              {trendlist[4]}
-            </Trendbtn>
-            <Trendbtn
-              onClick={() => {
-                onClick(trendlist[5]);
-              }}
-            >
-              {trendlist[5]}
-            </Trendbtn>
-            <Trendbtn
-              onClick={() => {
-                onClick(trendlist[6]);
-              }}
-            >
-              {trendlist[6]}
-            </Trendbtn>
-          </Trenddiv>
-        </Div3>
+        {trendlist.length != 0 ? (
+          <Div3>
+            <Trenddiv>
+              <Trendbtn
+                len={trendlist[0].length}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              >
+                {trendlist[0]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[1].length}
+                onClick={() => {
+                  onClick(trendlist[1]);
+                }}
+              >
+                {trendlist[1]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[2].length}
+                onClick={() => {
+                  onClick(trendlist[2]);
+                }}
+              >
+                {trendlist[2]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[3].length}
+                onClick={() => {
+                  onClick(trendlist[3]);
+                }}
+              >
+                {trendlist[3]}
+              </Trendbtn>
+            </Trenddiv>
+            <Trenddiv>
+              <Trendbtn
+                len={trendlist[4].length}
+                onClick={() => {
+                  onClick(trendlist[4]);
+                }}
+              >
+                {trendlist[4]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[5].length}
+                onClick={() => {
+                  onClick(trendlist[5]);
+                }}
+              >
+                {trendlist[5]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[6].length}
+                onClick={() => {
+                  onClick(trendlist[6]);
+                }}
+              >
+                {trendlist[6]}
+              </Trendbtn>
+            </Trenddiv>
+          </Div3>
+        ) : (
+          <Div3>
+            <Trenddiv>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+            </Trenddiv>
+            <Trenddiv>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+            </Trenddiv>
+          </Div3>
+        )}
         <div
           style={{
             display: "flex",
@@ -249,7 +306,7 @@ const Trendbtn = styled.button`
   width: 20%;
   height: 70%;
   border-radius: 30px;
-  font-size: 1vw;
+  font-size: ${(props) => (props.len < 8 ? "1vw" : "0.7vw")};
   color: white;
   font-family: Roboto;
 `;
