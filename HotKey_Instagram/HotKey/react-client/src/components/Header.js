@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
 import { useNavigate } from "react-router-dom";
-const Header = () => {
+const Header = ({ loading }) => {
+  //loading => 분석결과페이지가 로딩중... (loading == True)
   //*****검색중 (서버가 돌아가는 중)에 뒤로가기를 누르게 되면 백엔드에서 크롤링 중인 세션 모두 로그아웃 시키는 등.. 조치가 필요하다!!!! */
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
@@ -12,8 +13,12 @@ const Header = () => {
         <Logo
           src={HotKey_Logo}
           onClick={() => {
-            var confirmed = window.confirm("검색창으로 돌아가시겠습니까?");
-            if (confirmed) navigate("/search");
+            if (loading) {
+              var confirmed = window.confirm(
+                "현재 검색결과가 로딩 중입니다.\n검색창으로 돌아가시겠습니까?"
+              );
+              if (confirmed) navigate("/search");
+            } else navigate("/search");
           }}
         ></Logo>
       </Logodiv>
@@ -32,8 +37,21 @@ const Header = () => {
           <Button
             onClick={() => {
               if (query.length === 0) alert("검색어를 한 글자 이상 입력하세요");
-              else {
-                console.log("검색결과 페이지로 이동");
+              else if (loading) {
+                var confirmed = window.confirm(
+                  "현재 검색결과가 로딩 중입니다.\n입력하신 키워드의 결과창으로 이동하시겠습니까?" +
+                    "\n\n키워드 :  " +
+                    query
+                );
+                if (confirmed) {
+                  console.log("검색결과 페이지로 이동, keyword:" + query);
+                  navigate("/search_result", {
+                    state: { keyword: query },
+                  });
+                }
+              } else {
+                //로딩중이지 않은경우, 바로 이동
+                console.log("검색결과 페이지로 이동, keyword:" + query);
                 navigate("/search_result", {
                   state: { keyword: query },
                 });
@@ -52,8 +70,9 @@ const Headerdiv = styled.div`
   display: flex;
   height: 9vh;
   width: 100vw;
-  position: sticky;
-  top: 8px;
+  position: fixed;
+  top: 0px;
+  left: 2px;
   background-color: white;
 `;
 const Logodiv = styled.div`
@@ -120,7 +139,10 @@ const Button = styled.button`
   font-family: Roboto;
   font-size: 1.3vw;
   color: white;
-  letter-spacing: 3px;
+  letter-spacing: 0.2vw;
 `;
 
+Header.defaultProps = {
+  loading: true,
+};
 export default Header;

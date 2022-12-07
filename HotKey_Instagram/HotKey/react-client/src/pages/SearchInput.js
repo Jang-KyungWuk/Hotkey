@@ -20,7 +20,6 @@ const SearchInput = () => {
   useEffect(() => {
     //trendlist잘 받아오는지 테스트용 코드..
     console.log("받아온 trendlist :", trendlist);
-    console.log(trendlist[0]);
   }, [trendlist]);
 
   const onClick = (word) => {
@@ -224,7 +223,7 @@ const Button = styled.button`
   font-family: Roboto;
   font-size: 1.3vw;
   color: white;
-  letter-spacing: 3px;
+  letter-spacing: 0.2vw;
 `;
 //trend 보여줄 Div
 const Div3 = styled.div`
@@ -254,7 +253,7 @@ const Trendbtn = styled.button`
   color: white;
   font-family: Roboto;
 `;
-//이미지를 background로 하는 div
+//이미지
 const Img = styled.img`
   width: 70vw;
   border: 0px solid;

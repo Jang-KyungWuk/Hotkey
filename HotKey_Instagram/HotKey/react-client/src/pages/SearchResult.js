@@ -3,7 +3,9 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
+import loading from "../images/loading.jpg";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
+import styled from "styled-components";
 
 const SearchResult = () => {
   // *****매우 중요: 대소문자 구분없이, 띄어쓰기 되어서 들어오면 붙여서 백엔드로 보내야함!!!*********
@@ -24,6 +26,7 @@ const SearchResult = () => {
       //   console.log("받아온 stringify된 corpus", data);
       // });
       console.log("/manage/test/keyword_search/" + keyword);
+      console.log("result : ", result);
     }
   }, []); //한번만 실행되네요~
 
@@ -38,21 +41,43 @@ const SearchResult = () => {
           ></img>
         </Link>
         <h1>페이지가 존재하지 않습니다.</h1>
-        <Link to="/search">검색페이지로 이동</Link>
+        <Link to="/search">검색페이지로 돌아가기</Link>
       </div>
     );
   else {
-    //여기서 로딩중/ 검색결과로 나누기!!
+    //여기서 로딩중/ 검색결과로 나누기!! (로딩중인 경우 Header에 loading == True 넘겨줘야함!!)
     return (
       <div>
-        <Header />
-        <div style={{ height: "1500px" }}>
-          <h1 style={{ textAlign: "center" }}>검색결과 여기서 구현...</h1>
-          <h6>{result}</h6>
-        </div>
+        <Header loading={true} />
+        <Wrapper>
+          {result.length === 0 ? ( //result가 아직 로딩중인 경우 => 로딩 중 구현
+            <Loadingdiv></Loadingdiv>
+          ) : (
+            //result가 fetch (update)된 경우 => 결과 구현
+            <Resultdiv></Resultdiv>
+          )}
+        </Wrapper>
         <Footer />
       </div>
     );
   }
 };
+//실제 결과가 들어갈 div
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 9.5vh; //헤더크기(+0.5vh)만큼 margin주기
+`;
+// fetch된 경우 결과 보여줄 Result Div => min-height 속성
+const Resultdiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  min-height: 800px; //고정 픽셀값 (결과값은 크기가 작아지면 안될듯)
+  width: 100vw; //유동 픽셀값 (추후 테스트 거쳐서 레이아웃 수정)
+  align-items: center;
+  background-color: ivory;
+`;
+// fetch되지 않은 경우, 로딩 Div => 반응형
+const Loadingdiv = styled.div``;
+
 export default SearchResult;

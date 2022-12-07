@@ -24,7 +24,7 @@ const Test = () => {
             console.log("네트워크 팝업 구현");
             //중요 : json에서 proxy설정한 것은 리액트 자체에서 request할때만 작용하는 것으로보임, 아래처럼 서버에 직접 접근하려면 서버의 주소를 적어줘야한다.
             //팝업창 옵션 (창 크기 조절 등 조정)
-            const popupOption = "width=720, height=640, status=no;";
+            const popupOption = "width=1000, height=640, status=no;";
             window.open(
               "http://localhost:5000/manage/test/network/월드컵1203.html",
               "",

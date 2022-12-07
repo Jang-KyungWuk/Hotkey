@@ -1,121 +1,118 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import HotKey_Logo from "../images/HotKey_Logo.jpg";
 import styled from "styled-components";
 import loading from "../images/loading.jpg";
+import Loading1 from "../components/Loading1";
+import Loading2 from "../components/Loading2";
+import Loading3 from "../components/Loading3";
 
 const Test2 = () => {
   //레이아웃 테스트용
-  return (
-    <div>
-      <Header></Header>
-      <Wrapper></Wrapper>
-      <Footer></Footer>
-    </div>
-  );
+  const [lstate, setLstate] = useState(0);
+  /*로딩 상태!! => 'loading'변수 : 전체 loading이 완료 되었는지
+  서버에서 keyword 크롤링 요청 -> 서버에서 corpus 받아오면 setLstate(1) 
+  -> corpus와 image를 다시 서버에 전달, 분석 요청 
+  -> 서버에서 result받으면 setLstate(2)
+  -> (눈속임) sleep(3)하고 setLstate(0)하고 loading = false로 바꾸기
+  */
+  useEffect(() => {
+    console.log("useEffect시작");
+    setTimeout(() => {
+      console.log("아오1");
+      setLstate(1);
+      setTimeout(() => {
+        console.log("아오2");
+        setLstate(2);
+        setTimeout(() => {
+          console.log("아오3");
+          setLstate(0);
+        }, 1000);
+      }, 1000);
+    }, 1000);
+  }, []);
+  if (lstate === 0)
+    return (
+      <div>
+        <Header />
+        <Wrapper>
+          <Loadingdiv>
+            <Loading1 />
+            <Load2>
+              <Img src={loading}></Img>
+            </Load2>
+          </Loadingdiv>
+        </Wrapper>
+        <Footer />
+      </div>
+    );
+  else if (lstate === 1)
+    return (
+      <div>
+        <Header />
+        <Wrapper>
+          <Loadingdiv>
+            <Loading2 />
+            <Load2>
+              <Img src={loading}></Img>
+            </Load2>
+          </Loadingdiv>
+        </Wrapper>
+        <Footer />
+      </div>
+    );
+  else
+    return (
+      <div>
+        <Header />
+        <Wrapper>
+          <Loadingdiv>
+            <Loading3 />
+            <Load2>
+              <Img src={loading}></Img>
+            </Load2>
+          </Loadingdiv>
+        </Wrapper>
+        <Footer />
+      </div>
+    );
 };
 
+//실제 결과가 들어갈 div
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 2000px; //수정하기
-  width: 100vw;
-  align-items: center;
-  background-color: ivory;
+  margin-top: 9.5vh; //헤더크기(+0.5vh)만큼 margin주기
 `;
-//로고 들어갈거
-const Div1 = styled.div`
-  margin-top: 5%;
+// fetch된 경우 결과 보여줄 Result Div => min-height 속성
+const Resultdiv = styled.div`
   display: flex;
-  margin-bottom: 3%;
-  align-items: center;
-  justify-content: center;
-  height: 10%;
-  width: 100%;
-`;
-const Logo = styled.img`
-  display: block;
-  height: 100%;
-`;
-//검색input + button 들어갈 Div
-const Div2 = styled.div`
-  display: flex;
-  width: 50%;
-  height: 8%;
-  justify-content: space-around;
-  align-items: center;
-  background-color: #d94925;
-  border-radius: 20px;
-`;
-//input이 들어갈 Div
-const Inputdiv = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 70%;
-  height: 65%;
-  border-radius: 30px;
-  border: 0px solid;
-  background-color: white;
-`;
-//input박스
-const Input = styled.input`
-  width: 90%;
-  height: 80%;
-  border-radius: 30px;
-  border: 0px solid;
-  font-family: Roboto;
-  font-size: 1.3vw;
-  &:focus {
-    outline: none;
-  }
-`;
-//검색button 박스
-const Button = styled.button`
-  cursor: pointer;
-  background-color: black;
-  width: 17%;
-  height: 65%;
-  border-width: 1px;
-  border-radius: 30px;
-  font-family: Roboto;
-  font-size: 1.3vw;
-  color: white;
-  letter-spacing: 3px;
-`;
-//trend 보여줄 Div
-const Div3 = styled.div`
-  margin-top: 0.5%;
-  display: flex;
-  width: 50%;
-  height: 12%;
-  justify-content: center;
   flex-direction: column;
-`;
-//trend 위아래 Div
-const Trenddiv = styled.div`
-  display: flex;
-  width: 100%;
-  height: 50%;
-  justify-content: space-around;
+  min-height: 800px; //고정 픽셀값 (결과값은 크기가 작아지면 안될듯)
+  width: 100vw; //유동 픽셀값 (추후 테스트 거쳐서 레이아웃 수정)
   align-items: center;
-`;
-//trend button
-const Trendbtn = styled.button`
-  cursor: pointer;
   background-color: black;
-  width: 20%;
-  height: 70%;
-  border-radius: 30px;
-  letter-spacing: 2px;
-  font-size: 0.8vw;
-  color: white;
-  font-family: Roboto;
 `;
-//이미지를 background로 하는 div
+// fetch되지 않은 경우, 로딩 Div => 반응형
+const Loadingdiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 2vh;
+  width: 100vw;
+  height: 80vh;
+`;
+//loading div2 => 분석중 이미지가 들어갈 div
+const Load2 = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 60%;
+`;
+//이미지
 const Img = styled.img`
-  width: 70vw;
+  height: 90%;
   border: 0px solid;
 `;
+
 export default Test2;
