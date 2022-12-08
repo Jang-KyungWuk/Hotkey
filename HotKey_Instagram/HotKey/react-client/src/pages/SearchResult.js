@@ -20,59 +20,90 @@ const SearchResult = () => {
   const [lstate, setLstate] = useState(0); //로딩중 단계 => lstate가 2에서 다 끝나면 setLoading(false) & setLstate(0)
   //분기 : keyword가 존재하는 경우 => loading이 있는가? -> lstate에 따라 분기. (3항 연산자 중첩 사용하거나? 어떻게 할지 생각..ㅇㅇ 최대한 state안꼬이게)
 
-  console.log("검색결과 페이지=> keyword : " + keyword);
+  console.log("검색결과 페이지 렌더링, keyword : " + keyword);
   //keyword와 enforce에 맞게 적절하게 실행
 
   useEffect(() => {
     console.log("useeffect실행");
     if (keyword) {
-      setLstate(0); //react-router-dom 이슈인지,, 위의  useState가 검색어가 바뀌어도 따로 바뀌지 않아서 ㅇㅇ, 검색어가바뀔떄 useeffect가 실행
+      setLstate(0);
       setLoading(true);
-      console.log("/keyword_search/" + keyword + "(으)로 request");
+      console.log("keyword_search 요청");
       fetch("/keyword_search/" + keyword)
         .then((res) => res.json())
         .then((data) => {
-          console.log("keyword_search API 서버 응답");
-          console.log(data.status, data.tid);
+          console.log("keyword_search 응답 : ", data);
           if (data.status) {
-            //키워드 corpus가 정상적으로 생성된 경우! (서버 응답 True)
-            setLstate(1);
-            //이후에 서버 API로 분석요청!! => data.tid사용!!
-            console.log("analyze/" + data.tid + "(으)로 request");
-            fetch("/analyze/" + data.tid)
-              .then((res) => res.json())
-              .then((data) => {
-                console.log("analyze API 서버 응답");
-                console.log(data.status, data.result);
-                if (data.status) {
-                  // 분석 결고 ㅏ데이터도 잘 받아온 경우
-                  setLstate(2);
-                  setTimeout(() => {
-                    setLoading(false); //로딩 풀기
-                    setLstate(0);
-                  }, 2000);
-                } else {
-                  //분석 결과 데이터를 잘 못받아 온경우 (서버 으답이 False인경우)
-                  alert(
-                    "서버로부터의 응답이 원활하지 않습니다..\n다른 키워드를 검색해보거나 잠시 후에 다시 시도해주세요"
-                  );
-                }
-              });
-            //이후에도 분석이 완료된경우 분석결과를 받아서 보여주는 컴포넌트에 전달해주기(구현 예정)
+            console.log("analyze 요청..");
+            // 1209.. => analyze요청할때 fetch이어서실행해야하는데, async await 이해하고 해야할듯
+            // 여기서 받은 tid를 가지고 analyze로 fetch실행?!?!
+            // fetch("/analyze/" + data.tid)
+            //   .then((res) => res.json)
+            //   .then((data) => {
+            //     console.log("analyze 응답 : ", data);
+            //   });
           } else {
-            //서버 응답이 False인경우 => crawling 데이터를 잘 못받아 온경우
-            alert(
-              "서버로부터의 응답이 원활하지 않습니다..\n다른 키워드를 검색해보거나 잠시 후에 다시 시도해주세요"
-            );
-            //lState가 3인경우 만들어서 서버로부터 왜 제대로 못받아왔는지 보여주는 컴포넌트? (구현 예정)
+            //제대로 못받아온경우
+            alert("keyword_search 서버 응답 에러");
           }
-        })
-        .catch((err) => {
-          console.log(err);
-          alert(err);
         });
     }
-  }, [keyword]); //한번만 실행되네요~
+  }, [keyword]);
+  // useEffect(() => {
+  //   console.log("useeffect실행");
+  //   if (keyword) {
+  //     setLstate(0); //react-router-dom 이슈인지,, 위의  useState가 검색어가 바뀌어도 따로 바뀌지 않아서 ㅇㅇ, 검색어가바뀔떄 useeffect가 실행
+  //     setLoading(true);
+  //     console.log("/keyword_search/" + keyword + "(으)로 request");
+  //     fetch("/keyword_search/" + keyword)
+  //       .then((res) => res.json())
+  //       .then((data) => {
+  //         console.log("keyword_search API 서버 응답");
+  //         console.log(data.status, data.tid);
+  //         if (data.status) {
+  //           //키워드 corpus가 정상적으로 생성된 경우! (서버 응답 True)
+  //           setLstate(1);
+  //           //   //이후에 서버 API로 분석요청!! => data.tid사용!!
+  //           console.log("analyze/" + data.tid + "(으)로 request");
+  //           fetch("/analyze/" + data.tid)
+  //             .then((res2) => res2.json())
+  //             .then((data2) => {
+  //               console.log("분석응답");
+  //               console.log(data2);
+  //             });
+  //           //   fetch("/analyze/" + data.tid)
+  //           //     .then((res) => res.json())
+  //           //     .then((data) => {
+  //           //       console.log("analyze API 서버 응답");
+  //           //       console.log(data.status, data.result);
+  //           //       if (data.status) {
+  //           //         // 분석 결고 ㅏ데이터도 잘 받아온 경우
+  //           //         setLstate(2);
+  //           //         setTimeout(() => {
+  //           //           setLoading(false); //로딩 풀기
+  //           //           setLstate(0);
+  //           //         }, 2000);
+  //           //       } else {
+  //           //         //분석 결과 데이터를 잘 못받아 온경우 (서버 으답이 False인경우)
+  //           //         alert(
+  //           //           "서버로부터의 응답이 원활하지 않습니다..\n다른 키워드를 검색해보거나 잠시 후에 다시 시도해주세요"
+  //           //         );
+  //           //       }
+  //           //     });
+  //           //   //이후에도 분석이 완료된경우 분석결과를 받아서 보여주는 컴포넌트에 전달해주기(구현 예정)
+  //           // } else {
+  //           //   //서버 응답이 False인경우 => crawling 데이터를 잘 못받아 온경우
+  //           //   alert(
+  //           //     "서버로부터의 응답이 원활하지 않습니다..\n다른 키워드를 검색해보거나 잠시 후에 다시 시도해주세요"
+  //           //   );
+  //           //lState가 3인경우 만들어서 서버로부터 왜 제대로 못받아왔는지 보여주는 컴포넌트? (구현 예정)
+  //         }
+  //       })
+  //       .catch((err) => {
+  //         alert("keyword search 에러 :", err);
+  //       });
+  //   }
+  // }, [keyword]); //한번만 실행되네요~
 
   if (!keyword)
     return (

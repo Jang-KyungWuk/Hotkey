@@ -3,6 +3,9 @@ from flask import Flask, jsonify, request, g, render_template
 from crawling import *
 from db import *
 from analyze import *
+import os
+import shutil
+
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False  # 한글 깨짐 방지 (jsonify 사용시)
@@ -59,11 +62,62 @@ def keyword_search(keyword):
 def analyze(tid):
     # tid를 받아서 분석 후 결과를 jsonify해서 프론트로전달 (이미지의 경우, 경로를 react-client안에 넣어두기?)
     print("analyze API 실행")
+    print("get_image 실행")
+    status, images = get_image(tid)
+
     time.sleep(3)  # 임시 sleep => 코드 수정시 삭제
-    return jsonify({'status': True, 'result': {}})  # 임시 요청응답 ㅇㅇ
+    # 임시 요청응답, images : filedir 리스트
+    # 분석 결과는 json형태로전달, 1209 : images만 일단 반환
+
+    return jsonify({'status': status, 'images': images})
 
 # 실제 검색 -> 크롤링 -> 분석 -> 결과보여주는 API구현할때 무조건 before_search, after_search실행시켜줘야함!! + showaccount, checkavail, keywordsearch(test)
 # ---------------------------관리/테스트용 API-------------------------------
+
+
+@app.route('/manage/accounts')
+# 현재 전역변수로 저장된 계정 정보를 보여준다.
+def show_accounts():
+    # before_search실행
+    before_search()
+    print('show_accounts실행')
+    # after_search실행
+    after_search()
+    return jsonify({'all_blocked': g.all_blocked, 'total_acc_info': g.total_acc_info})
+
+
+@app.route('/manage/check_avail')
+# 관리용 코드, 차단된 계정에 대해 차단이 풀렸는지 확인 후 DB에 반영 (매뉴얼하게 실행)
+def checkavail():
+    # before_search실행
+    before_search()
+    check_avail()
+    # after_search실행
+    after_search()
+    return 'check_avail()실행 후 DB 반영 완료'
+
+
+@app.route('/manage/test/image/<query>')
+def tt(query):
+    status, images = top_image(query)
+    for idx, url in enumerate(images):
+        filename = query+str(idx)
+        save_image(url, filename)
+
+    return jsonify({'status': status, 'images': images})
+
+
+@app.route('/manage/delete_image')
+def del_img():
+    dir_path = '../react-client/public/top_imgs'
+    if os.path.exists(dir_path):
+        shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
+        print('top_imgs 폴더 삭제..')
+
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+        print('top_imgs 폴더 생성..')
+    return jsonify(1)
 
 
 @app.route('/manage/test/keyword_search/enforce/<keyword>')
@@ -100,35 +154,6 @@ def js(a, b):
     return file
 
 
-@app.route('/manage/accounts')
-# 현재 전역변수로 저장된 계정 정보를 보여준다.
-def show_accounts():
-    # before_search실행
-    before_search()
-    print('show_accounts실행')
-    # after_search실행
-    after_search()
-    return jsonify({'all_blocked': g.all_blocked, 'total_acc_info': g.total_acc_info})
-
-
-@app.route('/manage/check_avail')
-# 관리용 코드, 차단된 계정에 대해 차단이 풀렸는지 확인 후 DB에 반영 (매뉴얼하게 실행)
-def checkavail():
-    # before_search실행
-    before_search()
-    check_avail()
-    # after_search실행
-    after_search()
-    return 'check_avail()실행 후 DB 반영 완료'
-
-
-@app.route('/manage/test/save_image/<filename>')
-def tt(filename):
-    url = 'https://scontent-gmp1-1.cdninstagram.com/v/t51.2885-15/317924138_132671106263568_5160241139025050446_n.jpg?stp=dst-jpg_e35&_nc_ht=scontent-gmp1-1.cdninstagram.com&_nc_cat=100&_nc_ohc=iXhoFs6sXJ8AX9WuhDk&edm=AGyKU4gBAAAA&ccb=7-5&ig_cache_key=Mjk4NTcxOTAxNjI4MzcxNzUwOQ%3D%3D.2-ccb7-5&oh=00_AfDsRI-GG_Pst5ZWYnGjHDuzuoRnBWZtnqulV1baD0otcQ&oe=63939245&_nc_sid=4cb768'
-    save_image(url, filename)
-    return jsonify(True)
-
-
 # ---------------------------------------------------------------------
 if __name__ == '__main__':
-    app.run(debug=True)  # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..
+    app.run(debug=False)  # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..
