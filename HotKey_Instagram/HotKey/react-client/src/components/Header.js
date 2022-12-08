@@ -65,7 +65,7 @@ const Header = ({ loading }) => {
             <Logoimg2
               src={Logo2}
               onClick={() => {
-                navigate("/info");
+                window.open("http://localhost:3000/info");
               }}
             ></Logoimg2>
           </Logodiv2>

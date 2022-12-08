@@ -31,10 +31,5 @@ const Resultdiv = styled.div`
   align-items: center;
   background-color: ivory;
 `;
-//이미지
-const Img = styled.img`
-  height: 90%;
-  border: 0px solid;
-`;
 
 export default Test2;

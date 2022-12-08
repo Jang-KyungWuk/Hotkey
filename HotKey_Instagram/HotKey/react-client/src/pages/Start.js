@@ -32,7 +32,7 @@ const Start = () => {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 90vh;
+  height: 88vh;
   width: 100vw;
 `;
 const Div1 = styled.div`

@@ -138,17 +138,23 @@ const SearchResult = () => {
     return (
       <div>
         <Header loading={false}></Header>
-        <Wrapper>
+        <Wrapper2>
           <Resultdiv>
-            <h1>결과는 여기서 구현!</h1>
+            <h5>결과는 여기서 구현...</h5>
           </Resultdiv>
-        </Wrapper>
+        </Wrapper2>
       </div>
     );
   }
 };
-//실제 결과가 들어갈 div
+//로딩인경우 wrapper
 const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 6vh; //헤더크기(+0.5vh)만큼 margin주기
+`;
+//실제 결과가 들어갈 Wrapper
+const Wrapper2 = styled.div`
   display: flex;
   flex-direction: column;
   margin-top: 9.5vh; //헤더크기(+0.5vh)만큼 margin주기
@@ -160,7 +166,7 @@ const Resultdiv = styled.div`
   min-height: 800px; //고정 픽셀값 (결과값은 크기가 작아지면 안될듯)
   width: 100vw; //유동 픽셀값 (추후 테스트 거쳐서 레이아웃 수정)
   align-items: center;
-  background-color: ivory;
+  background-color: maroon;
 `;
 // fetch되지 않은 경우, 로딩 Div => 반응형
 const Loadingdiv = styled.div`

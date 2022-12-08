@@ -5,9 +5,8 @@ const Info = () => {
 
   return (
     <div style={{ height: 900 }}>
-      <h3 style={{ textAlign: "center" }}>
-        [핫 키 활용법] 추후 구현 예정입니다
-      </h3>
+      <h3 style={{ textAlign: "center" }}>[핫 키 활용법]</h3>
+      <h3 style={{ textAlign: "center" }}>추후 구현 예정입니다</h3>
     </div>
   );
 };
