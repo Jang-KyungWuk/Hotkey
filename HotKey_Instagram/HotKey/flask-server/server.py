@@ -122,9 +122,11 @@ def checkavail():
     return 'check_avail()실행 후 DB 반영 완료'
 
 
-@app.route('/manage/test/test')
-def tt():
-    return 0
+@app.route('/manage/test/save_image/<filename>')
+def tt(filename):
+    url = 'https://scontent-gmp1-1.cdninstagram.com/v/t51.2885-15/317924138_132671106263568_5160241139025050446_n.jpg?stp=dst-jpg_e35&_nc_ht=scontent-gmp1-1.cdninstagram.com&_nc_cat=100&_nc_ohc=iXhoFs6sXJ8AX9WuhDk&edm=AGyKU4gBAAAA&ccb=7-5&ig_cache_key=Mjk4NTcxOTAxNjI4MzcxNzUwOQ%3D%3D.2-ccb7-5&oh=00_AfDsRI-GG_Pst5ZWYnGjHDuzuoRnBWZtnqulV1baD0otcQ&oe=63939245&_nc_sid=4cb768'
+    save_image(url, filename)
+    return jsonify(True)
 
 
 # ---------------------------------------------------------------------

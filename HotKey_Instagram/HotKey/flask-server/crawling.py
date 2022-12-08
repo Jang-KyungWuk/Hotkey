@@ -1,6 +1,6 @@
 from flask import g
 from requests import get, post, Session
-from urllib import parse
+from urllib import parse, request
 import json
 from datetime import datetime, timedelta
 import emoji
@@ -353,8 +353,10 @@ def single_search(keyword, enforce=False):
             print('db 접근 중 발생한 에러입니다. 재시도요망')
             conn.close()
             return (False, '', '')
-        cur.execute('select image from images where tid = (%s)', (tid))
-        image = cur.fetchall()[0]['image']
+        # 위에 corpus 받는 함수도 필요없음. 결국 tid주면 거기서 corpus따로빼고,  image따로 저장하는로직 추가하면됨.#-> 1208추가
+        #### 여기서 top image 생성하는 로직 추가!!1#####
+        # checksession에서 하나만 찾고 => checksession에 1옵션주면 하나만 찾아주는 식으로.. ㅇㅇ => top_image하고 다시 리트라이 로직까지 ㅇㅇ => 이미지 저장 로직까지 한번에.
+        # db에 파일명 (<태그명>.jpg)
         conn.close()
         return (True, tid)
 
@@ -432,11 +434,16 @@ def single_search(keyword, enforce=False):
                     cur.execute(
                         'update n_corpus set corpus=(%s) where tid=(%s)', (corpus[12:], tid))
                     pass
-                # images 업데이트
-                cur.execute(
-                    'update images set image=(%s) where tid=(%s)', (image[12:], tid))
-                close_db(conn)
+                # # images 업데이트
+                # cur.execute(
+                #     'update images set image=(%s) where tid=(%s)', (image[12:], tid))
+                # close_db(conn)
+                ## ##### 여기서 세션 아무거나 로그인 해서 이미지로 저장하는 로직 추가 ######
+                #######
+                ###################
+                #######################
                 return (True, tid)
+
             else:  # DB에 없으면 enforce여부에 관계없이
                 cur.execute('insert into is_tag (tname) values (%s);', keyword)
                 cur.execute(
@@ -513,3 +520,120 @@ def trend_crawler_client():  # 7개 리턴.
         if len(trendlist) == 7:
             break
     return trendlist
+
+# 인기게시물을 돌면서 사진을 최대 9개까지 리턴하는 함수
+
+
+def hot_key_instagram_top(query, session):
+    # input : query, session
+    # return (status, recent_list, timestamp, image_list)
+    # status = 0 : success, 1 : 크롤링 중 문제 발생 (CSRF error), code는 200 , 2 : 400error - 계정에 checkpoint 필요
+    # 3 : 검열 혹은 페이지 x,  4 : 그 외, 5 : 인스타그램에서 최근 게시물을 제공하지 않는 태그 ( len(recent_list[0]) == 0 )
+    image_list = list()
+
+    headers = gen_header()
+    url = 'https://i.instagram.com/api/v1/tags/web_info/?tag_name={}'.format(
+        parse.quote(query))
+    headers['x-csrftoken'] = session.cookies.get('csrftoken')  # 재설정
+    headers['referer'] = 'https://www.instagram.com/explore/tags/{}/'.format(
+        parse.quote(query))
+    resp = session.get(url, headers=headers)
+
+    if (resp.status_code == 404):
+        print('Crawling error : 검열되는 해시태그이거나 해당 태그를 담은 페이지가 존재하지 않습니다.')
+        print('response code : ', 404)
+        return (3, image_list)
+
+    elif (resp.status_code != 200):  # 응답 에러
+        if (resp.status_code == 400):
+            print('Crawling error : checkpoint needed 의심')
+            print(resp.text)
+            return (2, image_list)
+        print('Crawling error : unknown..., resp.code :', resp.status_code)
+        print(resp.text)
+        return (4, image_list)  # 계정바꿔서 재시도
+
+    # 비정상입력 예외처리
+    try:
+        resource = resp.json()
+    except:
+        print("Crawling error : 응답 코드는 정상이나, 비정상적인 데이터 형식 반환됨")  # 크롤링 밴 의심..
+        return (1, image_list)
+    #################################################
+
+    for i in resource['data']['top']['sections']:  # 0~8
+        for k in i['layout_content']['medias']:
+            if (k['media']['caption'] != None):
+                if 'text' in k['media']['caption'].keys():
+                    #######################################################################
+                    try:
+                        image_list.append(
+                            k['media']['image_versions2']['candidates'][0]['url'])  # 포스트의 이미지 URL
+                    except:
+                        image_list.append(
+                            k['media']['carousel_media'][0]['image_versions2']['candidates'][0]['url'])
+                        # 복수의 이미지가 있는 포스트의 첫이미지 URL
+                    #########################################################
+    if (len(image_list) >= 9):
+        print('인기 게시물 사진 링크 수집 완료!')
+        return (0, image_list[:9])  # 9개만 리턴
+
+    # 수집한 이미지가 부족한 경우
+        # 다음 페이지 관련 정보
+    top_info = {'max_id': '', 'page': '', 'isnext': False}
+    if resource['data']['top']['more_available']:
+        top_info['max_id'], top_info['page'], top_info['isnext'] = \
+            resource['data']['top']['next_max_id'], resource['data']['top']['next_page'], True
+      # 그 다음 페이지부터 9개 될때까지 돌기
+    url = 'https://i.instagram.com/api/v1/tags/{}/sections/'.format(
+        parse.quote(query))
+    data = {'max_id': top_info['max_id'],
+            'page': top_info['page'], 'surface': 'grid', 'tab': 'recent'}
+    while (top_info['isnext'] == True and data['page'] < 3):  # 최대 3번만 시도
+        headers['x-csrftoken'] = session.cookies['csrftoken']  # 매번 재설정해주기
+        resp = session.post(url, data=data, headers=headers)
+        # 스크롤 시작 이후 로그인 소요 발생 시 예외 처리
+        if (resp.status_code != 200):  # 응답 에러
+            if (resp.status_code == 400):
+                print('Crawling error : checkpoint needed 의심')
+                print(resp.text)
+                return (2, image_list)
+            print('Crawling error : unknown..., resp.code :', resp.status_code)
+            print(resp.text)
+            return (4, image_list)  # 계정바꿔서 재시도
+        ##########################################################################
+        # 비정상입력 예외처리
+        try:
+            resource = resp.json()
+        except:
+            # 크롤링 밴 의심..
+            print("Crawling error : 응답 코드는 정상이나, 비정상적인 데이터 형식 반환됨")
+            return (1, image_list)
+        #################################################
+        for i in resource['sections']:  # 0~8
+            for k in i['layout_content']['medias']:  # 0~2
+                if (k['media']['caption'] != None):
+                    if 'text' in k['media']['caption'].keys():
+                        #######################################################################
+                        try:
+                            image_list.append(
+                                k['media']['image_versions2']['candidates'][0]['url'])  # 포스트의 이미지 URL
+                        except:
+                            image_list.append(
+                                k['media']['carousel_media'][0]['image_versions2']['candidates'][0]['url'])
+                            # 복수의 이미지가 있는 포스트의 첫이미지 URL
+                        #########################################################
+                    if (len(image_list) >= 9):
+                        print('인기 게시물 사진 링크 수집 완료!')
+                        return (0, image_list)
+
+        if resource['more_available']:
+            data['max_id'] = resource['next_max_id']
+            data['page'] = resource['next_page']
+        else:
+            top_info['isnext'] = False
+        print('현재 수집된 이미지 수 : ', len(image_list))
+        time.sleep(random.uniform(1, 5))
+
+    print('인기 게시물 사진 링크 수집 완료!')
+    return (0, image_list)

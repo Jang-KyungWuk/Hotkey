@@ -11,6 +11,14 @@ const Test = () => {
         setData(data);
         console.log("받아온 Account 객체", data);
       });
+
+    fetch("/manage/test/test")
+      .then((res) => res.blob())
+      .then((blob) => {
+        let blobUrl = URL.createObjectURL(blob);
+        console.log(blobUrl);
+        //URL.revokeObjectURL(blobUrl);
+      });
   }, []);
 
   return (
