@@ -26,7 +26,7 @@ const Load1 = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 40%;
+  height: 30%;
 `;
 //loading div1-1 => 각 loading section (총 3개)
 const Load11 = styled.div`

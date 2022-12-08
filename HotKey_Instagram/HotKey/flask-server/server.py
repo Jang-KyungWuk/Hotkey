@@ -122,6 +122,11 @@ def checkavail():
     return 'check_avail()실행 후 DB 반영 완료'
 
 
+@app.route('/manage/test/test')
+def tt():
+    return 0
+
+
 # ---------------------------------------------------------------------
 if __name__ == '__main__':
     app.run(debug=True)  # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..

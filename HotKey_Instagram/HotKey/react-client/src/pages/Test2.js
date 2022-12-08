@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import styled from "styled-components";
@@ -9,7 +9,9 @@ const Test2 = () => {
     <div>
       <Header loading={false} />
       <Wrapper>
-        <Resultdiv></Resultdiv>
+        <Resultdiv>
+          <img src={"/tmp_imgs/tmp.jpg"}></img>
+        </Resultdiv>
       </Wrapper>
       <Footer />
     </div>

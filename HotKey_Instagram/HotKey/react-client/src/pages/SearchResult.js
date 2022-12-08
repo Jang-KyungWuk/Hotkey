@@ -66,6 +66,10 @@ const SearchResult = () => {
             );
             //lState가 3인경우 만들어서 서버로부터 왜 제대로 못받아왔는지 보여주는 컴포넌트? (구현 예정)
           }
+        })
+        .catch((err) => {
+          console.log(err);
+          alert(err);
         });
     }
   }, [keyword]); //한번만 실행되네요~
@@ -179,14 +183,14 @@ const Loadingdiv = styled.div`
 //loading div2 => 분석중 이미지가 들어갈 div
 const Load2 = styled.div`
   display: flex;
-  justify-content: center;
+  margin-left: 20%;
   align-items: center;
   width: 100%;
   height: 60%;
 `;
 //이미지
 const Img = styled.img`
-  height: 90%;
+  height: 70%;
   border: 0px solid;
 `;
 

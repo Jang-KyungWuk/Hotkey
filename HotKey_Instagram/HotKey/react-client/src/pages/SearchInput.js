@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from "react";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
 import search_insert from "../images/search_insert.jpg";
+import recommend from "../images/recommend.jpg";
 import Footer from "../components/Footer";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
 
 const SearchInput = () => {
   const [query, setQuery] = useState("");
-  const [trendlist, setTrendList] = useState([]);
+  const [trendlist, setTrendList] = useState(undefined);
   const navigate = useNavigate();
   useEffect(() => {
     fetch("/trend_client")
       .then((res) => res.json())
       .then((data) => {
         setTrendList(data);
+      })
+      .catch((err) => {
+        console.log(err);
+        alert(err);
       });
   }, []);
 
@@ -87,7 +92,10 @@ const SearchInput = () => {
             </Button>
           </Div2>
         )}
-        {trendlist.length != 0 ? (
+        <Recommend>
+          <Recom_img src={recommend}></Recom_img>
+        </Recommend>
+        {trendlist !== undefined ? (
           <Div3>
             <Trenddiv>
               <Trendbtn
@@ -123,7 +131,7 @@ const SearchInput = () => {
                 {trendlist[3]}
               </Trendbtn>
             </Trenddiv>
-            <Trenddiv>
+            <Trenddiv2>
               <Trendbtn
                 len={trendlist[4].length}
                 onClick={() => {
@@ -148,7 +156,7 @@ const SearchInput = () => {
               >
                 {trendlist[6]}
               </Trendbtn>
-            </Trenddiv>
+            </Trenddiv2>
           </Div3>
         ) : (
           <Div3>
@@ -178,7 +186,7 @@ const SearchInput = () => {
                 }}
               ></Trendbtn>
             </Trenddiv>
-            <Trenddiv>
+            <Trenddiv2>
               <Trendbtn
                 len={1}
                 onClick={() => {
@@ -197,15 +205,15 @@ const SearchInput = () => {
                   onClick(trendlist[0]);
                 }}
               ></Trendbtn>
-            </Trenddiv>
+            </Trenddiv2>
           </Div3>
         )}
         <div
           style={{
             display: "flex",
-            height: "53%",
+            height: "56%",
             flexDirection: "column",
-            justifyContent: "center",
+            justifyContent: "flex-end",
           }}
         >
           <Img src={search_insert} alt="search_insert.jpg"></Img>
@@ -218,15 +226,15 @@ const SearchInput = () => {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 95vh;
+  height: 90vh;
   width: 100vw;
   align-items: center;
 `;
 //로고 들어갈거
 const Div1 = styled.div`
-  margin-top: 5%;
+  margin-top: 3%;
   display: flex;
-  margin-bottom: 3%;
+  margin-bottom: 2%;
   align-items: center;
   justify-content: center;
   height: 10%;
@@ -282,12 +290,17 @@ const Button = styled.button`
   color: white;
   letter-spacing: 0.2vw;
 `;
-//trend 보여줄 Div
-const Div3 = styled.div`
-  margin-top: 0.5%;
+const Recommend = styled.div`
   display: flex;
   width: 50%;
-  height: 12%;
+  height: 4%;
+  align-items: flex-end;
+`;
+//trend 보여줄 Div
+const Div3 = styled.div`
+  display: flex;
+  width: 50%;
+  height: 10%;
   justify-content: center;
   flex-direction: column;
 `;
@@ -299,12 +312,19 @@ const Trenddiv = styled.div`
   justify-content: space-around;
   align-items: center;
 `;
+const Trenddiv2 = styled.div`
+  display: flex;
+  width: 100%;
+  height: 50%;
+  justify-content: space-around;
+  align-items: center;
+`;
 //trend button
 const Trendbtn = styled.button`
   cursor: pointer;
   background-color: black;
   width: 20%;
-  height: 70%;
+  height: 80%;
   border-radius: 30px;
   font-size: ${(props) => (props.len < 8 ? "1vw" : "0.7vw")};
   color: white;
@@ -313,6 +333,10 @@ const Trendbtn = styled.button`
 //이미지
 const Img = styled.img`
   width: 70vw;
+  border: 0px solid;
+`;
+const Recom_img = styled.img`
+  height: 90%;
   border: 0px solid;
 `;
 export default SearchInput;

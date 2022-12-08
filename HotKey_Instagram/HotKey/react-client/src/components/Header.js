@@ -23,6 +23,7 @@ const Header = ({ loading }) => {
           }}
         ></Logo>
       </Logodiv>
+      <Blank />
       <Searchdiv>
         <Div2>
           <Inputdiv>
@@ -96,12 +97,17 @@ const Logo = styled.img`
   height: 3.7vw;
   cursor: pointer;
 `;
+const Blank = styled.div`
+  display: block;
+  height: 100%;
+  width: 10%;
+`;
 const Searchdiv = styled.div`
   display: flex;
   justify-content: center;
   align-items: flex-end;
   height: 100%;
-  width: 80%;
+  width: 70%;
 `;
 const Logodiv2 = styled.div`
   margin-left: 3%;
