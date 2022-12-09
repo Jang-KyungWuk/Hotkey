@@ -1,57 +1,84 @@
 import React from "react";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
-import Ripple from "../components/Ripple";
+import styled from "styled-components";
+import Footer from "../components/Footer";
+import { useNavigate } from "react-router-dom";
 
 const Start = () => {
+  const navigate = useNavigate();
   return (
-    <div className="App">
-      <img src={HotKey_Logo} style={styles.image} alt="hotkey_logo.."></img>
-      <h1 style={styles.h1}>Is your Keyword Hot ?</h1>
-      <button
-        style={styles.button}
-        onClick={() => {
-          console.log("키워드 검색 페이지로 이동");
-          window.location.href = "/search_input";
-        }}
-      >
-        SEARCH YOUR KEYWORD
-        <Ripple color={"#FF6D28"} duration={1500} />
-      </button>
+    <div>
+      <Wrapper>
+        <Div1>
+          <Logo src={HotKey_Logo}></Logo>
+        </Div1>
+        <Div2>
+          <Title>Is your Keyword Hot?</Title>
+        </Div2>
+        <Div3>
+          <Button
+            onClick={() => {
+              navigate("/search");
+            }}
+          >
+            SEARCH YOUR KEYWORD
+          </Button>
+        </Div3>
+      </Wrapper>
+      <Footer></Footer>
     </div>
   );
 };
-const styles = {
-  button: {
-    position: "relative",
-    cursor: "pointer",
-    backgroundColor: "#CE3909",
-    width: 800,
-    height: 125,
-    borderWidth: 4,
-    borderRadius: 8,
-    fontFamily: "Roboto",
-    fontSize: 50,
-    color: "white",
-    letterSpacing: 3,
-    marginTop: 200,
-    display: "block",
-    marginLeft: "auto",
-    marginRight: "auto",
-  },
-  h1: {
-    fontFamily: "Roboto",
-    fontSize: 120,
-    fontWeight: "bold",
-    textAlign: "center",
-  },
-  image: {
-    display: "block",
-    marginTop: 150,
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginBottom: 150,
-    width: 300,
-    height: 100,
-  },
-};
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  width: 100vw;
+`;
+const Div1 = styled.div`
+  margin-top: 5%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 13%;
+  width: 100%;
+`;
+//텍스트들어갈거
+const Div2 = styled.div`
+  display: flex;
+  width: 100%;
+  height: 40%;
+  justify-content: center;
+`;
+const Title = styled.h1`
+  font-family: Roboto;
+  font-size: 7vw; //폰트는 반응형으로
+  font-weight: bold;
+  text-align: center;
+`;
+//버튼 들어갈거
+const Div3 = styled.div`
+  display: flex;
+  width: 100%;
+  height: 30%;
+  justify-content: center;
+  align-items: center;
+`;
+const Button = styled.button`
+  cursor: pointer;
+  background-color: #ce3909;
+  width: 40%;
+  height: 40%;
+  border-width: 0px;
+  border-radius: 15px;
+  font-family: Roboto;
+  font-size: 3vw;
+  color: white;
+  letter-spacing: 3;
+`;
+const Logo = styled.img`
+  display: block;
+  height: 90%;
+`;
+
 export default Start;
