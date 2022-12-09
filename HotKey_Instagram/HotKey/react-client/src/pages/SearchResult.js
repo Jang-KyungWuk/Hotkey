@@ -3,7 +3,7 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
-import Loading from "../images/Loading.jpg";
+import loading from "../images/loading.jpg";
 import Loading1 from "../components/Loading1";
 import Loading2 from "../components/Loading2";
 import Loading3 from "../components/Loading3";
@@ -17,7 +17,7 @@ const SearchResult = () => {
   const keyword = location.state?.keyword;
   // const [keyword, setKeyword] = useState(location.state?.keyword);
 
-  const [loading, setLoading] = useState(true); //로딩중인경우 true
+  const [load, setLoad] = useState(true); //로딩중인경우 true
   const [lstate, setLstate] = useState(0); //로딩중 단계 => lstate가 2에서 다 끝나면 setLoading(false) & setLstate(0)
   const [images, setImages] = useState([]);
   //분기 : keyword가 존재하는 경우 => loading이 있는가? -> lstate에 따라 분기. (3항 연산자 중첩 사용하거나? 어떻게 할지 생각..ㅇㅇ 최대한 state안꼬이게)
@@ -27,7 +27,7 @@ const SearchResult = () => {
     console.log("useeffect실행");
     if (keyword) {
       // setLstate(0); //react-router-dom 이슈인지,, 위의  useState가 검색어가 바뀌어도 따로 바뀌지 않아서 ㅇㅇ, 검색어가바뀔떄 useeffect가 실행
-      // setLoading(true);
+      // setLoad(true);
       // console.log("/keyword_search/" + keyword + "(으)로 request");
       fetch("/keyword_search/" + keyword)
         .then((res) => res.json())
@@ -46,7 +46,7 @@ const SearchResult = () => {
                   setLstate(2);
                   setImages(data2.images);
                   setTimeout(() => {
-                    setLoading(false); //로딩 풀기 -> 결과창이동
+                    setLoad(false); //로딩 풀기 -> 결과창이동
                     setLstate(0);
                   }, 2000);
                 } else
@@ -80,17 +80,17 @@ const SearchResult = () => {
       </div>
     );
   //분기 : keyword가 존재하는 경우 => loading이 있는가? -> lstate에 따라 분기. (3항 연산자 중첩 사용하거나? 어떻게 할지 생각..ㅇㅇ 최대한 state안꼬이게)
-  else if (loading) {
+  else if (load) {
     //여기서 로딩중/ 검색결과로 나누기!! (로딩중인 경우 Header에 loading == True 넘겨줘야함!!)
     if (lstate === 0)
       return (
         <div>
-          <Header />
+          <Header loading={true} />
           <Wrapper>
             <Loadingdiv>
               <Loading1 />
               <Load2>
-                <Img src={Loading}></Img>
+                <Img src={loading}></Img>
               </Load2>
             </Loadingdiv>
           </Wrapper>
@@ -100,12 +100,12 @@ const SearchResult = () => {
     else if (lstate === 1)
       return (
         <div>
-          <Header />
+          <Header loading={true} />
           <Wrapper>
             <Loadingdiv>
               <Loading2 />
               <Load2>
-                <Img src={Loading}></Img>
+                <Img src={loading}></Img>
               </Load2>
             </Loadingdiv>
           </Wrapper>
@@ -116,12 +116,12 @@ const SearchResult = () => {
     else
       return (
         <div>
-          <Header />
+          <Header loading={true} />
           <Wrapper>
             <Loadingdiv>
               <Loading3 />
               <Load2>
-                <Img src={Loading}></Img>
+                <Img src={loading}></Img>
               </Load2>
             </Loadingdiv>
           </Wrapper>

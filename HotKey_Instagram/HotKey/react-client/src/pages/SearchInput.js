@@ -93,7 +93,7 @@ const SearchInput = () => {
           </Div2>
         )}
         <Recommend>
-          <Recom_img src={recommend}></Recom_img>
+          <RecomImg src={recommend}></RecomImg>
         </Recommend>
         {trendlist !== undefined ? (
           <Div3>
@@ -335,7 +335,7 @@ const Img = styled.img`
   width: 70vw;
   border: 0px solid;
 `;
-const Recom_img = styled.img`
+const RecomImg = styled.img`
   height: 90%;
   border: 0px solid;
 `;

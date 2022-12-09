@@ -10,7 +10,7 @@ const Test2 = () => {
       <Header loading={false} />
       <Wrapper>
         <Resultdiv>
-          <img src={"/tmp_imgs/tmp.jpg"}></img>
+          <img src={"/tmp_imgs/tmp.jpg"} alt={"임시"}></img>
         </Resultdiv>
       </Wrapper>
       <Footer />
