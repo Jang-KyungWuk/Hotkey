@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Start from "./pages/Start.js";
 import SearchInput from "./pages/SearchInput.js";
+import SearchFetch from "./pages/SearchFetch.js";
 import SearchResult from "./pages/SearchResult.js";
 import Test from "./pages/Test.js";
 import Test2 from "./pages/Test2.js";
@@ -14,7 +15,9 @@ function App() {
         <Route exact path="/" element={<Start />}></Route>
         {/*키워드 입력하는 페이지*/}
         <Route exact path="/search" element={<SearchInput />}></Route>
-        {/*키워드 입력 후 결과 페이지*/}
+        {/*키워드 입력 후 서버 요청 페이지*/}
+        <Route exact path="/search_fetch" element={<SearchFetch />}></Route>
+        {/*분석 결과 보여주는 페이지 */}
         <Route exact path="/search_result" element={<SearchResult />}></Route>
         {/*핫키 사용법 클릭시 이동*/}
         <Route exact path="/info" element={<Info />}></Route>

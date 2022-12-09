@@ -28,8 +28,8 @@ const SearchInput = () => {
   }, [trendlist]);
 
   const onClick = (word) => {
-    console.log("검색결과 페이지로 이동");
-    navigate("/search_result", {
+    console.log("분석요청 페이지로 이동");
+    navigate("/search_fetch", {
       state: { keyword: word },
     });
   };
@@ -100,6 +100,7 @@ const SearchInput = () => {
             <Trenddiv>
               <Trendbtn
                 len={trendlist[0].length}
+                id={0}
                 onClick={() => {
                   onClick(trendlist[0]);
                 }}
@@ -108,6 +109,7 @@ const SearchInput = () => {
               </Trendbtn>
               <Trendbtn
                 len={trendlist[1].length}
+                id={1}
                 onClick={() => {
                   onClick(trendlist[1]);
                 }}
@@ -116,6 +118,7 @@ const SearchInput = () => {
               </Trendbtn>
               <Trendbtn
                 len={trendlist[2].length}
+                id={2}
                 onClick={() => {
                   onClick(trendlist[2]);
                 }}
@@ -124,6 +127,7 @@ const SearchInput = () => {
               </Trendbtn>
               <Trendbtn
                 len={trendlist[3].length}
+                id={3}
                 onClick={() => {
                   onClick(trendlist[3]);
                 }}
@@ -134,6 +138,7 @@ const SearchInput = () => {
             <Trenddiv2>
               <Trendbtn
                 len={trendlist[4].length}
+                id={4}
                 onClick={() => {
                   onClick(trendlist[4]);
                 }}
@@ -142,6 +147,7 @@ const SearchInput = () => {
               </Trendbtn>
               <Trendbtn
                 len={trendlist[5].length}
+                id={5}
                 onClick={() => {
                   onClick(trendlist[5]);
                 }}
@@ -150,6 +156,7 @@ const SearchInput = () => {
               </Trendbtn>
               <Trendbtn
                 len={trendlist[6].length}
+                id={6}
                 onClick={() => {
                   onClick(trendlist[6]);
                 }}
@@ -163,46 +170,53 @@ const SearchInput = () => {
             <Trenddiv>
               <Trendbtn
                 len={1}
+                id={0}
                 onClick={() => {
                   onClick(trendlist[0]);
                 }}
               ></Trendbtn>
               <Trendbtn
                 len={1}
+                id={1}
                 onClick={() => {
-                  onClick(trendlist[0]);
+                  onClick(trendlist[1]);
                 }}
               ></Trendbtn>
               <Trendbtn
                 len={1}
+                id={2}
                 onClick={() => {
-                  onClick(trendlist[0]);
+                  onClick(trendlist[2]);
                 }}
               ></Trendbtn>
               <Trendbtn
                 len={1}
+                id={3}
                 onClick={() => {
-                  onClick(trendlist[0]);
+                  onClick(trendlist[3]);
                 }}
               ></Trendbtn>
             </Trenddiv>
             <Trenddiv2>
               <Trendbtn
                 len={1}
+                id={4}
                 onClick={() => {
-                  onClick(trendlist[0]);
+                  onClick(trendlist[4]);
                 }}
               ></Trendbtn>
               <Trendbtn
                 len={1}
+                id={5}
                 onClick={() => {
-                  onClick(trendlist[0]);
+                  onClick(trendlist[5]);
                 }}
               ></Trendbtn>
               <Trendbtn
                 len={1}
+                id={6}
                 onClick={() => {
-                  onClick(trendlist[0]);
+                  onClick(trendlist[6]);
                 }}
               ></Trendbtn>
             </Trenddiv2>
@@ -320,15 +334,27 @@ const Trenddiv2 = styled.div`
   align-items: center;
 `;
 //trend button
+const color_array = [
+  "#FAECC8",
+  "#F4CC7E",
+  "#FFE193",
+  "#FAECC8",
+  "#FFE193",
+  "#FAECC8",
+  "#F4CC7E",
+];
 const Trendbtn = styled.button`
   cursor: pointer;
-  background-color: black;
   width: 20%;
   height: 80%;
   border-radius: 30px;
   font-size: ${(props) => (props.len < 8 ? "1vw" : "0.7vw")};
-  color: white;
+  background-color: ${(props) => color_array[props.id]}};
+  color: black;
   font-family: Roboto;
+  letter-spacing: 0.1vw;
+  font-weight:bold;
+  border: 0px solid;
 `;
 //이미지
 const Img = styled.img`

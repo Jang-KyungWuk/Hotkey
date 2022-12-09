@@ -41,20 +41,20 @@ const Header = ({ loading }) => {
               if (query.length === 0) alert("검색어를 한 글자 이상 입력하세요");
               else if (loading) {
                 var confirmed = window.confirm(
-                  "현재 검색결과가 로딩 중입니다.\n입력하신 키워드의 결과창으로 이동하시겠습니까?" +
+                  "현재 검색결과가 로딩 중입니다.\n입력하신 키워드로 다시 검색하시겠습니까?" +
                     "\n\n키워드 :  " +
                     query
                 );
                 if (confirmed) {
-                  console.log("검색결과 페이지로 이동, keyword:" + query);
-                  navigate("/search_result", {
+                  console.log("검색요청 페이지로 이동, keyword:" + query);
+                  navigate("/search_fetch", {
                     state: { keyword: query },
                   });
                 }
               } else {
                 //로딩중이지 않은경우, 바로 이동
-                console.log("검색결과 페이지로 이동, keyword:" + query);
-                navigate("/search_result", {
+                console.log("검색요청 페이지로 이동, keyword:" + query);
+                navigate("/search_fetch", {
                   state: { keyword: query },
                 });
               }
