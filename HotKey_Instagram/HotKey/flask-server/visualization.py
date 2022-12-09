@@ -8,6 +8,13 @@ import pandas as pd
 import seaborn as sns
 import re
 
+# 0) 쌩 plaintext -> 전처리된 결과를 리턴
+# 1) 0) 의 결과 plaintext -> 딕셔너리 형태로 된 빈도 voca 리턴
+# 2) 1)의 리턴값을 받아서 -> WC를 지정된 경로에 넣어주는 함수
+# 3) 1)의 러턴값을 받아서 -> BP을 지정된 경로에 넣어주는 함수
+
+
+# corpus -> network(corpus) => LDA실행되면서 사진 저장 동시에 됨 => html이 필요 경로에 저장됨.  => 함수명 변경 필요
 
 def ranking(plaintext, wcfilename='wordcloud.png', bpfilename='barplot.png',
             ppfilename='pieplot.png', wc_backgroundcolor='black', wc_colormap='autumn'):

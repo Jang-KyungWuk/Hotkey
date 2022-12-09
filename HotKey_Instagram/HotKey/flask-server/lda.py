@@ -4,6 +4,8 @@ from sklearn.decomposition import LatentDirichletAllocation
 from kiwipiepy import Kiwi
 from preprocess import preprocess
 
+# LDA => 결과값만 리턴
+
 
 def sklda(plaintext, n_top_words=30, n_iter=30):
     """
@@ -22,11 +24,9 @@ def sklda(plaintext, n_top_words=30, n_iter=30):
 
     ------------------------------------------------------------------------------
     """
-
 # 형태소분석기 키위 인스턴스 생성
     kiwi = Kiwi()
     kiwi.prepare()
-
 
 # 전처리함수를 통해 스팸포스트 제거
     print("\nFiltering spam post...")
