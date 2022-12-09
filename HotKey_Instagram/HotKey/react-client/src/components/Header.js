@@ -78,40 +78,40 @@ const Header = ({ loading }) => {
 
 const Headerdiv = styled.div`
   display: flex;
+  align-items: center;
   height: 9vh;
   width: 100vw;
   position: fixed;
   top: 0px;
   left: 2px;
-  background-color: white;
+  background-color: #252b36;
 `;
 const Logodiv = styled.div`
   display: flex;
   height: 100%;
   width: 17%;
-  align-items: center;
+  margin-top: 1%;
 `;
 const Logo = styled.img`
-  margin-top: 2%;
-  margin-left: 15%;
+  margin-left: 33%;
   display: block;
-  height: 3.7vw;
+  height: 65%;
   cursor: pointer;
 `;
 const Blank = styled.div`
   display: block;
   height: 100%;
-  width: 10%;
+  width: 0%;
 `;
 const Searchdiv = styled.div`
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
   height: 100%;
-  width: 70%;
+  width: 78%;
 `;
 const Logodiv2 = styled.div`
-  margin-left: 3%;
+  margin-left: 7%;
   display: flex;
   height: 100%;
   width: 20%;
@@ -120,7 +120,8 @@ const Logodiv2 = styled.div`
 `;
 const Logoimg2 = styled.img`
   display: block;
-  height: 3vw;
+  margin-top: 0%;
+  height: 70%;
   cursor: pointer;
 `;
 //searchbox를 감싸는 div
@@ -131,6 +132,7 @@ const Div2 = styled.div`
   align-items: center;
   background-color: #d94925;
   border-radius: 20px;
+  background-color: #252b36;
 `;
 //input이 들어갈 Div
 const Inputdiv = styled.div`
@@ -160,15 +162,16 @@ const Input = styled.input`
 const Button = styled.button`
   margin-left: 3%;
   cursor: pointer;
-  background-color: black;
+  background-color: white;
   width: 13%;
   height: 65%;
   border-width: 1px;
   border-radius: 30px;
   font-family: Roboto;
   font-size: 1.3vw;
-  color: white;
-  letter-spacing: 0.2vw;
+  font-weight: bold;
+  color: black;
+  letter-spacing: 0.1vw;
 `;
 
 Header.defaultProps = {
