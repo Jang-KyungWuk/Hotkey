@@ -97,16 +97,6 @@ def checkavail():
     return 'check_avail()실행 후 DB 반영 완료'
 
 
-@app.route('/manage/test/image/<query>')
-def tt(query):
-    status, images = top_image(query)
-    for idx, url in enumerate(images):
-        filename = query+str(idx)
-        save_image(url, filename)
-
-    return jsonify({'status': status, 'images': images})
-
-
 @app.route('/manage/delete_image')
 def del_img():
     dir_path = '../react-client/public/top_imgs'
