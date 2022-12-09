@@ -83,6 +83,7 @@ const Headerdiv = styled.div`
   position: fixed;
   top: 0px;
   left: 2px;
+  background-color: white;
 `;
 const Logodiv = styled.div`
   display: flex;

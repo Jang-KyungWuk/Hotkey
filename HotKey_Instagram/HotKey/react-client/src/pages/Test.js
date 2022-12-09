@@ -11,19 +11,16 @@ const Test = () => {
         setData(data);
         console.log("받아온 Account 객체", data);
       });
-
-    fetch("/manage/test/test")
-      .then((res) => res.blob())
-      .then((blob) => {
-        let blobUrl = URL.createObjectURL(blob);
-        console.log(blobUrl);
-        //URL.revokeObjectURL(blobUrl);
-      });
   }, []);
 
   return (
     <div>
       <div style={{ height: 900 }}>
+        <img
+          src={require("../top_imgs/love0.jpg")}
+          style={{ height: "250px" }}
+          alt="에라이~~"
+        ></img>
         <h1>테스트용 페이지...</h1>
         {/*밑에는 서버 fetch 테스트용...*/}
         <h2>네트워크 test</h2>

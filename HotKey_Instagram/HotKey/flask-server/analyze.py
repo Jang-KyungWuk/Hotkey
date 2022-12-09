@@ -40,7 +40,7 @@ def get_image(tid):
     image_name = []
     for idx, url in enumerate(images):
         filename = tname+str(idx)
-        save_path = '../react-client/public/top_imgs/'+filename+'.jpg'
+        save_path = '../react-client/src/top_imgs/'+filename+'.jpg'
         request.urlretrieve(url, save_path)
         image_name.append(filename+'.jpg')
     return (True, image_name)
