@@ -1,88 +1,342 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
+import search_insert from "../images/search_insert.jpg";
+import recommend from "../images/recommend.jpg";
 import Footer from "../components/Footer";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import styled from "styled-components";
 
 const SearchInput = () => {
   const [query, setQuery] = useState("");
+  const [trendlist, setTrendList] = useState(undefined);
   const navigate = useNavigate();
+  useEffect(() => {
+    fetch("/trend_client")
+      .then((res) => res.json())
+      .then((data) => {
+        setTrendList(data);
+      })
+      .catch((err) => {
+        console.log(err);
+        alert(err);
+      });
+  }, []);
+
+  useEffect(() => {
+    //trendlist잘 받아오는지 테스트용 코드..
+    console.log("받아온 trendlist :", trendlist);
+  }, [trendlist]);
+
+  const onClick = (word) => {
+    console.log("검색결과 페이지로 이동");
+    navigate("/search_result", {
+      state: { keyword: word },
+    });
+  };
   return (
     <div>
-      <div style={{ height: "700px" }}>
-        <img src={HotKey_Logo} style={styles.image} alt="hotkey_logo.."></img>
-        <div>
-          {/*여기서 검색창기능 구현!! (검색라인, 버튼, 트렌드 워드, 백그라운드 컬러..)*/}
-          <input
-            placeholder="검색할 해시태그를 입력하세요"
-            type="search"
-            maxLength="20"
-            onChange={(e) => {
-              setQuery(e.target.value);
-            }}
-            onKeyPress={(e) => {
-              if (e.key === "Enter") {
-                navigate("/search_result", { state: { keyword: query } });
-              }
-            }}
-            style={styles.input}
-          ></input>
-          {query.length === 0 ? (
-            <button
-              style={styles.button}
+      <Wrapper>
+        <Div1>
+          <Link to="/search" style={{ height: "100%" }}>
+            <Logo src={HotKey_Logo}></Logo>
+          </Link>
+        </Div1>
+        {query.length === 0 ? (
+          <Div2>
+            <Inputdiv>
+              <Input
+                autoFocus
+                placeholder="키워드를 입력하세요"
+                maxLength="20"
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                }}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    alert("검색어를 한 글자 이상 입력하세요");
+                  }
+                }}
+              ></Input>
+            </Inputdiv>
+            <Button
               onClick={() => {
                 alert("검색어를 한 글자 이상 입력하세요");
               }}
             >
-              검색
-            </button>
-          ) : (
-            <button
-              style={styles.button}
+              SEARCH
+            </Button>
+          </Div2>
+        ) : (
+          <Div2>
+            <Inputdiv>
+              <Input
+                autoFocus
+                placeholder="키워드를 입력하세요"
+                maxLength="20"
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                }}
+                onKeyPress={(e) => {
+                  if (e.key === "Enter") {
+                    onClick(query);
+                  }
+                }}
+              ></Input>
+            </Inputdiv>
+            <Button
               onClick={() => {
-                console.log("검색결과 페이지로 이동");
-                navigate("/search_result", { state: { keyword: query } });
+                onClick(query);
               }}
             >
-              검색
-            </button>
-          )}
-          <h1 style={{ textAlign: "center" }}>
-            검색칸 밑에서 트렌드키워드 추천!{"\n"}trend1, trend2, trend3, ...
-          </h1>
+              SEARCH
+            </Button>
+          </Div2>
+        )}
+        <Recommend>
+          <Recom_img src={recommend}></Recom_img>
+        </Recommend>
+        {trendlist !== undefined ? (
+          <Div3>
+            <Trenddiv>
+              <Trendbtn
+                len={trendlist[0].length}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              >
+                {trendlist[0]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[1].length}
+                onClick={() => {
+                  onClick(trendlist[1]);
+                }}
+              >
+                {trendlist[1]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[2].length}
+                onClick={() => {
+                  onClick(trendlist[2]);
+                }}
+              >
+                {trendlist[2]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[3].length}
+                onClick={() => {
+                  onClick(trendlist[3]);
+                }}
+              >
+                {trendlist[3]}
+              </Trendbtn>
+            </Trenddiv>
+            <Trenddiv2>
+              <Trendbtn
+                len={trendlist[4].length}
+                onClick={() => {
+                  onClick(trendlist[4]);
+                }}
+              >
+                {trendlist[4]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[5].length}
+                onClick={() => {
+                  onClick(trendlist[5]);
+                }}
+              >
+                {trendlist[5]}
+              </Trendbtn>
+              <Trendbtn
+                len={trendlist[6].length}
+                onClick={() => {
+                  onClick(trendlist[6]);
+                }}
+              >
+                {trendlist[6]}
+              </Trendbtn>
+            </Trenddiv2>
+          </Div3>
+        ) : (
+          <Div3>
+            <Trenddiv>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+            </Trenddiv>
+            <Trenddiv2>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+              <Trendbtn
+                len={1}
+                onClick={() => {
+                  onClick(trendlist[0]);
+                }}
+              ></Trendbtn>
+            </Trenddiv2>
+          </Div3>
+        )}
+        <div
+          style={{
+            display: "flex",
+            height: "56%",
+            flexDirection: "column",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Img src={search_insert} alt="search_insert.jpg"></Img>
         </div>
-      </div>
-      <Footer />
+      </Wrapper>
+      <Footer></Footer>
     </div>
   );
 };
-const styles = {
-  image: {
-    display: "block",
-    marginTop: 100,
-    marginLeft: "auto",
-    marginRight: "auto",
-    marginBottom: 150,
-    width: 300,
-    height: 100,
-  },
-  input: {
-    height: 70,
-    width: "50%",
-    fontSize: 30,
-    textAlign: "left",
-    marginLeft: 450,
-    borderWidth: 3,
-    borderRadius: 8,
-  },
-  button: {
-    backgroundColor: "ivory",
-    cursor: "pointer",
-    height: 60,
-    width: 90,
-    fontSize: 30,
-    borderWidth: 3,
-    borderRadius: 8,
-    marginLeft: 20,
-  },
-};
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 90vh;
+  width: 100vw;
+  align-items: center;
+`;
+//로고 들어갈거
+const Div1 = styled.div`
+  margin-top: 3%;
+  display: flex;
+  margin-bottom: 2%;
+  align-items: center;
+  justify-content: center;
+  height: 10%;
+  width: 100%;
+`;
+const Logo = styled.img`
+  display: block;
+  height: 100%;
+`;
+//검색input + button 들어갈 Div
+const Div2 = styled.div`
+  display: flex;
+  width: 50%;
+  height: 8%;
+  justify-content: space-around;
+  align-items: center;
+  background-color: #d94925;
+  border-radius: 20px;
+`;
+//input이 들어갈 Div
+const Inputdiv = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 70%;
+  height: 65%;
+  border-radius: 30px;
+  border: 0px solid;
+  background-color: white;
+`;
+//input박스
+const Input = styled.input`
+  width: 90%;
+  height: 80%;
+  border-radius: 30px;
+  border: 0px solid;
+  font-family: Roboto;
+  font-size: 1.3vw;
+  &:focus {
+    outline: none;
+  }
+`;
+//검색button 박스
+const Button = styled.button`
+  cursor: pointer;
+  background-color: black;
+  width: 17%;
+  height: 65%;
+  border-width: 1px;
+  border-radius: 30px;
+  font-family: Roboto;
+  font-size: 1.3vw;
+  color: white;
+  letter-spacing: 0.2vw;
+`;
+const Recommend = styled.div`
+  display: flex;
+  width: 50%;
+  height: 4%;
+  align-items: flex-end;
+`;
+//trend 보여줄 Div
+const Div3 = styled.div`
+  display: flex;
+  width: 50%;
+  height: 10%;
+  justify-content: center;
+  flex-direction: column;
+`;
+//trend 위아래 Div
+const Trenddiv = styled.div`
+  display: flex;
+  width: 100%;
+  height: 50%;
+  justify-content: space-around;
+  align-items: center;
+`;
+const Trenddiv2 = styled.div`
+  display: flex;
+  width: 100%;
+  height: 50%;
+  justify-content: space-around;
+  align-items: center;
+`;
+//trend button
+const Trendbtn = styled.button`
+  cursor: pointer;
+  background-color: black;
+  width: 20%;
+  height: 80%;
+  border-radius: 30px;
+  font-size: ${(props) => (props.len < 8 ? "1vw" : "0.7vw")};
+  color: white;
+  font-family: Roboto;
+`;
+//이미지
+const Img = styled.img`
+  width: 70vw;
+  border: 0px solid;
+`;
+const Recom_img = styled.img`
+  height: 90%;
+  border: 0px solid;
+`;
 export default SearchInput;
