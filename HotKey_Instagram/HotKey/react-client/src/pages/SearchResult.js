@@ -21,17 +21,26 @@ const SearchResult = () => {
           <Header loading={false} />
           <Resultdiv>
             <ResultWrapper>
-              <Page>
-                {image_list.map((file) => (
-                  <img
-                    key={file}
-                    src={require("../top_imgs/" + file)}
-                    style={{ height: "10%" }}
-                    alt="임시"
-                  ></img>
-                ))}
-              </Page>
-              <Page></Page>
+              <Page1>
+                <Page11>
+                  <Page111></Page111>
+                  <Page112>
+                    {/* {image_list.map((file) => (
+                    <img
+                      key={file}
+                      src={require("../top_imgs/" + file)}
+                      style={{ height: "10%", width: "20%" }}
+                      alt="임시"
+                    ></img>
+                  ))} */}
+                  </Page112>
+                </Page11>
+                <Page12></Page12>
+              </Page1>
+              <Page2>
+                <Page21></Page21>
+                <Page22></Page22>
+              </Page2>
             </ResultWrapper>
           </Resultdiv>
           <Footer />
@@ -71,11 +80,72 @@ const ResultWrapper = styled.div`
   justify-content: space-around;
   background-color: grey;
 `;
-const Page = styled.div`
+//1페이지
+const Page1 = styled.div`
   display: flex;
   height: 48%;
   width: 100%;
   background-color: tomato;
+  justify-content: space-around;
+  align-items: center;
 `;
+//1페이지의 왼쪽
+const Page11 = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 95%;
+  width: 42%;
+  background-color: maroon;
+  align-items: center;
+`;
+//1페이지 왼쪽의 위
+const Page111 = styled.div`
+  display: flex;
+  width: 90%;
+  height: 35%;
+  background-color: black;
+`;
+//1페이지 왼쪽의 아래
+const Page112 = styled.div`
+  display: flex;
+  width: 90%;
+  height: 57%;
+  background-color: ivory;
+`;
+//1페이지의 오른쪽
+const Page12 = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 95%;
+  width: 53%;
+  background-color: red;
+`;
+//2페이지
+const Page2 = styled.div`
+  display: flex;
+  height: 48%;
+  width: 100%;
+  background-color: tomato;
+  justify-content: space-around;
+  align-items: center;
+`;
+//2페이지의 왼쪽
+const Page21 = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 95%;
+  width: 50%;
+  background-color: red;
+`;
+//2페이지의 오른쪽
+const Page22 = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 95%;
+  width: 45%;
+  background-color: maroon;
+`;
+//1페
 
 export default SearchResult;
