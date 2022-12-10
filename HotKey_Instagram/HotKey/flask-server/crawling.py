@@ -43,7 +43,6 @@ def get_accounts(): #키워드 서치중, 어카운트 정보가 DB에 업데이
 
 # 현재 가지고 있는(변화된) total_acc_info를 DB에 업데이트하는 로직
 
-
 def set_accounts():
     conn, cur = access_db()
     cur.execute('set autocommit=0;')

@@ -121,7 +121,7 @@ const Logodiv2 = styled.div`
 const Logoimg2 = styled.img`
   display: block;
   margin-top: 0%;
-  height: 70%;
+  height: 80%;
   cursor: pointer;
 `;
 //searchbox를 감싸는 div

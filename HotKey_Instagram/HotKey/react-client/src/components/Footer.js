@@ -17,6 +17,7 @@ const Foot = styled.div`
   border-top: 2px solid;
   // position: absolute;
   left: 2px;
+  background-color: white;
 `;
 //이미지
 const Img = styled.img`
