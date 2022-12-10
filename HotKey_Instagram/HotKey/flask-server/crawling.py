@@ -13,26 +13,32 @@ from db import *
 # total_acc_info를 DB로부터 받아와서 리턴하는 로직
 
 
-def get_accounts():
+def get_accounts(): #키워드 서치중, 어카운트 정보가 DB에 업데이트 되기 전에 다른 쓰레드에서 get_accounts()할 수 없어ㅑ야함.
     conn, cur = access_db()
     acc_info = []
-    cur.execute('select * from accounts')
-    all_blocked = True
-    for row in cur.fetchall():
-        tmp = dict()
-        tmp['aid'] = row['aid']
-        tmp['id'] = row['id']
-        tmp['pw'] = row['pw']
-        tmp['user_agent'] = row['user_agent']
-        tmp['blocked'] = True if row['blocked'] == 1 else False
-        tmp['up_date'] = row['up_date']  # datetime 형식
-        tmp['last_used'] = row['last_used']  # timestamp 형식
-        # 현재 타 쓰레드에서 사용중인지 여부
-        tmp['in_use'] = True if row['in_use'] == 1 else False
-        if not tmp['blocked']:  # 하나라도 차단되지 않았다면
-            all_blocked = False
-        acc_info.append(tmp)
-    close_db(conn)
+    cur.execute('set autocommit=0;')
+    cur.execute('set session transaction isolation level serializable;')
+    cur.execute('start transaction;')
+    try :
+        cur.execute('select * from accounts')
+        all_blocked = True
+        close_db(conn)
+        for row in cur.fetchall():
+            tmp = dict()
+            tmp['aid'] = row['aid']
+            tmp['id'] = row['id']
+            tmp['pw'] = row['pw']
+            tmp['user_agent'] = row['user_agent']
+            tmp['blocked'] = True if row['blocked'] == 1 else False
+            tmp['up_date'] = row['up_date']  # datetime 형식
+            tmp['last_used'] = row['last_used']  # timestamp 형식
+            # 현재 타 쓰레드에서 사용중인지 여부
+            tmp['in_use'] = True if row['in_use'] == 1 else False
+            if not tmp['blocked']:  # 하나라도 차단되지 않았다면
+                all_blocked = False
+            acc_info.append(tmp)
+    except:
+        return ([], -1) #DB관련 에러시 all_blocked에 -1반환... 로직 생각해보기
     return acc_info, all_blocked
 
 # 현재 가지고 있는(변화된) total_acc_info를 DB에 업데이트하는 로직
@@ -40,13 +46,21 @@ def get_accounts():
 
 def set_accounts():
     conn, cur = access_db()
-    g.all_blocked = True
-    for row in g.total_acc_info:
-        cur.execute('update accounts set blocked=(%s), up_date=(%s), last_used=(%s), in_use=(%s) where id=(%s);',
-                    (1 if row['blocked'] == True else 0, str(time.strftime('%Y-%m-%d %H:%M:%S')), row['last_used'], 1 if row['in_use'] == True else 0, row['id']))
-        if row['blocked'] == False:
-            g.all_blocked = False
-    close_db(conn)
+    cur.execute('set autocommit=0;')
+    cur.execute('set session transaction isolation level serializable;')
+    cur.execute('start transaction;')
+    try :
+        g.all_blocked = True
+        for row in g.total_acc_info:
+            cur.execute('update accounts set blocked=(%s), up_date=(%s), last_used=(%s), in_use=(%s) where id=(%s);',
+                        (1 if row['blocked'] == True else 0, str(time.strftime('%Y-%m-%d %H:%M:%S')), row['last_used'], 1 if row['in_use'] == True else 0, row['id']))
+            if row['blocked'] == False:
+                g.all_blocked = False
+        close_db(conn)
+        return (True)
+    except :
+        close_db(conn)
+        return (False)
 
 # all_blocked인 경우에 30분~1시간 정도 주기적으로 로그인 시도(+로그아웃)해보면서 total_acc_info랑 all_blocked수정하기
 # =>  주기적으로 다음 코드 실행

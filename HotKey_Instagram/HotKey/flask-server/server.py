@@ -81,8 +81,6 @@ def show_accounts():
     # before_search실행
     before_search()
     print('show_accounts실행')
-    # after_search실행
-    after_search()
     return jsonify({'all_blocked': g.all_blocked, 'total_acc_info': g.total_acc_info})
 
 
@@ -146,4 +144,4 @@ def js(a, b):
 
 # ---------------------------------------------------------------------
 if __name__ == '__main__':
-    app.run(debug=False)  # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..
+    app.run(debug=True)  # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..
