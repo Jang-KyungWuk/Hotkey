@@ -1,11 +1,10 @@
 from flask import g
 from requests import get, post, Session
-from urllib import parse, request
+from urllib import parse
 import json
-from datetime import datetime, timedelta
+from datetime import datetime
 import emoji
 import time
-import pymysql
 import random
 import copy
 from db import *
@@ -13,10 +12,13 @@ from db import *
 # total_acc_info를 DB로부터 받아와서 리턴하는 로직
 
 
-def get_accounts(cur): #키워드 서치중, 어카운트 정보가 DB에 업데이트 되기 전에 다른 쓰레드에서 get_accounts()할 수 없어ㅑ야함.
+# 키워드 서치중, 어카운트 정보가 DB에 업데이트 되기 전에 다른 쓰레드에서 get_accounts()할 수 없어ㅑ야함.
+def get_accounts(cur):
+    print('get_accounts 실행')
     acc_info = []
-    try :
+    try:
         cur.execute('select * from accounts')
+        print("이게 왜???")
         all_blocked = True
         for row in cur.fetchall():
             tmp = dict()
@@ -33,20 +35,21 @@ def get_accounts(cur): #키워드 서치중, 어카운트 정보가 DB에 업데
                 all_blocked = False
             acc_info.append(tmp)
     except:
-        return ([], -1) #DB관련 에러시 all_blocked에 -1반환... 로직 생각해보기
+        return ([], -1)  # DB관련 에러시 all_blocked에 -1반환... 로직 생각해보기
     return acc_info, all_blocked
 
 # 현재 가지고 있는(변화된) total_acc_info를 DB에 업데이트하는 로직
 
+
 def set_accounts(cur):
-    try :
+    try:
         g.all_blocked = True
         for row in g.total_acc_info:
             cur.execute('update accounts set blocked=(%s), up_date=(%s), last_used=(%s), in_use=(%s) where id=(%s);',
                         (1 if row['blocked'] == True else 0, str(time.strftime('%Y-%m-%d %H:%M:%S')), row['last_used'], 1 if row['in_use'] == True else 0, row['id']))
             if row['blocked'] == False:
                 g.all_blocked = False
-    except :
+    except:
         return False
     return True
 
@@ -277,17 +280,21 @@ def hot_key_instagram_recent(query, session, max_page=40):
 
 def check_session():  # 1210 수정 코드 // True or False 반환
     # 가장 사용한지 오래된 계정부터 로그인 시도, 최대 2개의 세션 생성
-    
-    #account읽어온뒤 가용가능한 세션찾고 in_use업데이트하는 것하고 commit까지 하나 트랜잭션으로 만들기
+
+    # account읽어온뒤 가용가능한 세션찾고 in_use업데이트하는 것하고 commit까지 하나 트랜잭션으로 만들기
     # start transaction ~ 디비에서 total_Acc_info 받아오기~아래 로직 실행~set_accounts()
     conn, cur = access_db()
     print('DB 트랜잭션 시작, 계정정보 받아오기')
     cur.execute('set autocommit=0;')
     cur.execute('set session transaction isolation level serializable;')
-    cur.execute('start transaction;') #트랜잭션 시작
-    #g.total_acc_info설정
+    cur.execute('start transaction;')  # 트랜잭션 시작
+    print(g.thread, ": 트랜잭션 선언완료")
+    # # 명시적으로 Lock 걸기 (트랜잭션 전체에 걸쳐서 락이 걸림 -> 여러 쓰레드가 동시에 같은 세션을 사용하는 것을 방지 => 1211수정)
+    # cur.execute('UPDATE accounts SET aid=3 WHERE aid=3;')
+
+    # g.total_acc_info설정
     g.total_acc_info, g.all_blocked = get_accounts(cur)
-    #트랜잭션 에러시..
+    # 트랜잭션 에러시..
     if (g.all_blocked == -1):
         print("(check_session_getDB) : DB 트랜잭션 에러...")
         conn.close()
@@ -310,14 +317,15 @@ def check_session():  # 1210 수정 코드 // True or False 반환
             break
     # 세션 생성 끝
     #print('g.mapping :', g.mapping)
-    status = set_accounts(cur)  # 전체 계정정보 업데이트 + 사용중여부 업데이트하기 + (all_blocked 업데이트)
+    # 전체 계정정보 업데이트 + 사용중여부 업데이트하기 + (all_blocked 업데이트)
+    status = set_accounts(cur)
     if not status:
         stat = set_accounts(cur)
         if not stat:
             print("(check_session_setDB) : DB 트랜잭션 에러...")
             conn.close()
             return False
-    close_db(conn) #트랜잭션 끝 (commit; and close;)
+    close_db(conn)  # 트랜잭션 끝 (commit; and close;)
     return True
 
 # 메인) Single_Search Algorithm
@@ -325,9 +333,9 @@ def check_session():  # 1210 수정 코드 // True or False 반환
 
 # 성공여부와 tid를 반환. ex) (True, 1) 혹은 (False, -1) => 없는 경우 tid는 -1이다.
 def single_search(keyword, enforce=False):
-    #DB에서만 리턴되는 경우 server.py에서의 에러 방지
+    # DB에서만 리턴되는 경우 server.py에서의 에러 방지
     g.acc_inuse, g.total_acc_info = [], []
-    
+
     # enforce => DB에 있어도 강제 크롤링 (최신화)
     if len(keyword) == 0:
         print("to client: 한 글자 이상의 키워드를 입력하세요..")
@@ -344,7 +352,7 @@ def single_search(keyword, enforce=False):
         tid = res[0]['tid']
         conn.close()
         return (True, tid)
-    conn.close() #일단 conn.close()
+    conn.close()  # 일단 conn.close()
     ######################## DB에 존재하지 않을경우, 크롤링->DB적재->값 반환#####################
     delimiter = 'HOTKEY123!@#'
 
@@ -352,7 +360,7 @@ def single_search(keyword, enforce=False):
     if not status:
         print("single_search_check_session : DB 트랜잭션 에러...")
         return (False, -1)
-    #check_session에서 account읽어온뒤 가용가능한 세션찾고 in_use업데이트하는 것하고 commit까지 하나 트랜잭션으로 만들기.
+    # check_session에서 account읽어온뒤 가용가능한 세션찾고 in_use업데이트하는 것하고 commit까지 하나 트랜잭션으로 만들기.
 
     if g.all_blocked:  # 전부 막혔으면
         print('All accounts are blocked by instagram.. please try "check_avail" manually later..')
@@ -393,7 +401,7 @@ def single_search(keyword, enforce=False):
             for page in recent_list:
                 for post in page:
                     corpus = corpus + delimiter + post
-                    
+
             conn, cur = access_db()
             if len(res) >= 1 and enforce:  # Db에 있는데도 enforce인경우
                 cur.execute(
@@ -453,7 +461,8 @@ def single_search(keyword, enforce=False):
 
         elif status == 3:
             # 검열 키워드 혹은 페이지 x (404error)
-            print('to client : 해당 태그는 인스타그램에서 검색이 제한되어있거나, 결과를 제공하지 않습니다. 다른 키워드를 입력하세요...')
+            print(
+                'to client : 해당 태그는 인스타그램에서 검색이 제한되어있거나, 결과를 제공하지 않습니다. 다른 키워드를 입력하세요...')
             return (False, -1)
 
         elif status == 5:

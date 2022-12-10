@@ -13,6 +13,7 @@ app.config['JSON_AS_ASCII'] = False  # 한글 깨짐 방지 (jsonify 사용시)
 
 # single_search시, before_request (+ + showaccount, checkavail, keywordsearch(test) 시에도 사용해야함!!!)
 
+
 @app.route('/')
 def home():
     return 'This is the backend server for HOTKEY project__...'
@@ -26,25 +27,28 @@ def trend_client():
 
 @app.route('/keyword_search/<keyword>')
 def keyword_search(keyword):
+    g.thread = keyword
     # (true, tid), (false, tid)만 반환
     # 대소문자 구분, 띄어쓰기 예외처리해야함!!!
-    print('keyword_search 실행, enforce = False')
+    print('keyword_search 실행, enforce = False, keyword :', keyword)
     status, tid = single_search(keyword)
+    if not status:
+        return jsonify({'status': status, 'tid': tid})
     time.sleep(2)  # DB에서 온 경우, 지나치게 빨리 return되는것을 방지 ㅠ
     print('keyword_search 완료 : 가용중 세션 로그아웃 및 DB 업로드')
     for s in g.acc_inuse:
         logout(s['session'])
         g.total_acc_info[g.mapping[s['aid']]]['in_use'] = False
-    conn,cur = access_db()
-    #트랜잭션 시작
+    conn, cur = access_db()
+    # 트랜잭션 시작
     cur.execute('set autocommit=0;')
     cur.execute('set session transaction isolation level serializable;')
-    cur.execute('start transaction;') 
+    cur.execute('start transaction;')
     stat = set_accounts(cur)
     if not stat:
         set_accounts(cur)
     close_db(conn)
-    #트랜잭션끝
+    # 트랜잭션끝
     return jsonify({'status': status, 'tid': tid})
 
 
@@ -78,11 +82,11 @@ def show_accounts():
 @app.route('/manage/check_avail')
 # 관리용 코드, 차단된 계정에 대해 차단이 풀렸는지 확인 후 DB에 반영 (매뉴얼하게 실행)
 def checkavail():
-    conn,cur = access_db()
-    #트랜잭션실행
+    conn, cur = access_db()
+    # 트랜잭션실행
     cur.execute('set autocommit=0;')
     cur.execute('set session transaction isolation level serializable;')
-    cur.execute('start transaction;') #트랜잭션 시작
+    cur.execute('start transaction;')  # 트랜잭션 시작
     g.total_acc_info, g.all_blocked = get_accounts(cur)
     if (g.all_blocked == -1):
         print("checkavail_get_account DB 트랜잭션 에러...")
@@ -137,7 +141,9 @@ def js(a, b):
         file = fp.read()
     return file
 
-#워드클라우드 테스트 -> 마스크 이미지, 경로 설정등 해줘야함..
+# 워드클라우드 테스트 -> 마스크 이미지, 경로 설정등 해줘야함..
+
+
 @app.route('/manage/test/test1')
 def tttt():
     with open('임시.txt', encoding='utf8') as fp:
@@ -147,6 +153,8 @@ def tttt():
     return jsonify(1)
 
 # top 이미지 받아오는 로직
+
+
 @app.route('/manage/test/test2/<query>')
 def ttttt(query):
     status, images = top_image(query)
@@ -158,6 +166,7 @@ def ttttt(query):
         save_path = '../react-client/src/top_imgs/'+filename+'.jpg'
         request.urlretrieve(url, save_path)
     return jsonify(1)
+
 
 # ---------------------------------------------------------------------
 if __name__ == '__main__':
