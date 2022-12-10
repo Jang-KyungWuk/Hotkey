@@ -311,11 +311,13 @@ def check_session():  # 1210 수정 코드 // True or False 반환
     # 세션 생성 끝
     #print('g.mapping :', g.mapping)
     status = set_accounts(cur)  # 전체 계정정보 업데이트 + 사용중여부 업데이트하기 + (all_blocked 업데이트)
-    close_db(conn) #트랜잭션 끝 (commit; and close;)
     if not status:
-        if not set_accounts(cur):
+        stat = set_accounts(cur)
+        if not stat:
             print("(check_session_setDB) : DB 트랜잭션 에러...")
+            conn.close()
             return False
+    close_db(conn) #트랜잭션 끝 (commit; and close;)
     return True
 
 # 메인) Single_Search Algorithm
@@ -323,6 +325,9 @@ def check_session():  # 1210 수정 코드 // True or False 반환
 
 # 성공여부와 tid를 반환. ex) (True, 1) 혹은 (False, -1) => 없는 경우 tid는 -1이다.
 def single_search(keyword, enforce=False):
+    #DB에서만 리턴되는 경우 server.py에서의 에러 방지
+    g.acc_inuse, g.total_acc_info = [], []
+    
     # enforce => DB에 있어도 강제 크롤링 (최신화)
     if len(keyword) == 0:
         print("to client: 한 글자 이상의 키워드를 입력하세요..")
@@ -465,17 +470,6 @@ def single_search(keyword, enforce=False):
 
     # 여기까지 왔으면, 가용가능한 세션을 다 썼지만 결과 도출이 되지않았음.
     print('to client : 현재 서비스가 원활하지 않습니다. 나중에 다시 시도하세요..')
-    
-    conn,cur = access_db()
-    #트랜잭션 시작
-    cur.execute('set autocommit=0;')
-    cur.execute('set session transaction isolation level serializable;')
-    cur.execute('start transaction;') 
-    status = set_accounts(cur)
-    if not status:
-        set_accounts(cur)
-    close_db(conn)
-    #트랜잭션끝
     return (False, -1)
 
 

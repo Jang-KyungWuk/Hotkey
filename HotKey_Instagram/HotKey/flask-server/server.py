@@ -28,10 +28,23 @@ def trend_client():
 def keyword_search(keyword):
     # (true, tid), (false, tid)만 반환
     # 대소문자 구분, 띄어쓰기 예외처리해야함!!!
-    # 실행전 before_search
     print('keyword_search 실행, enforce = False')
     status, tid = single_search(keyword)
     time.sleep(2)  # DB에서 온 경우, 지나치게 빨리 return되는것을 방지 ㅠ
+    print('keyword_search 완료 : 가용중 세션 로그아웃 및 DB 업로드')
+    for s in g.acc_inuse:
+        logout(s['session'])
+        g.total_acc_info[g.mapping[s['aid']]]['in_use'] = False
+    conn,cur = access_db()
+    #트랜잭션 시작
+    cur.execute('set autocommit=0;')
+    cur.execute('set session transaction isolation level serializable;')
+    cur.execute('start transaction;') 
+    stat = set_accounts(cur)
+    if not stat:
+        set_accounts(cur)
+    close_db(conn)
+    #트랜잭션끝
     return jsonify({'status': status, 'tid': tid})
 
 

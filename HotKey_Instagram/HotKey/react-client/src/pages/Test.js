@@ -16,11 +16,11 @@ const Test = () => {
   return (
     <div>
       <div style={{ height: 900 }}>
-        <img
+        {/* <img
           src={require("../top_imgs/love0.jpg")}
           style={{ height: "250px" }}
           alt="에라이~~"
-        ></img>
+        ></img> */}
         <h1>테스트용 페이지...</h1>
         {/*밑에는 서버 fetch 테스트용...*/}
         <h2>네트워크 test</h2>
