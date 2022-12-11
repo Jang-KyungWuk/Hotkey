@@ -1,0 +1,26 @@
+Metadata-Version: 2.1
+Name: kiwipiepy
+Version: 0.14.0
+Summary: Kiwi, the Korean Tokenizer for Python
+Home-page: https://github.com/bab2min/kiwipiepy
+Author: bab2min
+Author-email: bab2min@gmail.com
+License: LGPL v3 License
+Keywords: Korean morphological analysis
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: Topic :: Software Development :: Libraries
+Classifier: Topic :: Text Processing :: Linguistic
+Classifier: License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: C++
+License-File: LICENSE.txt
+Requires-Dist: dataclasses
+Requires-Dist: kiwipiepy-model (~=0.14)
+
+kiwipiepy
+----------
+kiwipiepy is a python version package of Kiwi(Korean Intelligent Word Identifier) which is a morphological analyzer for Korean.
+
+https://github.com/bab2min/kiwipiepy 
