@@ -1,9 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 import preprocess as pp
 import networkx as nx
 import pyvis as pyv
@@ -11,9 +5,6 @@ import pickle as pkl
 
 import numpy as np
 import matplotlib.pyplot as plt
-
-
-# In[2]:
 
 
 def network(plaintext,ldaResult, sep='HOTKEY123!@#',
@@ -54,9 +45,6 @@ def network(plaintext,ldaResult, sep='HOTKEY123!@#',
     return True
 
 
-# In[3]:
-
-
 def kwd_topic_pairing(topics, titleKwdCount=5):
     
     topicCount = len(topics)
@@ -82,9 +70,6 @@ def kwd_topic_pairing(topics, titleKwdCount=5):
 
                 
     return topicTitles , kwd2topic
-
-
-# In[4]:
 
 
 def kwd_morph_pairing(data):
@@ -117,9 +102,6 @@ def kwd_morph_pairing(data):
         kwd2Morph[kwd] = morphs[counts.index(max(counts))]
         
     return returnData, kwd2Morph
-
-
-# In[5]:
 
 
 def kwd_paring(data, kwd2topic, kwd2Morph, skipList=['\n'], morphWeight={'NNG':1,'NNP':10,'emj':0}, minlength=2):
@@ -160,9 +142,6 @@ def kwd_paring(data, kwd2topic, kwd2Morph, skipList=['\n'], morphWeight={'NNG':1
     return kwdPair
 
 
-# In[6]:
-
-
 def get_top_pair(kwdPair, maxEdge=50):
     
     '''
@@ -190,9 +169,6 @@ def get_top_pair(kwdPair, maxEdge=50):
         vs.pop(idx)
     
     return topPair
-
-
-# In[7]:
 
 
 def darw_networkx_network(topPair, kwd2Morph, kwd2topic, topicTitles, topicColors=['#30EDE9','#34EC3C','#820BF0','#F5B901','#EC1C24']):
@@ -259,9 +235,6 @@ def darw_networkx_network(topPair, kwd2Morph, kwd2topic, topicTitles, topicColor
             G.nodes[node[0]]['color'] = "#aaaaaa"
          
     return G
-
-
-# In[8]:
 
 
 def pyvis_network_html(G, saveDir='./templates/',saveName='network',

@@ -1,3 +1,6 @@
+# !/usr/bin/env python
+# coding: utf-8
+
 # Morpheme Analyze
 from kiwipiepy import Kiwi
 import konlpy
@@ -10,6 +13,8 @@ import emoji
 # BM25
 from math import log1p
 import numpy as np
+
+# 기존 preprocess.py, spamfilter.py,
 
 
 class nltkMA:
@@ -208,6 +213,225 @@ class setMorphemeAnalyzer:
         return result
 
 
+def preprocess(plaintext, sep='HOTKEY123!@#',
+               returnIndex=False, returnTopIndex=None,
+               returnPlain=False, returnMorph=False,
+               multiReturn=False,
+               removeHashTag=True,
+               morphemeAnalyzer='kiwi', morphemeAnalyzerParams=None, targetMorphs=['NNP', 'NNG'],
+               returnEnglishMorph=True, EETagRule={'NLTK_NNP': 'NNP', 'NLTK_NN': 'NNG', 'R_W_HASHTAG': 'W_HASHTAG'},
+               filterMorphemeAnalyzer='kiwi', filterMorphemeAnalyzerParams=None, filterTargetMorphs=['NNP', 'NNG', 'W_HASHTAG'],
+               filterEnglishMorph=True, filterEETagRule={'NLTK_NNP': 'NNP', 'NLTK_NN': 'NNG', 'R_W_HASHTAG': 'W_HASHTAG'},
+               k_1Filter=1.5, bFilter=0.75, filterThreshold=2.5):
+    '''
+    plaintext (str) : 구분자로 구분 된 글의 문자열 데이터 ex: "글1(구분자)글2(구분자)글3(구분자)글4"
+
+    sep (str) : 구분자 ex = "HOTKEY123!@#"
+
+    returnIndex = False (bool): True 시 결과 데이터로 스팸이 아닌 것으로 판별 된 글들의 인덱스 반환
+
+    returnTopIndex = None (None / int) : 결과 데이터로 스팸이 아닌 것으로 판별 된 글들의 인덱스 중 반환 할 최신 인덱스의 개수
+
+    returnPlain = False (bool) : True 시 결과 데이터로 스팸 필터링 이후 입력받은 plaintext와 동일한 형식으로 데이터 반환
+
+    returnMorph = False (bool) : False 시 전체 리스트 안의 포스트의 리스트들에 토큰들이 있는 형태로 반환
+                                 ex : [[글1토큰1, 글1토큰2, 글1토큰3, ... ], 
+                                       [글2토큰1, 글2토큰2, ... ], ...]
+                                 True 시 토큰의 품사를 같이 반환
+                                 ex: [[[글1토큰1, 토큰1품사], [글1토큰2, 토큰2품사], ... ],
+                                      [[글2토큰1, 토큰1품사], [글2토큰2, 토큰2품사], ... ], ... ]
+
+    multiReturn = False (bool) : True 시 다수의 결과를 반환
+    morphemeAnalyzer = 'kiwi' (str) : 문자열로 형태소 분석기의 이름 입력 시 해당 형태소 분석기의 인스턴스를 내부에서 생성
+
+                                    지원 형태소 분석기 및 호출에 사용 가능한 문자열
+                                    kiwipiepy.Kiwi      : 'kiwi','Kiwi','KIWI','키위'
+                                    konlpy.tag.Hannanum : 'Hannanum', 'hannanum', 'HANNANUM','한나눔'
+                                    konlpy.tag.Komoran  : 'Komoran','KOMORAN','komoran','코모란'
+                                    konlpy.tag.Kkma     : 'Kkma','KKMA','kkma','꼬꼬마'
+                                    konlpy.tag.Okt      : 'Okt','OKT','okt','오픈코리안텍스트','트위터'
+                                    konlpy.tag.Mecab    : 'Mecab','mecab','MECAB','미캐브'
+
+
+
+    morphemeAnalyzerParams = None (None / dict) : None
+
+    다른 분석을 수행할 수 있도록 전처리를 수행
+
+
+    형태소 분석기 인스턴스 생성
+    필요시 # (해쉬태그) 삭제
+    리스트 안에 문서의 문자열이 담긴 구조를 생성 
+    개별 문서들을 돌면서 문서의 길이를 저장 (BM25 사용)
+    필터용 토큰 데이터 생성
+    BM25 알고리즘으로 필터용 토큰 데이터를 넣어서 문서별로 문서내 키워드별 BM25로 나온 점수의 평균으로 문서 점수 리스트 생성
+
+    단일 데이터 반환
+        인덱스 필요시 인덱스 반환
+        상위 인덱스 필요시 반환
+        원문 반환 필요 시 원문 반환
+
+        토큰화 데이터 필요 시
+            반환 데이터에 필요한 데이터가 필터와 동일한 형태소 분석기, 목표 품사 등 동일 조건을 가지면 해당 데이터로 반환
+            BM25로 스팸으로 판정 된 데이터 제거 후 토큰화 실시
+            데이터 반환
+
+    복수 데이터 반환
+    단일 데이터와 동일한 흐름으로 진행되지만 return 대신 딕셔너리에 추가하고 마지막에 딕셔너리를 반환  
+
+    t- 로 시작하는 변수들은 target, 실제로 반환되는 데이터 혹은 그에 사용되는 인스턴스
+    f- 로 시작하는 변수들은 filter, 내부적으로 BM25를 통해 필터링을 할 때 사용되는 데이터 혹은 그에 사용되는 인스턴스
+    '''
+
+    # 형태소 분석기 인스턴스 생성
+    tma = setMorphemeAnalyzer(morphemeAnalyzer, morphemeAnalyzerParams)
+    fma = setMorphemeAnalyzer(filterMorphemeAnalyzer,
+                              filterMorphemeAnalyzerParams)
+
+    # 구분자가 마지막에도 붙어있어 data 마지막에 비어있는 포스트가 있을 경우 이를 제거
+    data = plain_structurize(plaintext, sep)
+
+    # 해쉬태그를 구성하는 '#'을 제거하고 싶을 경우 이를 제거
+    # 구분자에도 '#'이 포함되어 있을 경우 이 또한 제외하여 처리
+    if removeHashTag == True:
+        newSep = sep.replace('#', '')
+        tdata = plain_structurize(plaintext.replace('#', ' '), newSep)
+
+    # 해쉬태그 처리가 없으면 기존의 위의 data 변수를 복제하여 사용
+    else:
+        tdata = data*1
+
+    # BM25에서 사용하기 위한 원문서들의 길이를 저장
+    postLens = list()
+    for post in data:
+        postLens.append(len(post))
+
+    # BM25 필터링에 사용 될 토큰화 된 결과값을 저장
+    ftok = data_tokenize(data, fma, filterTargetMorphs,
+                         returnMorph=False, returnEnglishMorph=True, eeTagRule=filterEETagRule)
+
+    flag = False
+    # 만약 모든 결과 분석의 조건들이 필터 분석의 조건들과 일치하면 이전의 토큰화 결과를 그대로 사용할 것
+    if (removeHashTag == False and
+        morphemeAnalyzer == filterMorphemeAnalyzer and
+        morphemeAnalyzerParams == filterMorphemeAnalyzerParams and
+        targetMorphs == filterTargetMorphs and
+        returnMorph == False and
+        returnEnglishMorph == filterEnglishMorph and
+            EETagRule == filterEETagRule):
+        flag = True
+
+    # BM25를 통해 각 토큰들의 점수를 계산하고 문서별로 평균을 낸 결과를 저장
+    filterScores = BM25(ftok, postLens, k_1=k_1Filter, b=bFilter)
+    # 문서의 개수를 저장
+    dataLen = len(postLens)
+
+    # 단일 결과 반환
+    if multiReturn == False:
+        if returnIndex == True:  # 인덱스들을 반환
+            # 최신 인덱스들을 전체 (혹은 지정 개수가 전체보다 커서 전체를) 반환
+            if returnTopIndex == None or returnTopIndex >= dataLen:
+                idxs = list(range(dataLen))
+                spamCount = 0
+                for idx, score in enumerate(filterScores):
+                    if score < filterThreshold:
+                        idxs.remove(idx)
+                        spamCount += 1
+                print("%s 개의 데이터가 삭제되었습니다." % spamCount)
+                return idxs
+
+            else:  # 최신 인덱스들을 지정 개수만큼 반환
+                idxs = list()
+                idxsCount = 0
+                idx = 0
+                while idxsCount < returnTopIndex:
+                    if filterScores[idx] >= filterThreshold:
+                        idxs.append(idx)
+                        idxsCount += 1
+                    idx += 1
+                return idxs
+
+        # 반환 데이터 선택
+        elif returnPlain == True:  # 원문을 반환하는 경우
+            returnData = data
+
+        elif flag == True:  # 결과 데이터가 필터 데이터와 동일해서 바로 처리가 가능한 경우
+            returnData = ftok
+
+        else:  # 새로 작업을 해야 하는 경우
+            returnData = tdata
+
+        idx = 0
+        spamCount = 0
+        while idx < dataLen:
+            if filterScores[idx] < filterThreshold:
+                spamCount += 1
+                returnData.pop(idx)  # 반환 데이터에서 점수 기준에 부합하지 않은 값 제거
+                filterScores.pop(idx)  # 점수 기준에 부합하지 않은 값 제거
+                idx -= 1
+                dataLen -= 1
+            idx += 1
+
+        if returnPlain == True:  # 원문 반환
+            print("%s 개의 데이터가 삭제되었습니다." % spamCount)
+            return sep.join(returnData)
+
+        elif flag == True:  # 필터에서와 동일 데이터 반환
+            print("%s 개의 데이터가 삭제되었습니다." % spamCount)
+            return returnData
+
+        else:  # 모두 아닐 경우 함수 시작 시 정의한 값들로 형태소 분석 시작 후 결과 반환
+            returnData = data_tokenize(returnData, tma, targetMorphs,
+                                       returnMorph=returnMorph,
+                                       returnEnglishMorph=returnEnglishMorph,
+                                       eeTagRule=EETagRule)
+            print("%s 개의 데이터가 삭제되었습니다." % spamCount)
+            return returnData
+
+    else:  # 복수 결과 반환
+        returnDatas = dict()  # 데이터를 반환할 딕셔너리
+
+        idxs = list(range(dataLen))
+        popIdxs = list()
+        spamCount = 0
+        for idx, score in enumerate(filterScores):
+            if score < filterThreshold:
+                idxs.remove(idx)
+                popIdxs.append(idx-spamCount)
+                spamCount += 1
+
+        if returnIndex == True:  # 필터링 이후 인덱스를 반환할 때
+            returnDatas['index'] = idxs
+            if returnTopIndex != None:  # 최근 인덱스를 정해진 개수만큼 반환하도록 요청받았을 때
+                if returnTopIndex >= dataLen:  # 단 전체 데이터 길이보다 많이 요청되면 전체 길이를 반환
+                    returnTopIndex = dataLen
+                returnDatas['topIndex'] = idxs[:returnTopIndex]
+
+        if returnPlain == True:  # 원문 반환 요청 시
+            for idx in popIdxs:  # 원문이 담긴 data를 기준으로 스팸 인덱스에서
+                data.pop(idx)
+            # 원래 입력 형태인 구분자로 글들이 구분된 하나의 문자열로 반환
+            returnDatas['plain'] = sep.join(data)
+
+        for idx in popIdxs:  # 데이터에서 스팸 인덱스의 데이터를 삭제
+            tdata.pop(idx)
+
+        # 형태소 분석 수행
+        returnDatas['tokenized'] = data_tokenize(tdata, tma, targetMorphs,
+                                                 returnMorph=returnMorph,
+                                                 returnEnglishMorph=returnEnglishMorph,
+                                                 eeTagRule=EETagRule)
+        print("%s 개의 데이터가 삭제되었습니다." % spamCount)
+        return returnDatas
+
+
+def plain_structurize(plaintext, sep='HOTKEY123!@#'):
+    structuredData = plaintext.split(sep)
+    if structuredData[-1] == '':
+        structuredData = structuredData[:-1]
+    return structuredData
+
+
 def data_tokenize(data, morphemeAnalyzer,
                   targetMorphs=['NNP', 'NNG'],
                   returnMorph=False,
@@ -215,13 +439,16 @@ def data_tokenize(data, morphemeAnalyzer,
                   eeTagRule={'NLTK_NNP': 'NNP',
                              'NLTK_NN': 'NNG',
                              'R_W_HASHTAG': 'W_HASHTAG'}):
-
+    '''
+    데이터를 주어진 형태소 분석기 인스턴스로 분석하고 정해진 품사를 반환
+    '''
     returnData = list()
 
     if returnEnglishMorph == True:
         for post in data:
             partialReturn = list()
-            tokenizedData = HEMEK_tokenize(post, morphemeAnalyzer, nltkMA())
+            tokenizedData = HEMEK_tokenize(
+                remove_stopwords(post), morphemeAnalyzer, nltkMA())
 
             for tok in tokenizedData:
                 if tok[1] in eeTagRule:
@@ -236,7 +463,7 @@ def data_tokenize(data, morphemeAnalyzer,
     else:
         for post in data:
             partialReturn = list()
-            tokenizedData = morphemeAnalyzer(post)
+            tokenizedData = morphemeAnalyzer(remove_stopwords(post))
             for tok in tokenizedData:
                 if tok[1] in targetMorphs:
                     if returnMorph == True:
@@ -377,7 +604,7 @@ def HEMEK_tokenize(text, KRmorphemeAnalyzer, NKRmorphemeAnalyzer):
     HEMEK = list()
     for chunk in HEMc:
         if chunk[1] == 'CHUNK':
-            HEMEK += regexp_spliter(remove_stopwords(chunk[0]),
+            HEMEK += regexp_spliter(chunk[0],
                                     ['[ㄱ-ㅎ가-힣0-9\,\.\/\\\;\'\[\]\`\-\=\<\>\?\:\"\{\}\|\~\!\@\#\$\%\^\&\*\(\)\_\+\"\' ]+'],
                                     ['KR_CHUNK'], 'NKR_CHUNK')
         else:
@@ -442,162 +669,13 @@ def BM25(data, postLens, k_1=1.5, b=0.75):
     return filterScores
 
 
-def preprocess(plaintext, sep,
-               returnIndex=False, returnTopIndex=None,
-               returnPlain=False, returnMorph=False,
-               multiReturn=False,
-               removeHashTag=True,
-               morphemeAnalyzer='kiwi', morphemeAnalyzerParams=None, targetMorphs=['NNP', 'NNG'],
-               returnEnglishMorph=True, EETagRule={'NLTK_NNP': 'NNP', 'NLTK_NN': 'NNG', 'R_W_HASHTAG': 'W_HASHTAG'},
-               filterMorphemeAnalyzer='kiwi', filterMorphemeAnalyzerParams=None, filterTargetMorphs=['NNP', 'NNG', 'W_HASHTAG'],
-               filterEnglishMorph=True, filterEETagRule={'NLTK_NNP': 'NNP', 'NLTK_NN': 'NNG', 'R_W_HASHTAG': 'W_HASHTAG'},
-               k_1Filter=1.5, bFilter=0.75, filterThreshold=3.315):
-    '''
-    t- 로 시작하는 변수들은 target, 실제로 반환되는 데이터
-    f- 로 시작하는 변수들은 filter, 내부적으로 BM25를 통해 필터링을 할 때 사용되는 데이터
-    '''
-
-    # 형태소 분석기 인스턴스 생성
-    tma = setMorphemeAnalyzer(morphemeAnalyzer, morphemeAnalyzerParams)
-    fma = setMorphemeAnalyzer(filterMorphemeAnalyzer,
-                              filterMorphemeAnalyzerParams)
-
-    # 구분자가 마지막에도 붙어있어 data 마지막에 비어있는 포스트가 있을 경우 이를 제거
-    data = plaintext.split(sep)
-    if data[-1] == '':
-        data = data[:-1]
-
-    # 해쉬태그를 구성하는 '#'을 제거하고 싶을 경우 이를 제거
-    # 구분자에도 '#'이 포함되어 있을 경우 이 또한 제외
-    if removeHashTag == True:
-        newSep = sep.replace('#', '')
-        tdata = plaintext.replace('#', ' ').split(newSep)
-        if tdata[-1] == '':
-            tdata = tdata[:-1]
-
-    # 해쉬태그 처리가 없으면 기존의 위의 data 변수를 복제하여 사용
-    else:
-        tdata = data*1
-
-    # BM25에서 사용하기 위한 원문서들의 길이를 저장
-    postLens = list()
-    for post in data:
-        postLens.append(len(post))
-
-    # BM25 필터링에 사용 될 토큰화 된 결과값을 저장
-    ftok = data_tokenize(data, fma, filterTargetMorphs,
-                         returnMorph=False, returnEnglishMorph=True, eeTagRule=filterEETagRule)
-
-    flag = False
-    # 만약 모든 결과 분석의 조건들이 필터 분석의 조건들과 일치하면 이전의 토큰화 결과를 그대로 사용할 것
-    if (removeHashTag == False and
-        morphemeAnalyzer == filterMorphemeAnalyzer and
-        morphemeAnalyzerParams == filterMorphemeAnalyzerParams and
-        targetMorphs == filterTargetMorphs and
-        returnMorph == False and
-        returnEnglishMorph == filterEnglishMorph and
-            EETagRule == filterEETagRule):
-        flag = True
-
-    # BM25를 통해 각 토큰들의 점수를 계산하고 문서별로 평균을 낸 결과를 저장
-    filterScores = BM25(ftok, postLens, k_1=k_1Filter, b=bFilter)
-    # 문서의 개수를 저장
-    dataLen = len(postLens)
-
-    # 단일 결과 반환
-    if multiReturn == False:
-        if returnIndex == True:  # 인덱스들을 반환
-            # 최신 인덱스들을 전체 (혹은 지정 개수가 전체보다 커서 전체를) 반환
-            if returnTopIndex == None or returnTopIndex >= dataLen:
-                idxs = list(range(dataLen))
-                spamCount = 0
-                for idx, score in enumerate(filterScores):
-                    if score < filterThreshold:
-                        idxs.remove(idx)
-                        spamCount += 1
-                print("%s 개의 데이터가 삭제되었습니다." % spamCount)
-                return idxs
-
-            else:  # 최신 인덱스들을 지정 개수만큼 반환
-                idxs = list()
-                idxsCount = 0
-                idx = 0
-                while idxsCount < returnTopIndex:
-                    if filterScores[idx] >= filterThreshold:
-                        idxs.append(idx)
-                        idxsCount += 1
-                    idx += 1
-                return idxs
-
-        # 반환 데이터 선택
-        elif returnPlain == True:  # 원문을 반환하는 경우
-            returnData = data
-
-        elif flag == True:  # 결과 데이터가 필터 데이터와 동일해서 바로 처리가 가능한 경우
-            returnData = ftok
-
-        else:  # 새로 작업을 해야 하는 경우
-            returnData = tdata
-
-        idx = 0
-        spamCount = 0
-        while idx < dataLen:
-            if filterScores[idx] < filterThreshold:
-                spamCount += 1
-                returnData.pop(idx)  # 반환 데이터에서 점수 기준에 부합하지 않은 값 제거
-                filterScores.pop(idx)  # 점수 기준에 부합하지 않은 값 제거
-                idx -= 1
-                dataLen -= 1
-            idx += 1
-
-        if returnPlain == True:  # 원문 반환
-            print("%s 개의 데이터가 삭제되었습니다." % spamCount)
-            return sep.join(returnData)
-
-        elif flag == True:  # 필터에서와 동일 데이터 반환
-            print("%s 개의 데이터가 삭제되었습니다." % spamCount)
-            return returnData
-
-        else:  # 모두 아닐 경우 함수 시작 시 정의한 값들로 형태소 분석 시작 후 결과 반환
-            returnData = data_tokenize(returnData, tma, targetMorphs,
-                                       returnMorph=returnMorph,
-                                       returnEnglishMorph=returnEnglishMorph,
-                                       eeTagRule=EETagRule)
-            print("%s 개의 데이터가 삭제되었습니다." % spamCount)
-            return returnData
-
-    else:  # 복수 결과 반환
-        returnDatas = dict()  # 데이터를 반환할 딕셔너리
-
-        idxs = list(range(dataLen))
-        popIdxs = list()
-        spamCount = 0
-        for idx, score in enumerate(filterScores):
-            if score < filterThreshold:
-                idxs.remove(idx)
-                popIdxs.append(idx-spamCount)
-                spamCount += 1
-
-        if returnIndex == True:
-            returnDatas['index'] = idxs
-            if returnTopIndex != None:
-                if returnTopIndex >= dataLen:
-                    returnTopIndex = dataLen
-
-                returnDatas['topIndex'] = idxs[:returnTopIndex]
-
-        if returnPlain == True:
-
-            for idx in popIdxs:
-                data.pop(idx)
-            returnDatas['plain'] = sep.join(data)
-
-        for idx in popIdxs:
-            tdata.pop(idx)
-
-        returnDatas['tokenized'] = data_tokenize(tdata, tma, targetMorphs,
-                                                 returnMorph=returnMorph,
-                                                 returnEnglishMorph=returnEnglishMorph,
-                                                 eeTagRule=EETagRule)
-        print("%s 개의 데이터가 삭제되었습니다." % spamCount)
-        return returnDatas
+def spam_filter(plaintext):
+    # 1211추가 - seyun
+    # db로 부터 말뭉치를 받아서 스팸을 제거하고 다시 플레인텍스트 반환
+    status = True
+    pt = ''
+    try:
+        pt = preprocess(plaintext, returnPlain=True)
+    except:
+        status = False
+    return (pt, status)

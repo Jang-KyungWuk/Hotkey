@@ -1,16 +1,11 @@
 #!/usr/bin/env python
 # coding: utf-8
-
-# In[1]:
-
-
 import preprocess as pp
 import pickle as pkl
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-# In[2]:
 
 
 def sent_analysis(plaintext,
@@ -49,8 +44,6 @@ def sent_analysis(plaintext,
                        legends=legends,colors=colors)
     return True
 
-
-# In[3]:
 
 
 def sent_visualization(ratios,

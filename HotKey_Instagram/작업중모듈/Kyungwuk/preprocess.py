@@ -1,7 +1,5 @@
-#!/usr/bin/env python
+# !/usr/bin/env python
 # coding: utf-8
-
-# In[ ]:
 
 
 # Morpheme Analyze
@@ -17,8 +15,6 @@ import emoji
 from math import log1p
 import numpy as np
 
-
-# In[ ]:
 
 
 class nltkMA:
@@ -51,9 +47,6 @@ class nltkMA:
                                   lang=self.pos_tag_lang):
             result.append([token[0],self.morph_header+token[1]])
         return result
-
-
-# In[ ]:
 
 
 class setMorphemeAnalyzer:
@@ -217,9 +210,6 @@ class setMorphemeAnalyzer:
         for token in self.ma(text):
             result.append([token[0],token[1]])
         return result
-
-
-# In[ ]:
 
 
 def preprocess(plaintext, sep='HOTKEY123!@#',
@@ -436,17 +426,12 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
         return returnDatas
 
 
-# In[ ]:
-
-
 def plain_structurize(plaintext, sep='HOTKEY123!@#'):
     structuredData = plaintext.split(sep)
     if structuredData[-1] == '':
         structuredData=structuredData[:-1]
     return structuredData
 
-
-# In[ ]:
 
 
 def data_tokenize(data,morphemeAnalyzer,
@@ -491,8 +476,6 @@ def data_tokenize(data,morphemeAnalyzer,
     return returnData
 
 
-# In[ ]:
-
 
 def remove_stopwords(text, stopwordRule={'\n':' ','\u200b':' ','\\n':' '}):
     
@@ -504,9 +487,6 @@ def remove_stopwords(text, stopwordRule={'\n':' ','\u200b':' ','\\n':' '}):
     return text
 
 
-# In[ ]:
-
-
 def get_demojized_set():
     
     '''
@@ -514,8 +494,6 @@ def get_demojized_set():
     '''
     return set(re.findall("'en': '(:[^:]+:)'",str(emoji.EMOJI_DATA.values())))
 
-
-# In[ ]:
 
 
 def regexp_spliter(text, regexps, matchLabels, nomatchLabel, filters=None):
@@ -571,9 +549,6 @@ def regexp_spliter(text, regexps, matchLabels, nomatchLabel, filters=None):
         returnData.append([text[prevEnd:],nomatchLabel])
     
     return returnData
-
-
-# In[ ]:
 
 
 def HEMEK_tokenize(text,KRmorphemeAnalyzer,NKRmorphemeAnalyzer):
@@ -656,9 +631,6 @@ def HEMEK_tokenize(text,KRmorphemeAnalyzer,NKRmorphemeAnalyzer):
             result.append(chunk)
         
     return result
-
-
-# In[ ]:
 
 
 def BM25(data, postLens, k_1=1.5, b=0.75):

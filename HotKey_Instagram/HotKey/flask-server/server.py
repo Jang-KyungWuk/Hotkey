@@ -5,7 +5,7 @@ from db import *
 from analyze import *
 import os
 import shutil
-from visualization import *
+#from visualization import *
 from preprocess import *
 
 app = Flask(__name__)
@@ -127,7 +127,7 @@ def keyword_search2(keyword):
 def network_ex(name):
     # 네트워크 예시보여주기
     print('네트워크 불러오기...')
-    filename = './templates/'+name
+    filename = './templates/networks/'+name
     with open(filename, 'r') as fp:
         html = fp.read()
     return html
@@ -144,13 +144,10 @@ def js(a, b):
 # 워드클라우드 테스트 -> 마스크 이미지, 경로 설정등 해줘야함..
 
 
-@app.route('/manage/test/test1')
+@app.route('/manage/test/test')
 def tttt():
-    with open('임시.txt', encoding='utf8') as fp:
-        plaintext = fp.read()
-        pt = preprocess(plaintext=plaintext, sep='HOTKEY123!@#')
-        wordcloud(pt)
-    return jsonify(1)
+    status, result = LDA_test()
+    return jsonify({'status': status, 'result': result})
 
 # top 이미지 받아오는 로직
 
