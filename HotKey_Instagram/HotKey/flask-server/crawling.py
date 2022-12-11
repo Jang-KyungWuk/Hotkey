@@ -18,7 +18,7 @@ def get_accounts(cur):
     acc_info = []
     try:
         cur.execute('select * from accounts')
-        print("이게 왜???")
+        print(g.thread, ": getDB - account info fetched")
         all_blocked = True
         for row in cur.fetchall():
             tmp = dict()
@@ -207,7 +207,7 @@ def hot_key_instagram_recent(query, session, max_page=40):
                     timestamp = max(timestamp, k['media']['caption'][
                         'created_at_utc'])  # 최신 포스트의 현재 시간 1669098438 ##############################
                     postcnt += 1
-    print('누적 게시물 수 :', postcnt)
+    print(g.thread, ': 누적 게시물 수 :', postcnt)
     time.sleep(random.uniform(1, 5))
 
     # recent기준 다음 페이지 관련 정보
@@ -254,9 +254,10 @@ def hot_key_instagram_recent(query, session, max_page=40):
                             emoji.demojize(k['media']['caption']['text']))  # 이모티콘 제거 ###############
                         postcnt += 1
                         if (postcnt >= 300):
-                            print('누적 게시물 수 :', postcnt)
-                            print('최근 게시물 수집 완료!')
-                            print('총 소요시간 : ', datetime.now() - before, '\n\n')
+                            print(g.thread, ': 누적 게시물 수 :', postcnt)
+                            print(g.thread, ': 최근 게시물 수집 완료!')
+                            print(g.thread, ': 총 소요시간 : ',
+                                  datetime.now() - before, '\n\n')
                             return (0, recent_list, timestamp)
 
         if resource['more_available']:
@@ -265,16 +266,16 @@ def hot_key_instagram_recent(query, session, max_page=40):
 
         else:
             recent_info['isnext'] = False
-        print('누적 게시물 수 :', postcnt)
+        print(g.thread, ': 누적 게시물 수 :', postcnt)
         time.sleep(random.uniform(1, 5))
 
     if (len(recent_list[0]) == 0):
         print('인스타그램에서 최근 게시물을 제공하지 않는 태그입니다..')
         return (5, recent_list, timestamp)
 
-    print('누적 게시물 수 :', postcnt)
-    print('최근 게시물 수집 완료!')
-    print('총 소요시간 : ', datetime.now() - before, '\n')
+    print(g.thread, ': 누적 게시물 수 :', postcnt)
+    print(g.thread, ': 최근 게시물 수집 완료!')
+    print(g.thread, ': 총 소요시간 : ', datetime.now() - before, '\n\n')
     return (0, recent_list, timestamp)
 
 
@@ -290,7 +291,8 @@ def check_session():  # 1210 수정 코드 // True or False 반환
     cur.execute('start transaction;')  # 트랜잭션 시작
     print(g.thread, ": 트랜잭션 선언완료")
     # # 명시적으로 Lock 걸기 (트랜잭션 전체에 걸쳐서 락이 걸림 -> 여러 쓰레드가 동시에 같은 세션을 사용하는 것을 방지 => 1211수정)
-    # cur.execute('UPDATE accounts SET aid=3 WHERE aid=3;')
+    cur.execute('UPDATE accounts SET aid=3 WHERE aid=3;')
+    print(g.thread, ": check_session, 업데이트문 실행완료")
 
     # g.total_acc_info설정
     g.total_acc_info, g.all_blocked = get_accounts(cur)

@@ -69,7 +69,7 @@ const SearchResult = () => {
   );
 };
 const Div = styled.div`
-  height: 1750px;
+  height: 1700px;
   width: 1900px;
   display: flex;
   justify-content: center;
@@ -132,8 +132,8 @@ const Page112 = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
   grid-template-rows: 1fr 1fr 1fr;
   margin-top: 1px;
-  width: 570px;
-  height: 570px;
+  width: 550px;
+  height: 550px;
   background-color: white;
   border-radius: 25px;
   padding: 3px;
@@ -142,8 +142,10 @@ const Page112 = styled.div`
 const Page12 = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100%;
-  width: 49%;
+  align-items: center;
+  justify-content: center;
+  height: 94%;
+  width: 50%;
   //background-color: red;
 `;
 //1페이지의 오른쪽 위
