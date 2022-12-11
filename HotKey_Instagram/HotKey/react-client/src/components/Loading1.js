@@ -9,7 +9,7 @@ const Loading1 = () => {
       <Load1>
         <Load11>
           <Load111>
-            <PacmanLoader size={"2vw"} color={"#FECCBE"} />
+            <PacmanLoader size={"2vw"} color={"#DAE2F1"} />
           </Load111>
           <Load112>
             <Img src={crawling}></Img>
@@ -26,7 +26,7 @@ const Load1 = styled.div`
   justify-content: center;
   align-items: center;
   width: 100%;
-  height: 30%;
+  height: 40%;
 `;
 //loading div1-1 => 각 loading section (총 3개)
 const Load11 = styled.div`
@@ -54,7 +54,8 @@ const Load112 = styled.div`
 `;
 //로딩 중 텍스트 이미지
 const Img = styled.img`
-  height: 17%;
+  margin-left: 15%;
+  height: 16%;
   border: 0px solid;
 `;
 export default Loading1;

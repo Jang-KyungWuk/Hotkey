@@ -9,7 +9,7 @@ const Loading2 = () => {
       <Load1>
         <Load11>
           <Load111>
-            <PacmanLoader size={"2vw"} color={"#FD8A69"} />
+            <PacmanLoader size={"2vw"} color={"#A7BFEB"} />
           </Load111>
           <Load112>
             <Img src={analyzing}></Img>

@@ -9,7 +9,7 @@ const Loading3 = () => {
       <Load1>
         <Load11>
           <Load111>
-            <PacmanLoader size={"2vw"} color={"#D94925"} />
+            <PacmanLoader size={"2vw"} color={"#252B36"} />
           </Load111>
           <Load112>
             <Img src={visualizing} />
@@ -53,7 +53,7 @@ const Load112 = styled.div`
 `;
 //로딩 중 텍스트 이미지
 const Img = styled.img`
-  height: 15%;
+  height: 16%;
   border: 0px solid;
 `;
 export default Loading3;
