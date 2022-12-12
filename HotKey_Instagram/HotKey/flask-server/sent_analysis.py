@@ -14,7 +14,7 @@ return True
 def sent_analysis(plaintext,
                   sentMorph=['IC', 'MAG', 'MM', 'NNB', 'NNG', 'NNP',
                              'NP', 'NR', 'SL', 'SP', 'SW', 'VA', 'XR'],
-                  saveDir='./templates/sent_results/', fileName='sent_pie',
+                  saveDir='../react-client/src/visualization/sent_results/', fileName='tmp',
                   sentDictFile='sent_dict.pkl',
                   legends=['Positive', 'Neutral', 'Negative'],
                   colors=['#5555ff', '#55ff55', '#ff5555']):

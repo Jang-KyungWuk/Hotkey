@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 
 def network(plaintext, ldaResult, sep='HOTKEY123!@#',
-            maxEdge=50, saveDir='./templates/networks', saveFilename='network',
+            maxEdge=50, saveDir='./templates/networks/', saveFilename='tmp',
             returnEnglishMorph=True,
             targetMorphs=['NNP', 'NNG'],
             morphWeight={'NNG': 1, 'NNP': 10, 'emj': 0}, skipList=['\n'],

@@ -34,7 +34,7 @@ def keyword_search(keyword):
     status, tid = single_search(keyword)
     if not status:
         return jsonify({'status': status, 'tid': tid})
-    time.sleep(2)  # DB에서 온 경우, 지나치게 빨리 return되는것을 방지 ㅠ
+    # time.sleep(2)  # DB에서 온 경우, 지나치게 빨리 return되는것을 방지 ㅠ
     print('keyword_search 완료 : 가용중 세션 로그아웃 및 DB 업로드')
     for s in g.acc_inuse:
         logout(s['session'])
@@ -144,10 +144,70 @@ def js(a, b):
 # 워드클라우드 테스트 -> 마스크 이미지, 경로 설정등 해줘야함..
 
 
-@app.route('/manage/test/test')
-def tttt():
-    status, result = LDA_test()
-    return jsonify({'status': status, 'result': result})
+@app.route('/manage/test/<tid>')
+def tttt(tid):
+    #status, result = LDA_test()
+    status, keyword, corpus = get_corpus(tid)
+    if not status:
+        print('get_corpus 중 에러발생')
+        return jsonify(-1)
+    ################
+    ################
+    # wc, barplot 테스트 : spam_fitering되지 않은 corpus를 인풋으로 받아 안에서 전처리
+    print("전처리함수 실행")
+    pt = preprocess(plaintext=corpus, sep='HOTKEY123!@#')
+    print("전처리완료.. - 반환 : 리스트 형식")
+    print("wordcloud 생성 시작")
+    status = wordcloud(
+        pt, wc_filename='../react-client/src/visualization/wordcloud/tmp.png')
+    if not status:
+        print('wordcloud 생성 중 에러...')
+        return jsonify(-1)
+    print("barplot 생성 시작")
+    status = barplot(
+        pt, bp_filename='../react-client/src/visualization/barplot/tmp.png')
+    if not status:
+        print('barplot 생성 중 에러..')
+        return jsonify(-1)
+    ################
+    ################
+    # LDA 테스트 : spam_filtering되지 않은 corpus를 인풋으로 받아 안에서 전처리
+    print("LDA 분석 시작... (+토픽별 워드클라우드생성)")
+    # original corpus를 인풋으로 받음
+    status, lda_result = sklda(
+        corpus, filedir='../react-client/src/visualization/lda_results/', keyword=keyword)
+    print("LDA 분석 완료")
+    if not status:
+        print('LDA 분석 중 에러..')
+        return jsonify(-1)
+    ################
+    ################
+    # spam_filtering된 결과는 network, sentiment_analysis에 들어감
+    print("전처리함수 실행")
+    pt, status = spam_filter(corpus)
+    if not status:
+        print('Error during spam_filtering...')
+        return jsonify(-1)
+    print("전처리완료.. - 반환 : 코퍼스 형식")
+    ################
+    ################
+    # 네트워크 테스트 : spam_filtering된 plaintext를 인풋으로 받음
+    print("network 생성 시작... path : ./templates/networks")
+    status = network(pt, lda_result)  # 스팸필터링된 plaintext와 LDA 결과값을 인풋으로 받음
+    if not status:
+        print('Error during network analysis...')
+        return jsonify(-1)
+    ###############
+    ###############
+    # 감성분석 테스트 : spam_filtering된 plaintext를 인풋으로 받음
+    print("sentiment analysis 시작... path : ../react-client/src/visualization/sent_results/")
+    status = sent_analysis(pt, saveDir='../react-client/src/visualization/sent_results/',
+                           fileName=keyword)  # 스팸필터링된 plaintext를 인풋으로 받음
+    if not status:
+        print('Error during sent_analysis...')
+        return jsonify(-1)
+    print('분석 완료!')
+    return jsonify({'status': status, 'keyword': keyword, 'corpus': corpus, 'lda_result': lda_result})
 
 # top 이미지 받아오는 로직
 

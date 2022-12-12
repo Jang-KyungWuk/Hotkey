@@ -9,7 +9,7 @@ import re
 from preprocess import *
 
 
-def frequency(plaintext):
+def frequency(pt):
     """
     ------------------------------------------------------------------------------
 
@@ -24,9 +24,6 @@ def frequency(plaintext):
 
     ------------------------------------------------------------------------------
     """
-    # 1212 수정 (세윤) => db에서 나온 original corpus를 input으로 받고, 내부에서 사용
-    pt = preprocess(plaintext=plaintext, sep='HOTKEY123!@#')
-
 # 토큰들의 빈도를 dict형태로 저장
     voca = dict()
     for post in pt:
@@ -39,7 +36,7 @@ def frequency(plaintext):
     return voca
 
 
-def wordcloud(pt, wc_filename='./templates/wordcloud/tmp.png', wc_backgroundcolor='white',
+def wordcloud(pt, wc_filename='../react-client/src/visualization/wordcloud/tmp.png', wc_backgroundcolor='white',
               wc_colormap='autumn', font_path='./templates/fonts/NanumGothic.ttf'):
     """
     ------------------------------------------------------------------------------
@@ -81,7 +78,7 @@ def wordcloud(pt, wc_filename='./templates/wordcloud/tmp.png', wc_backgroundcolo
     return True
 
 
-def barplot(pt, bp_filename='./templates/barplot/tmp.png'):
+def barplot(pt, bp_filename='../react-client/src/visualization/barplot/tmp.png'):
     """
     ------------------------------------------------------------------------------
 
@@ -97,6 +94,7 @@ def barplot(pt, bp_filename='./templates/barplot/tmp.png'):
     ------------------------------------------------------------------------------
 
     """
+
     try:
         # 데이터 전처리
         ptlist = []

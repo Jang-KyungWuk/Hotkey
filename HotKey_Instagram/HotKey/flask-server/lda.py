@@ -6,8 +6,10 @@ from wordcloud import WordCloud
 from PIL import Image
 from preprocess import *
 
+# input수정 (filedir, keyword) 추가
 
-def sklda(plaintext, n_top_words=300, n_iter=30):
+
+def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', keyword='tmp', n_top_words=300, n_iter=30):
     """
     ------------------------------------------------------------------------------
 
@@ -185,7 +187,9 @@ def sklda(plaintext, n_top_words=300, n_iter=30):
             wc = WordCloud(background_color="white", colormap='autumn', mask=mask[idx], max_words=100,
                            max_font_size=60, min_font_size=10, prefer_horizontal=0.9, font_path='./templates/fonts/NanumGothic.ttf')
             wc.generate_from_frequencies(dict_word_frequency)
-            wc.to_file(filename=f'./templates/lda_results/Topic#{idx+1}.png')
+            # wc.to_file(filename=f'./templates/lda_results/Topic#{idx+1}.png')
+            # 1212수정_세윤
+            wc.to_file(filename=filedir+keyword+str(idx+1)+'.png')
 
         print("done in %0.3fs." % (time() - t0))
         print("in total, %0.3fs." % (time() - t1))
