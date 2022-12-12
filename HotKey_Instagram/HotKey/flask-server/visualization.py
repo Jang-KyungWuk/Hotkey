@@ -69,7 +69,7 @@ def wordcloud(pt, wc_filename='../react-client/src/visualization/wordcloud/tmp.p
 
     # wordcloud 이미지 생성
     wc = WordCloud(background_color=wc_backgroundcolor,
-                   colormap=wc_colormap, font_path=font_path, mask=mask)
+                   colormap=wc_colormap, font_path=font_path, mask=mask, min_font_size=11)
     wc = wc.generate_from_frequencies(voca)
 
     # 입력받은 경로에 저장, 파일이름 중복될 경우 덮어쓰여짐

@@ -185,7 +185,7 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
                 dict_word_frequency[topic_terms_sorted[i]
                                     [0]] = topic_terms_sorted[i][1]
             wc = WordCloud(background_color="white", colormap='autumn', mask=mask[idx], max_words=100,
-                           max_font_size=60, min_font_size=10, prefer_horizontal=0.9, font_path='./templates/fonts/NanumGothic.ttf')
+                           max_font_size=60, min_font_size=11, prefer_horizontal=0.9, font_path='./templates/fonts/NanumGothic.ttf')
             wc.generate_from_frequencies(dict_word_frequency)
             # wc.to_file(filename=f'./templates/lda_results/Topic#{idx+1}.png')
             # 1212수정_세윤

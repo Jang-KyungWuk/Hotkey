@@ -451,10 +451,11 @@ def single_search(keyword, enforce=False):
             # account block됨. => block로직 (total_acc_info에서 block으로 바꾸기)
             g.total_acc_info[map[s['aid']]]['blocked'] = True
             g.total_acc_info[map[s['aid']]]['in_use'] = False
-            # 디비에 차단 정보 업데이트
-
-            # session로그아웃, 세션 정보 변경
-            # logout(s['session']) 자동으로 세션이 만료되므로 로그아웃할필요가 없어보임 (status가 1인 경우...)
+            # 디비에 차단 정보 바로 업데이트
+            conn, cur = access_db()
+            cur.execute('update accounts set blocked=(%s), up_date=(%s), last_used=(%s), in_use=(%s) where id=(%s);',
+                        (1, str(time.strftime('%Y-%m-%d %H:%M:%S')), g.total_acc_info[map[s['aid']]]['last_used'], 0, g.total_acc_info[map[s['aid']]]['id']))
+            close_db(conn)
             # acc_inuse에서 삭제
             for i, a in enumerate(g.acc_inuse):
                 if a['aid'] == s['aid']:

@@ -10,8 +10,23 @@ import Imagegrid from "../components/Imagegrid";
 const SearchResult = () => {
   const location = useLocation();
   //   const navigate = useNavigate();
-  const image_list = location.state?.image_list;
   const key_word = location.state?.key_word;
+  const image_num = location.state?.image_num;
+  let image_list = [
+    "dddefault0",
+    "dddefault1",
+    "dddefault2",
+    "dddefault3",
+    "dddefault4",
+    "dddefault5",
+    "dddefault6",
+    "dddefault7",
+    "dddefault8",
+  ];
+  for (let i = 0; i < image_num; i++) {
+    image_list[i] = key_word + i + ".jpg";
+  }
+
   console.log("분석 결과 페이지 렌더링...");
   console.log("image_list :", image_list);
   console.log("key_word :", key_word);
@@ -136,7 +151,7 @@ const Page112 = styled.div`
   height: 550px;
   background-color: white;
   border-radius: 25px;
-  padding: 3px;
+  padding: 1px;
 `;
 //1페이지의 오른쪽
 const Page12 = styled.div`

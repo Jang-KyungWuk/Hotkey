@@ -5,6 +5,7 @@ import recommend from "../images/recommend.jpg";
 import Footer from "../components/Footer";
 import { useNavigate, Link } from "react-router-dom";
 import styled from "styled-components";
+import { motion } from "framer-motion";
 
 const SearchInput = () => {
   const [query, setQuery] = useState("");
@@ -34,207 +35,213 @@ const SearchInput = () => {
     });
   };
   return (
-    <div>
-      <Wrapper>
-        <Div1>
-          <Link to="/search" style={{ height: "100%" }}>
-            <Logo src={HotKey_Logo}></Logo>
-          </Link>
-        </Div1>
-        {query.length === 0 ? (
-          <Div2>
-            <Inputdiv>
-              <Input
-                autoFocus
-                placeholder="키워드를 입력하세요"
-                maxLength="20"
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                }}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    alert("검색어를 한 글자 이상 입력하세요");
-                  }
-                }}
-              ></Input>
-            </Inputdiv>
-            <Button
-              onClick={() => {
-                alert("검색어를 한 글자 이상 입력하세요");
-              }}
-            >
-              SEARCH
-            </Button>
-          </Div2>
-        ) : (
-          <Div2>
-            <Inputdiv>
-              <Input
-                autoFocus
-                placeholder="키워드를 입력하세요"
-                maxLength="20"
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                }}
-                onKeyPress={(e) => {
-                  if (e.key === "Enter") {
-                    onClick(query);
-                  }
-                }}
-              ></Input>
-            </Inputdiv>
-            <Button
-              onClick={() => {
-                onClick(query);
-              }}
-            >
-              SEARCH
-            </Button>
-          </Div2>
-        )}
-        <Recommend>
-          <RecomImg src={recommend}></RecomImg>
-        </Recommend>
-        {trendlist !== undefined ? (
-          <Div3>
-            <Trenddiv>
-              <Trendbtn
-                len={trendlist[0].length}
-                id={0}
-                onClick={() => {
-                  onClick(trendlist[0]);
-                }}
-              >
-                {trendlist[0]}
-              </Trendbtn>
-              <Trendbtn
-                len={trendlist[1].length}
-                id={1}
-                onClick={() => {
-                  onClick(trendlist[1]);
-                }}
-              >
-                {trendlist[1]}
-              </Trendbtn>
-              <Trendbtn
-                len={trendlist[2].length}
-                id={2}
-                onClick={() => {
-                  onClick(trendlist[2]);
-                }}
-              >
-                {trendlist[2]}
-              </Trendbtn>
-              <Trendbtn
-                len={trendlist[3].length}
-                id={3}
-                onClick={() => {
-                  onClick(trendlist[3]);
-                }}
-              >
-                {trendlist[3]}
-              </Trendbtn>
-            </Trenddiv>
-            <Trenddiv2>
-              <Trendbtn
-                len={trendlist[4].length}
-                id={4}
-                onClick={() => {
-                  onClick(trendlist[4]);
-                }}
-              >
-                {trendlist[4]}
-              </Trendbtn>
-              <Trendbtn
-                len={trendlist[5].length}
-                id={5}
-                onClick={() => {
-                  onClick(trendlist[5]);
-                }}
-              >
-                {trendlist[5]}
-              </Trendbtn>
-              <Trendbtn
-                len={trendlist[6].length}
-                id={6}
-                onClick={() => {
-                  onClick(trendlist[6]);
-                }}
-              >
-                {trendlist[6]}
-              </Trendbtn>
-            </Trenddiv2>
-          </Div3>
-        ) : (
-          <Div3>
-            <Trenddiv>
-              <Trendbtn
-                len={1}
-                id={0}
-                onClick={() => {
-                  onClick(trendlist[0]);
-                }}
-              ></Trendbtn>
-              <Trendbtn
-                len={1}
-                id={1}
-                onClick={() => {
-                  onClick(trendlist[1]);
-                }}
-              ></Trendbtn>
-              <Trendbtn
-                len={1}
-                id={2}
-                onClick={() => {
-                  onClick(trendlist[2]);
-                }}
-              ></Trendbtn>
-              <Trendbtn
-                len={1}
-                id={3}
-                onClick={() => {
-                  onClick(trendlist[3]);
-                }}
-              ></Trendbtn>
-            </Trenddiv>
-            <Trenddiv2>
-              <Trendbtn
-                len={1}
-                id={4}
-                onClick={() => {
-                  onClick(trendlist[4]);
-                }}
-              ></Trendbtn>
-              <Trendbtn
-                len={1}
-                id={5}
-                onClick={() => {
-                  onClick(trendlist[5]);
-                }}
-              ></Trendbtn>
-              <Trendbtn
-                len={1}
-                id={6}
-                onClick={() => {
-                  onClick(trendlist[6]);
-                }}
-              ></Trendbtn>
-            </Trenddiv2>
-          </Div3>
-        )}
-        <div
-          style={{
-            display: "flex",
-            height: "56%",
-            flexDirection: "column",
-            justifyContent: "flex-end",
-          }}
+    <>
+      <div style={{ height: "90vh" }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
         >
-          <Img src={search_insert} alt="search_insert.jpg"></Img>
-        </div>
-      </Wrapper>
+          <Wrapper>
+            <Div1>
+              <Link to="/" style={{ height: "100%" }}>
+                <Logo src={HotKey_Logo}></Logo>
+              </Link>
+            </Div1>
+            {query.length === 0 ? (
+              <Div2>
+                <Inputdiv>
+                  <Input
+                    autoFocus
+                    placeholder="키워드를 입력하세요"
+                    maxLength="20"
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        alert("검색어를 한 글자 이상 입력하세요");
+                      }
+                    }}
+                  ></Input>
+                </Inputdiv>
+                <Button
+                  onClick={() => {
+                    alert("검색어를 한 글자 이상 입력하세요");
+                  }}
+                >
+                  SEARCH
+                </Button>
+              </Div2>
+            ) : (
+              <Div2>
+                <Inputdiv>
+                  <Input
+                    autoFocus
+                    placeholder="키워드를 입력하세요"
+                    maxLength="20"
+                    onChange={(e) => {
+                      setQuery(e.target.value);
+                    }}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        onClick(query);
+                      }
+                    }}
+                  ></Input>
+                </Inputdiv>
+                <Button
+                  onClick={() => {
+                    onClick(query);
+                  }}
+                >
+                  SEARCH
+                </Button>
+              </Div2>
+            )}
+            <Recommend>{/* <RecomImg src={recommend}></RecomImg> */}</Recommend>
+            {trendlist !== undefined ? (
+              <Div3>
+                <Trenddiv>
+                  <Trendbtn
+                    len={trendlist[0].length}
+                    id={0}
+                    onClick={() => {
+                      onClick(trendlist[0]);
+                    }}
+                  >
+                    {trendlist[0]}
+                  </Trendbtn>
+                  <Trendbtn
+                    len={trendlist[1].length}
+                    id={1}
+                    onClick={() => {
+                      onClick(trendlist[1]);
+                    }}
+                  >
+                    {trendlist[1]}
+                  </Trendbtn>
+                  <Trendbtn
+                    len={trendlist[2].length}
+                    id={2}
+                    onClick={() => {
+                      onClick(trendlist[2]);
+                    }}
+                  >
+                    {trendlist[2]}
+                  </Trendbtn>
+                  <Trendbtn
+                    len={trendlist[3].length}
+                    id={3}
+                    onClick={() => {
+                      onClick(trendlist[3]);
+                    }}
+                  >
+                    {trendlist[3]}
+                  </Trendbtn>
+                </Trenddiv>
+                <Trenddiv2>
+                  <Trendbtn
+                    len={trendlist[4].length}
+                    id={4}
+                    onClick={() => {
+                      onClick(trendlist[4]);
+                    }}
+                  >
+                    {trendlist[4]}
+                  </Trendbtn>
+                  <Trendbtn
+                    len={trendlist[5].length}
+                    id={5}
+                    onClick={() => {
+                      onClick(trendlist[5]);
+                    }}
+                  >
+                    {trendlist[5]}
+                  </Trendbtn>
+                  <Trendbtn
+                    len={trendlist[6].length}
+                    id={6}
+                    onClick={() => {
+                      onClick(trendlist[6]);
+                    }}
+                  >
+                    {trendlist[6]}
+                  </Trendbtn>
+                </Trenddiv2>
+              </Div3>
+            ) : (
+              <Div3>
+                <Trenddiv>
+                  <Trendbtn
+                    len={1}
+                    id={0}
+                    onClick={() => {
+                      onClick(trendlist[0]);
+                    }}
+                  ></Trendbtn>
+                  <Trendbtn
+                    len={1}
+                    id={1}
+                    onClick={() => {
+                      onClick(trendlist[1]);
+                    }}
+                  ></Trendbtn>
+                  <Trendbtn
+                    len={1}
+                    id={2}
+                    onClick={() => {
+                      onClick(trendlist[2]);
+                    }}
+                  ></Trendbtn>
+                  <Trendbtn
+                    len={1}
+                    id={3}
+                    onClick={() => {
+                      onClick(trendlist[3]);
+                    }}
+                  ></Trendbtn>
+                </Trenddiv>
+                <Trenddiv2>
+                  <Trendbtn
+                    len={1}
+                    id={4}
+                    onClick={() => {
+                      onClick(trendlist[4]);
+                    }}
+                  ></Trendbtn>
+                  <Trendbtn
+                    len={1}
+                    id={5}
+                    onClick={() => {
+                      onClick(trendlist[5]);
+                    }}
+                  ></Trendbtn>
+                  <Trendbtn
+                    len={1}
+                    id={6}
+                    onClick={() => {
+                      onClick(trendlist[6]);
+                    }}
+                  ></Trendbtn>
+                </Trenddiv2>
+              </Div3>
+            )}
+            <div
+              style={{
+                display: "flex",
+                height: "56%",
+                flexDirection: "column",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Img src={search_insert} alt="search_insert.jpg"></Img>
+            </div>
+          </Wrapper>
+        </motion.div>
+      </div>
       <Footer></Footer>
-    </div>
+    </>
   );
 };
 const Wrapper = styled.div`
@@ -265,8 +272,10 @@ const Div2 = styled.div`
   height: 8%;
   justify-content: space-around;
   align-items: center;
-  background-color: #d94925;
+  // background-color: #d94925;
+  background-color: white;
   border-radius: 20px;
+  box-shadow: 2px 5px 5px 1px gray;
 `;
 //input이 들어갈 Div
 const Inputdiv = styled.div`
@@ -277,6 +286,8 @@ const Inputdiv = styled.div`
   height: 65%;
   border-radius: 30px;
   border: 0px solid;
+  border-left: 3px solid;
+  border-right: 3px solid;
   background-color: white;
 `;
 //input박스
@@ -301,13 +312,15 @@ const Button = styled.button`
   border-radius: 30px;
   font-family: Roboto;
   font-size: 1.3vw;
-  color: white;
+  // font-weight: bold;
+  color: #ce3909;
   letter-spacing: 0.2vw;
+  box-shadow: 1px 3px 5px 1px gray;
 `;
 const Recommend = styled.div`
   display: flex;
   width: 50%;
-  height: 4%;
+  height: 2%;
   align-items: flex-end;
 `;
 //trend 보여줄 Div
@@ -349,12 +362,13 @@ const Trendbtn = styled.button`
   height: 80%;
   border-radius: 30px;
   font-size: ${(props) => (props.len < 8 ? "1vw" : "0.7vw")};
-  background-color: ${(props) => color_array[props.id]}};
+  background-color: #e8e8e8;
   color: black;
   font-family: Roboto;
   letter-spacing: 0.1vw;
-  font-weight:bold;
+  font-weight: bold;
   border: 0px solid;
+  box-shadow: 2px 3px 5px 1px gray;
 `;
 //이미지
 const Img = styled.img`

@@ -35,20 +35,32 @@ def keyword_search(keyword):
     status, tid = single_search(keyword)
     if not status:
         return jsonify({'status': status, 'tid': tid})
-    # time.sleep(2)  # DB에서 온 경우, 지나치게 빨리 return되는것을 방지 ㅠ
+    time.sleep(2)  # DB에서 온 경우, 지나치게 빨리 return되는것을 방지 ㅠ
+    used_list = []
     print('keyword_search 완료 : 가용중 세션 로그아웃 및 DB 업로드')
     for s in g.acc_inuse:
+        used_list.append(g.mapping[s['aid']])
         logout(s['session'])
         g.total_acc_info[g.mapping[s['aid']]]['in_use'] = False
-    conn, cur = access_db()
-    # 트랜잭션 시작
-    cur.execute('set autocommit=0;')
-    cur.execute('set session transaction isolation level serializable;')
-    cur.execute('start transaction;')
-    stat = set_accounts(cur)
-    if not stat:
-        set_accounts(cur)
-    close_db(conn)
+    # 트랜잭션 시작, 사용하고 남은 세션에 대해서만 업데이트를 진행
+    try:
+        conn, cur = access_db()
+        cur.execute('set autocommit=0;')
+        cur.execute('set session transaction isolation level serializable;')
+        cur.execute('start transaction;')
+        for idx, row in enumerate(g.total_acc_info):
+            if idx in used_list:
+                cur.execute('update accounts set blocked=(%s), up_date=(%s), last_used=(%s), in_use=(%s) where id=(%s);',
+                            (1 if row['blocked'] == True else 0, str(time.strftime('%Y-%m-%d %H:%M:%S')), row['last_used'], 1 if row['in_use'] == True else 0, row['id']))
+        close_db(conn)
+    except:
+        conn, cur = access_db()
+        for idx, row in enumerate(g.total_acc_info):
+            if idx in used_list:
+                cur.execute('update accounts set blocked=(%s), up_date=(%s), last_used=(%s), in_use=(%s) where id=(%s);',
+                            (1 if row['blocked'] == True else 0, str(time.strftime('%Y-%m-%d %H:%M:%S')), row['last_used'], 1 if row['in_use'] == True else 0, row['id']))
+        close_db(conn)
+
     # 트랜잭션끝
     return jsonify({'status': status, 'tid': tid})
 
@@ -56,15 +68,89 @@ def keyword_search(keyword):
 @app.route('/analyze/<tid>')
 def analyze(tid):
     # tid를 받아서 분석 후 결과를 jsonify해서 프론트로전달 (이미지의 경우, 경로를 react-client안에 넣어두기?)
+    returnstatus = {'keyword': '', 'imagenum': 0, 'get_image': True, 'get_corpus': True, 'preprocess': True, 'wordcloud': True,
+                    'barplot': True, 'lda': True, 'spam_filter': True, 'network': True, 'sent_analysis': True}
     print("analyze API 실행")
     print("get_image 실행")
-    status, images = get_image(tid)
-
-    time.sleep(3)  # 임시 sleep => 코드 수정시 삭제
-    # 임시 요청응답, images : filedir 리스트
-    # 분석 결과는 json형태로전달, 1209 : images만 일단 반환
-
-    return jsonify({'status': status, 'images': images})
+    status, keyword, imagenum = get_image(tid)
+    returnstatus['keyword'] = keyword
+    returnstatus['imagenum'] = imagenum
+    if not status:
+        print('get_image 중 에러발생')
+        returnstatus['get_image'] = False
+    print("get_corpus 실행")
+    status, keyword, corpus = get_corpus(tid)
+    if not status:
+        print('get_corpus 중 에러발생')
+        returnstatus['get_corpus'] = False
+    ################
+    ################
+    # wc, barplot 테스트 : spam_fitering되지 않은 corpus를 인풋으로 받아 안에서 전처리
+    print("전처리함수 실행")
+    try:
+        pt = preprocess(plaintext=corpus, sep='HOTKEY123!@#')
+    except:
+        print("전처리 과정 중 에러... analysis API 종료")
+        for i in returnstatus.keys():
+            if i not in ['get_image', 'get_corpus']:
+                returnstatus[i] = False
+        return jsonify(returnstatus)
+    print("전처리완료.. - 반환 : 리스트 형식")
+    print("wordcloud 생성 시작")
+    status = wordcloud(
+        pt, wc_filename='../react-client/src/visualization/wordcloud/'+keyword+'.png')
+    if not status:
+        print('wordcloud 생성 중 에러...')
+        returnstatus['wordcloud'] = False
+    print("barplot 생성 시작")
+    status = barplot(
+        pt, bp_filename='../react-client/src/visualization/barplot/'+keyword+'.png')
+    if not status:
+        print('barplot 생성 중 에러..')
+        returnstatus['barplot'] = False
+    ################
+    ################
+    # LDA 테스트 : spam_filtering되지 않은 corpus를 인풋으로 받아 안에서 전처리
+    print("LDA 분석 시작... (+토픽별 워드클라우드생성)")
+    # original corpus를 인풋으로 받음
+    status, lda_result = sklda(
+        corpus, filedir='../react-client/src/visualization/lda_results/', keyword=keyword)
+    print("LDA 분석 완료")
+    if not status:
+        print('LDA 분석 중 에러..')
+        returnstatus['lda'] = False
+    ################
+    ################
+    # spam_filtering된 결과는 network, sentiment_analysis에 들어감
+    print("전처리함수 실행")
+    pt, status = spam_filter(corpus)
+    if not status:
+        print('Error during spam_filtering...')
+        returnstatus['spam_filter'] = False
+        returnstatus['network'] = False
+        returnstatus['sent_analysis'] = False
+    else:
+        print("전처리완료.. - 반환 : 코퍼스 형식")
+        ################
+        ################
+        # 네트워크 테스트 : spam_filtering된 plaintext를 인풋으로 받음
+        print("network 생성 시작... path : ./templates/networks")
+        # 스팸필터링된 plaintext와 LDA 결과값을 인풋으로 받음
+        status = network(pt, lda_result, saveFilename=keyword)
+        if not status:
+            print('Error during network analysis...')
+            returnstatus['network'] = False
+        ###############
+        ###############
+        # 감성분석 테스트 : spam_filtering된 plaintext를 인풋으로 받음
+        print("sentiment analysis 시작... path : ../react-client/src/visualization/sent_results/")
+        status = sent_analysis(pt, saveDir='../react-client/src/visualization/sent_results/',
+                               fileName=keyword)  # 스팸필터링된 plaintext를 인풋으로 받음
+        if not status:
+            print('Error during sent_analysis...')
+            returnstatus['sent_analysis'] = False
+    print('분석 완료!')
+    return jsonify(returnstatus)
 
 # 실제 검색 -> 크롤링 -> 분석 -> 결과보여주는 API구현할때 무조건 before_search, after_search실행시켜줘야함!! + showaccount, checkavail, keywordsearch(test)
 # ---------------------------관리/테스트용 API-------------------------------
@@ -147,7 +233,6 @@ def js(a, b):
 
 @app.route('/manage/test/<tid>')
 def tttt(tid):
-    #status, result = LDA_test()
     status, keyword, corpus = get_corpus(tid)
     if not status:
         print('get_corpus 중 에러발생')

@@ -56,14 +56,14 @@ def get_image(tid):
         if (status):
             break
     if not status:
-        return (False, [])
-    image_name = []
+        return (False, '', 0)
+    imagenum = 0
     for idx, url in enumerate(images):
         filename = tname+str(idx)
         save_path = '../react-client/src/top_imgs/'+filename+'.jpg'
         request.urlretrieve(url, save_path)
-        image_name.append(filename+'.jpg')
-    return (True, image_name)
+        imagenum += 1
+    return (True, tname, imagenum)
 
 # 감성분석 테스트용 임시..
 

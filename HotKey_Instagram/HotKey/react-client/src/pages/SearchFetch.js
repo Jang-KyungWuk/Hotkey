@@ -39,12 +39,12 @@ const SearchFetch = () => {
               .then((res2) => res2.json())
               .then((data2) => {
                 console.log("analyze 응답 : ", data2);
-                if (data2.status) {
+                if (data2.get_image) {
                   setLstate(2);
                   setTimeout(() => {
                     setLstate(0);
                     navigate("/search_result", {
-                      state: { image_list: data2.images, key_word: keyword },
+                      state: { key_word: keyword, image_num: data2.imagenum },
                     });
                   }, 2000);
                 } else

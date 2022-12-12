@@ -3,30 +3,35 @@ import HotKey_Logo from "../images/HotKey_Logo.jpg";
 import styled from "styled-components";
 import Footer from "../components/Footer";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const Start = () => {
   const navigate = useNavigate();
   return (
-    <div>
-      <Wrapper>
-        <Div1>
-          <Logo src={HotKey_Logo}></Logo>
-        </Div1>
-        <Div2>
-          <Title>Is your Keyword Hot?</Title>
-        </Div2>
-        <Div3>
-          <Button
-            onClick={() => {
-              navigate("/search");
-            }}
-          >
-            SEARCH YOUR KEYWORD
-          </Button>
-        </Div3>
-      </Wrapper>
+    <>
+      <div style={{ height: "90vh" }}>
+        <motion.div>
+          <Wrapper>
+            <Div1>
+              <Logo src={HotKey_Logo}></Logo>
+            </Div1>
+            <Div2>
+              <Title>Is your Keyword Hot?</Title>
+            </Div2>
+            <Div3>
+              <Button
+                onClick={() => {
+                  navigate("/search");
+                }}
+              >
+                SEARCH YOUR KEYWORD
+              </Button>
+            </Div3>
+          </Wrapper>
+        </motion.div>
+      </div>
       <Footer></Footer>
-    </div>
+    </>
   );
 };
 const Wrapper = styled.div`

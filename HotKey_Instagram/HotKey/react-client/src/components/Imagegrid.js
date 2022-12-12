@@ -2,7 +2,13 @@ import React from "react";
 import styled from "styled-components";
 
 const Imagegrid = ({ image }) => {
-  //   return <img src={require("../top_imgs/" + image)}></img>;
+  console.log(window.innerHeight, window.innerWidth); //페이지가 막 렌더링 될때의 window 사이즈
+  if (image.slice(0, -1) === "dddefault")
+    return (
+      <Imgdiv>
+        <Img src={process.env.PUBLIC_URL + "/default.jpg"}></Img>
+      </Imgdiv>
+    );
   return (
     <Imgdiv>
       <Img src={require("../top_imgs/" + image)} />
@@ -18,8 +24,9 @@ const Imgdiv = styled.div`
   align-items: center;
 `;
 const Img = styled.img`
-  height: 88%;
-  width: 88%;
+  height: 80%;
+  width: 80%;
   border-radius: 10px;
+  opacity: 1;
 `;
 export default Imagegrid;
