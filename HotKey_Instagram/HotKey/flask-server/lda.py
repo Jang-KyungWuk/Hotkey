@@ -166,22 +166,22 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
 
     # 워드클라우드 생성
         terms = kiwi_vectorizer.get_feature_names()
-        terms_count = 200
+        # terms_count = 200 #1212수정 - 세윤
 
         for idx, topic in enumerate(lda.components_):
             print('Topic# ', idx+1)
             abs_topic = abs(topic)
             topic_terms = [[terms[i], topic[i]]
-                           for i in abs_topic.argsort()[:-terms_count-1:-1]]
+                           for i in abs_topic.argsort()[:-len(topic)-1:-1]]
             topic_terms_sorted = [[terms[i], topic[i]]
-                                  for i in abs_topic.argsort()[:-terms_count - 1:-1]]
+                                  for i in abs_topic.argsort()[:-len(topic) - 1:-1]]
             topic_words = []
-            for i in range(terms_count):
+            for i in range(len(topic)):
                 topic_words.append(topic_terms_sorted[i][0])
             # print(','.join(word for word in topic_words))
             dict_word_frequency = {}
 
-            for i in range(terms_count):
+            for i in range(len(topic)):
                 dict_word_frequency[topic_terms_sorted[i]
                                     [0]] = topic_terms_sorted[i][1]
             wc = WordCloud(background_color="white", colormap='autumn', mask=mask[idx], max_words=100,
@@ -189,7 +189,7 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
             wc.generate_from_frequencies(dict_word_frequency)
             # wc.to_file(filename=f'./templates/lda_results/Topic#{idx+1}.png')
             # 1212수정_세윤
-            wc.to_file(filename=filedir+keyword+str(idx+1)+'.png')
+            wc.to_file(filename=filedir+keyword+str(idx)+'.png')
 
         print("done in %0.3fs." % (time() - t0))
         print("in total, %0.3fs." % (time() - t1))
