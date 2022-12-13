@@ -3,6 +3,8 @@
   src: url("./fonts/BASKVILL.ttf");
 }
 @font-face {
-  font-family: "chosun";
-  src: url("./fonts/조선일보명조.ttf");
+  font-family: 'chosun';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_one@1.0/Chosunilbo_myungjo.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
 }

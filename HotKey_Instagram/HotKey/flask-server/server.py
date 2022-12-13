@@ -161,6 +161,7 @@ def analyze(tid):
 def show_accounts():
     print('show_accounts실행')
     conn, cur = access_db()
+    g.thread = 'manage/accounts'
     g.total_acc_info, g.all_blocked = get_accounts(cur)
     close_db(conn)
     return jsonify({'all_blocked': g.all_blocked, 'total_acc_info': g.total_acc_info})
@@ -170,6 +171,7 @@ def show_accounts():
 # 관리용 코드, 차단된 계정에 대해 차단이 풀렸는지 확인 후 DB에 반영 (매뉴얼하게 실행)
 def checkavail():
     conn, cur = access_db()
+    g.thread = 'manage/check_avail'
     # 트랜잭션실행
     cur.execute('set autocommit=0;')
     cur.execute('set session transaction isolation level serializable;')
@@ -202,6 +204,7 @@ def del_img():
 
 @app.route('/manage/test/keyword_search/enforce/<keyword>')
 def keyword_search2(keyword):
+    g.thread = 'manage/keyword_search/enforce'
     # 대소문자 구분, 띄어쓰기 예외처리해야함!!!
     print('keyword_search 실행, enforce = True')
     status, tid = single_search(keyword, True)

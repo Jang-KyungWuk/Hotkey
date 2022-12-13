@@ -74,7 +74,7 @@ const SearchFetch = () => {
           ></img>
         </Link>
         <h1>페이지가 존재하지 않습니다.</h1>
-        <Link to="/search">검색페이지로 돌아가기</Link>
+        <Link to="/">검색페이지로 돌아가기</Link>
       </div>
     );
   //분기 : keyword가 존재하는 경우 => loading이 있는가? -> lstate에 따라 분기. (3항 연산자 중첩 사용하거나? 어떻게 할지 생각..ㅇㅇ 최대한 state안꼬이게)
@@ -132,16 +132,15 @@ const SearchFetch = () => {
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 6vh; //헤더크기(+0.5vh)만큼 margin주기
+  margin-top: 7vh; //헤더크기(+0.5vh)만큼 margin주기
 `;
 
 // fetch되지 않은 경우, 로딩 Div => 반응형
 const Loadingdiv = styled.div`
   display: flex;
   flex-direction: column;
-  margin-top: 2vh;
   width: 100vw;
-  height: 80vh;
+  height: 85vh;
 `;
 //loading div2 => 분석중 이미지가 들어갈 div
 const Load2 = styled.div`

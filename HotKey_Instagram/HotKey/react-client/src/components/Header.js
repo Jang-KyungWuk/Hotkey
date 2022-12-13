@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import Header_Logo from "../images/Header_Logo.jpg";
 import Header_Logo2 from "../images/Header_Logo2.jpg";
@@ -20,7 +20,12 @@ const Header = () => {
         ></Logoimg0>
       </Logodiv0>
       <Logodiv1>
-        <Logo src={Header_Logo2}></Logo>
+        <Logo
+          src={Header_Logo2}
+          onClick={() => {
+            if (window.confirm("검색창으로 돌아가시겠습니까?")) navigate("/");
+          }}
+        ></Logo>
       </Logodiv1>
       <Logodiv2>
         <Logoimg2

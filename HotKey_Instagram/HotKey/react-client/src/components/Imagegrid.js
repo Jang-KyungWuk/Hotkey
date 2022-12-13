@@ -2,7 +2,38 @@ import React from "react";
 import styled from "styled-components";
 
 const Imagegrid = ({ image }) => {
-  console.log(window.innerHeight, window.innerWidth); //페이지가 막 렌더링 될때의 window 사이즈
+  //모든 파일은 jpg로 저장된다고 가정
+  //이미지 number
+
+  if (image.slice(-1) === "0")
+    return (
+      <>
+        {image.slice(0, -1) === "dddefault" ? (
+          <Imgdiv1>
+            <Img src={process.env.PUBLIC_URL + "/default.jpg"}></Img>
+          </Imgdiv1>
+        ) : (
+          <Imgdiv1>
+            <Img src={require("../top_imgs/" + image + ".jpg")} />
+          </Imgdiv1>
+        )}
+      </>
+    );
+  else if (image.slice(-1) === "5")
+    return (
+      <>
+        {image.slice(0, -1) === "dddefault" ? (
+          <Imgdiv5>
+            <Img src={process.env.PUBLIC_URL + "/default.jpg"}></Img>
+          </Imgdiv5>
+        ) : (
+          <Imgdiv5>
+            <Img src={require("../top_imgs/" + image + ".jpg")} />
+          </Imgdiv5>
+        )}
+      </>
+    );
+
   if (image.slice(0, -1) === "dddefault")
     return (
       <Imgdiv>
@@ -11,7 +42,7 @@ const Imagegrid = ({ image }) => {
     );
   return (
     <Imgdiv>
-      <Img src={require("../top_imgs/" + image)} />
+      <Img src={require("../top_imgs/" + image + ".jpg")} />
     </Imgdiv>
   );
 };
@@ -22,11 +53,24 @@ const Imgdiv = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+`;
+const Imgdiv1 = styled(Imgdiv)`
+  grid-row-start: 1;
+  grid-row-end: 3;
+  grid-column-start: 1;
+  grid-column-end: 3;
+`;
+const Imgdiv5 = styled(Imgdiv)`
+  grid-row-start: 2;
+  grid-row-end: 4;
+  grid-column-start: 3;
+  grid-column-end: 5;
 `;
 const Img = styled.img`
-  height: 80%;
-  width: 80%;
-  border-radius: 10px;
+  height: 100%;
+  width: 100%;
+  border-radius: 0px;
   opacity: 1;
 `;
 export default Imagegrid;

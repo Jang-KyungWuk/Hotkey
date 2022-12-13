@@ -35,14 +35,14 @@ const Home = () => {
   }, [candidates]);
   const onClick = (word) => {
     console.log("분석요청 페이지로 이동");
-    navigate("/search_fetch", {
+    navigate("/fetch", {
       state: { keyword: word },
     });
   };
   return (
     <Wrapper
       index={candidates}
-      initial={{ opacity: 0.3 }}
+      initial={{ opacity: 0.5 }}
       animate={{ opacity: 1 }}
       transition={{ ease: "easeOut", duration: 1 }}
     >
@@ -63,7 +63,7 @@ const Home = () => {
       </div>
 
       <BtDiv
-        initial={{ opacity: 0.5, x: "30vw" }}
+        initial={{ opacity: 0.2, x: "30vw" }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 1.5 }}
       >
@@ -145,6 +145,7 @@ const Wrapper = styled(motion.div)`
   transition: 2s;
   background-size: cover;
   font-size: 0px;
+  overflow: hidden;
 `;
 //background에만 opacity를 적용하는것은 리액트에서는 어렵고, 배경이미지 후보는 매일 트렌드에 맞춰 관리자가 수동으로 정한다 => filter를 매뉴얼하게 해서 사진 등록.
 //로고 아래를 채울 Div

@@ -22,11 +22,6 @@ const Test = () => {
   return (
     <div>
       <div style={{ height: 900 }}>
-        {/* <img
-          src={require("../top_imgs/love0.jpg")}
-          style={{ height: "250px" }}
-          alt="에라이~~"
-        ></img> */}
         <H1>테스트용 페이지...</H1>
         <H2>Lovely</H2>
         <h1>잘만되는구만~~</h1>

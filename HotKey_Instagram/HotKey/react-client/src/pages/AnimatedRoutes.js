@@ -1,7 +1,6 @@
 import React from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./Home.js";
-import SearchInput from "./SearchInput.js";
 import SearchFetch from "./SearchFetch.js";
 import SearchResult from "./SearchResult.js";
 import Test from "./Test.js";
@@ -25,7 +24,7 @@ const AnimatedRoutes = () => {
           <Routes location={location} key={location.pathname}>
             <Route exact path="/" element={<Home />}></Route>
             {/*키워드 입력 후 서버 요청 페이지 (로딩 페이지)*/}
-            <Route exact path="/search_fetch" element={<SearchFetch />}></Route>
+            <Route exact path="/fetch" element={<SearchFetch />}></Route>
             {/*분석 결과 보여주는 페이지 */}
             <Route
               exact

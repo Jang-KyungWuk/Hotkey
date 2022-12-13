@@ -12,9 +12,9 @@ const Footer = () => {
 
 const Foot = styled.div`
   display: flex;
-  height: 60px;
+  height: 7vh;
   width: 100vw;
-  border-top: 2px solid;
+  border-top: 1px solid;
   // position: absolute;
   left: 2px;
   background-color: white;
