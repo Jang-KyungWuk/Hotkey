@@ -2,14 +2,16 @@ import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import NewLogo from "../images/NewLogo.png";
 import { motion } from "framer-motion";
+import { TransitionGroup, CSSTransition } from "react-transition-group";
 
 const images = [
   require("../home_imgs/home0.png"),
   require("../home_imgs/home1.png"),
-  require("../home_imgs/home2.png"),
+  // require("../home_imgs/home2.png"),
   // require("../home_imgs/home3.png"),
   // require("../home_imgs/home4.png"),
 ];
+console.log("현재화면크기 : ", window.innerWidth, "x", window.innerHeight);
 const Test2 = () => {
   //레이아웃 테스트용
   const [candidates, setCandidates] = useState(0);
@@ -37,14 +39,17 @@ const Test2 = () => {
         <motion.img
           src={NewLogo}
           style={{ height: "33vh", width: "90vw" }}
-          initial={{ opacity: 0, y: "-20vh" }}
+          initial={{ opacity: 0, y: "-30vh" }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 2, delay: 0.5 }}
+          transition={{ duration: 1.5, delay: 0.5 }}
         ></motion.img>
-        {/* <Logo src={NewLogo}></Logo> */}
       </div>
 
-      <BtDiv>
+      <BtDiv
+        initial={{ opacity: 0.5, x: "30vw" }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1.5 }}
+      >
         <Div2>
           <Inputdiv>
             <Input
@@ -70,8 +75,6 @@ const Test2 = () => {
   );
 };
 
-//실제 결과가 들어갈 div
-//
 const Wrapper = styled(motion.div)`
   display: flex;
   flex-direction: column;
@@ -83,7 +86,7 @@ const Wrapper = styled(motion.div)`
 `;
 //background에만 opacity를 적용하는것은 리액트에서는 어렵고, 배경이미지 후보는 매일 트렌드에 맞춰 관리자가 수동으로 정한다 => filter를 매뉴얼하게 해서 사진 등록.
 //로고 아래를 채울 Div
-const BtDiv = styled.div`
+const BtDiv = styled(motion.div)`
   width: 100vw;
   height: 77vh;
   display: flex;

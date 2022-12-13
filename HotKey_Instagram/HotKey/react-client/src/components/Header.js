@@ -18,8 +18,8 @@ const Header = ({ loading }) => {
               var confirmed = window.confirm(
                 "현재 검색결과가 로딩 중입니다.\n검색창으로 돌아가시겠습니까?"
               );
-              if (confirmed) navigate("/search");
-            } else navigate("/search");
+              if (confirmed) navigate("/");
+            } else navigate("/");
           }}
         ></Logo>
       </Logodiv>

@@ -496,13 +496,20 @@ def trend_crawler_client():  # 7개 리턴.
         for i in page['trendingSearches']:
             tmplist.append(i['title']['query'])
     # 중복제거해서 7개 리턴
+    tmp = list()
+    for i in tmplist:
+        if i not in tmp:
+            tmp.append(i)
     trendlist = list()
     for i in tmplist:
-        if i not in trendlist:
+        print(i.split())
+        if len(i.split()) == 1:
             trendlist.append(i)
-        if len(trendlist) == 7:
-            break
-    return trendlist
+    idx = len(trendlist) - 1
+    while len(trendlist) <= 5:
+        if len(trendlist[idx]) > 7:
+            trendlist.pop(idx)
+    return trendlist[:5]
 # 로그인 없이 top_image가져오는 것이 가능!
 # 중간에 끊기더라도 일단 리턴하니까, 나중에 image_list[:9]해서 사용하면 됨.(인덱스 에러 따로 안남) => 프론트가 받아서 부족한 만큼 그냥 디폴트로 채우면 됨. 최대 2번 시도.
 

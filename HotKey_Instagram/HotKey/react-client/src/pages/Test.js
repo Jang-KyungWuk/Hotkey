@@ -31,7 +31,7 @@ const Test = () => {
             //팝업창 옵션 (창 크기 조절 등 조정)
             const popupOption = "width=1000, height=640, status=no;";
             window.open(
-              "http://localhost:5000/manage/test/network/월드컵1203.html",
+              "http://localhost:5000/manage/test/network/강인경.html",
               "",
               popupOption
             );
