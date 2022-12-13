@@ -15,15 +15,15 @@ const bg = [
 const Test2 = () => {
   //레이아웃 테스트용
   let image_list = [
-    "네이마르0",
-    "네이마르1",
-    "네이마르2",
-    "네이마르3",
-    "네이마르4",
-    "네이마르5",
-    "네이마르6",
-    "네이마르7",
-    "네이마르8",
+    // "네이마르0",
+    // "네이마르1",
+    // "네이마르2",
+    // "네이마르3",
+    // "네이마르4",
+    // "네이마르5",
+    // "네이마르6",
+    // "네이마르7",
+    // "네이마르8",
   ];
   const [sliderIdx, setSliderIdx] = useState(0);
   return (
@@ -67,7 +67,7 @@ const Test2 = () => {
                   <Page1222>
                     <Page12221>
                       <Img
-                        src={require("../visualization/wordcloud/네이마르.png")}
+                        src={require("../visualization/wordcloud/우래기.png")}
                       ></Img>
                     </Page12221>
                     <Page12222>
