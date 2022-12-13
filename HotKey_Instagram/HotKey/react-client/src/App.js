@@ -1,6 +1,7 @@
 import React from "react";
 import { BrowserRouter } from "react-router-dom";
 import AnimatedRoutes from "./pages/AnimatedRoutes";
+import "./App.css";
 // import Start from "./pages/Start.js";
 // import SearchInput from "./pages/SearchInput.js";
 // import SearchFetch from "./pages/SearchFetch.js";

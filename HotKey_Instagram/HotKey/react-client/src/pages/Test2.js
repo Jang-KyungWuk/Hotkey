@@ -1,190 +1,83 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import NewLogo from "../images/NewLogo.png";
 import { motion } from "framer-motion";
-import { TransitionGroup, CSSTransition } from "react-transition-group";
+import Left from "../images/Left.png";
+import Right from "../images/Right.png";
+import Header from "../components/Header.js";
 
-const images = [
-  require("../home_imgs/home0.png"),
-  require("../home_imgs/home1.png"),
-  // require("../home_imgs/home2.png"),
-  // require("../home_imgs/home3.png"),
-  // require("../home_imgs/home4.png"),
-];
 console.log("현재화면크기 : ", window.innerWidth, "x", window.innerHeight);
+const bg = [
+  require("../images/ResultBackground0.png"), //1페이지백그라운드
+  require("../images/ResultBackground1.png"), //2페이지백그라운드
+];
+
 const Test2 = () => {
   //레이아웃 테스트용
-  const [candidates, setCandidates] = useState(0);
-
-  useEffect(() => {
-    setTimeout(() => {
-      if (candidates === images.length - 1) setCandidates(0);
-      else setCandidates(candidates + 1);
-    }, 5000);
-  }, [candidates]);
+  const [sliderIdx, setSliderIdx] = useState(0);
   return (
-    <Wrapper
-      index={candidates}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
-    >
-      {candidates}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <motion.img
-          src={NewLogo}
-          style={{ height: "33vh", width: "90vw" }}
-          initial={{ opacity: 0, y: "-30vh" }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, delay: 0.5 }}
-        ></motion.img>
-      </div>
-
-      <BtDiv
-        initial={{ opacity: 0.5, x: "30vw" }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 1.5 }}
-      >
-        <Div2>
-          <Inputdiv>
-            <Input
-              autoFocus
-              placeholder="키워드를 입력하세요"
-              maxLength="20"
-            ></Input>
-          </Inputdiv>
-          <Button>SEARCH</Button>
-        </Div2>
-        <Div3>
-          <Trenddiv>
-            <Trendbtn>손흥민</Trendbtn>
-            <Trendbtn>네이마르</Trendbtn>
-            <Trendbtn>브라질</Trendbtn>
-            <Trendbtn>월드컵</Trendbtn>
-            <Trendbtn>16강</Trendbtn>
-          </Trenddiv>
-          <Trenddiv2></Trenddiv2>
-        </Div3>
-      </BtDiv>
-    </Wrapper>
+    <>
+      <Header />
+      <Wrapper url={bg[sliderIdx]}>
+        <ResultWrapper>
+          <Slider style={{ transform: `translateX(-${sliderIdx * 95.5}vw)` }}>
+            <SliderContent1>
+              <Direction
+                src={Right}
+                onClick={() => {
+                  setSliderIdx(1);
+                }}
+              ></Direction>
+            </SliderContent1>
+            <SliderContent2>
+              <Direction
+                src={Left}
+                onClick={() => {
+                  setSliderIdx(0);
+                }}
+              ></Direction>
+            </SliderContent2>
+          </Slider>
+        </ResultWrapper>
+      </Wrapper>
+    </>
   );
 };
 
-const Wrapper = styled(motion.div)`
+const Wrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-image: url(${(props) => images[props.index]});
-  transition: 2s;
+  justify-content: center;
+  margin-top: 7vh; //헤더 크기 만큼
+  height: 93vh; //헤더 크기만큼 빼기
+  width: 100vw;
   background-size: cover;
   font-size: 0px;
+  background-image: url(${(prop) => prop.url});
+  transition: 1s;
 `;
-//background에만 opacity를 적용하는것은 리액트에서는 어렵고, 배경이미지 후보는 매일 트렌드에 맞춰 관리자가 수동으로 정한다 => filter를 매뉴얼하게 해서 사진 등록.
-//로고 아래를 채울 Div
-const BtDiv = styled(motion.div)`
-  width: 100vw;
-  height: 77vh;
+const ResultWrapper = styled.div`
   display: flex;
-  flex-direction: column;
-  align-items: center;
-`;
-//검색input + button 들어갈 Div
-const Div2 = styled.div`
-  display: flex;
-  margin-top: 0.5%;
-  width: 60%;
-  height: 10%;
-  justify-content: space-around;
-  align-items: center;
-  //background-color: white;
-  border-radius: 17px;
-  box-shadow: 2px 5px 5px 1px black;
-`;
-//input이 들어갈 Div
-const Inputdiv = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 70%;
-  height: 65%;
-  border-radius: 30px;
-  border: 0px solid;
-  border-left: 3px solid;
-  border-right: 3px solid;
+  height: 96.5%;
+  width: 95.5%;
   background-color: white;
-  box-shadow: 2px 3px 5px 1px black;
+  overflow: hidden;
 `;
-//input박스
-const Input = styled.input`
-  width: 90%;
-  height: 80%;
-  border-radius: 30px;
-  border: 0px solid;
-  font-family: Roboto;
-  font-size: 1.3vw;
-  &:focus {
-    outline: none;
-  }
+const Slider = styled.div`
+  position: relative;
+  display: flex;
+  width: calc(2 * 95.5vw);
+  height: 100%;
+  transition: all 0.7s ease-out;
 `;
-//검색button 박스
-const Button = styled.button`
+const SliderContent1 = styled.div`
+  height: 100%;
+  width: 95.5vw;
+`;
+const SliderContent2 = styled.div`
+  height: 100%;
+  width: 95.5vw;
+`;
+const Direction = styled.img`
+  display: block;
   cursor: pointer;
-  background-color: black;
-  width: 17%;
-  height: 65%;
-  border-width: 1px;
-  border-radius: 30px;
-  font-family: Roboto;
-  font-size: 1.3vw;
-  // font-weight: bold;
-  // color: #ce3909;
-  color: white;
-  letter-spacing: 0.2vw;
-  box-shadow: 1px 3px 5px 1px gray;
 `;
-//trend 보여줄 Div
-const Div3 = styled.div`
-  display: flex;
-  width: 60%;
-  height: 20%;
-  justify-content: center;
-  flex-direction: column;
-`;
-//trend 위아래 Div
-const Trenddiv = styled.div`
-  display: flex;
-  width: 100%;
-  height: 50%;
-  justify-content: space-around;
-  align-items: center;
-`;
-const Trenddiv2 = styled.div`
-  display: flex;
-  width: 100%;
-  height: 50%;
-  justify-content: space-around;
-  align-items: center;
-`;
-const Trendbtn = styled.button`
-  cursor: pointer;
-  width: 15%;
-  height: 60%;
-  border-radius: 30px;
-  // font-size: ${(props) => (props.len < 8 ? "1vw" : "0.7vw")};
-  font-size: 1vw;
-  // background-color: #e8e8e8;
-  background-color: black;
-  color: white;
-  font-family: Roboto;
-  letter-spacing: 0.1vw;
-  font-weight: bold;
-  border: 0px solid;
-  box-shadow: 2px 3px 5px 1px gray;
-`;
-
 export default Test2;

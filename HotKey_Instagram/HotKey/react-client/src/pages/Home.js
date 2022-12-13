@@ -6,9 +6,9 @@ import { motion } from "framer-motion";
 const images = [
   require("../home_imgs/home0.png"),
   require("../home_imgs/home1.png"),
-  // require("../home_imgs/home2.png"),
-  // require("../home_imgs/home3.png"),
-  // require("../home_imgs/home4.png"),
+  require("../home_imgs/home2.png"),
+  require("../home_imgs/home3.png"),
+  require("../home_imgs/home4.png"),
 ];
 const Home = () => {
   const navigate = useNavigate();
@@ -25,14 +25,13 @@ const Home = () => {
       })
       .catch((err) => {
         console.log(err);
-        alert(err);
       });
   }, []);
   useEffect(() => {
     setTimeout(() => {
       if (candidates === images.length - 1) setCandidates(0);
       else setCandidates(candidates + 1);
-    }, 5000);
+    }, 7000);
   }, [candidates]);
   const onClick = (word) => {
     console.log("분석요청 페이지로 이동");
@@ -43,9 +42,9 @@ const Home = () => {
   return (
     <Wrapper
       index={candidates}
-      initial={{ opacity: 0 }}
+      initial={{ opacity: 0.3 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 1 }}
+      transition={{ ease: "easeOut", duration: 1 }}
     >
       {candidates}
       <div

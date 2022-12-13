@@ -24,9 +24,7 @@ const AnimatedRoutes = () => {
         >
           <Routes location={location} key={location.pathname}>
             <Route exact path="/" element={<Home />}></Route>
-            {/*키워드 입력하는 페이지*/}
-            <Route exact path="/search" element={<SearchInput />}></Route>
-            {/*키워드 입력 후 서버 요청 페이지*/}
+            {/*키워드 입력 후 서버 요청 페이지 (로딩 페이지)*/}
             <Route exact path="/search_fetch" element={<SearchFetch />}></Route>
             {/*분석 결과 보여주는 페이지 */}
             <Route

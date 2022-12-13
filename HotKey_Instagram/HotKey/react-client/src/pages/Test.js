@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import Footer from "../components/Footer";
-
+import styled from "styled-components";
+const H1 = styled.h1`
+  font-family = "chosun";
+`;
+const H2 = styled.h1`
+  font-family = "baskvill";
+`;
 const Test = () => {
   //서버 fetch 테스트용...
   const [data, setData] = useState([{}]);
@@ -21,7 +27,9 @@ const Test = () => {
           style={{ height: "250px" }}
           alt="에라이~~"
         ></img> */}
-        <h1>테스트용 페이지...</h1>
+        <H1>테스트용 페이지...</H1>
+        <H2>Lovely</H2>
+        <h1>잘만되는구만~~</h1>
         {/*밑에는 서버 fetch 테스트용...*/}
         <h2>네트워크 test</h2>
         <button
