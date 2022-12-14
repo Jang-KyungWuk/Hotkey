@@ -55,7 +55,7 @@ const SearchResult = () => {
                       <Page1112>
                         <P1>{sent1}</P1>
                         <P2>
-                          MADE BY [조 이름]
+                          MADE BY [핫키 에디터]
                           <br />
                           @고려대학교 지능정보 SW아카데미
                           <br />
@@ -149,6 +149,7 @@ const ResultWrapper = styled.div`
   display: flex;
   height: 96.5%;
   width: 95.5%;
+  // background-color: #f1eee7;
   background-color: white;
   overflow: hidden;
 `;
@@ -273,7 +274,7 @@ const Page12221 = styled.div`
 //워드클라우드 이미지
 const Img = styled.img`
   display: block;
-  width: 100%;
+  height: 90%;
 `;
 //Page 1222의 아래쪽, 텍스트
 const Page12222 = styled.div`

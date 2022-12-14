@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import NewLogo from "../images/NewLogo.png";
+import BlackLogo from "../images/BlackLogo.png";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 const images = [
@@ -9,6 +10,7 @@ const images = [
   require("../home_imgs/home2.png"),
   require("../home_imgs/home3.png"),
   require("../home_imgs/home4.png"),
+  // require("../home_imgs/home5.jpg"),
 ];
 const Home = () => {
   const navigate = useNavigate();
@@ -44,7 +46,7 @@ const Home = () => {
       index={candidates}
       initial={{ opacity: 0.5 }}
       animate={{ opacity: 1 }}
-      transition={{ ease: "easeOut", duration: 1 }}
+      transition={{ ease: "easeOut", duration: 0.7 }}
     >
       {candidates}
       <div

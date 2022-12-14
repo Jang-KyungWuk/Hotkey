@@ -14,8 +14,6 @@ import emoji
 from math import log1p
 import numpy as np
 
-# 기존 preprocess.py, spamfilter.py,
-
 
 class nltkMA:
     def __init__(self,
@@ -218,6 +216,7 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
                returnPlain=False, returnMorph=False,
                multiReturn=False,
                removeHashTag=True,
+               kwdMinLen=2,
                morphemeAnalyzer='kiwi', morphemeAnalyzerParams=None, targetMorphs=['NNP', 'NNG'],
                returnEnglishMorph=True, EETagRule={'NLTK_NNP': 'NNP', 'NLTK_NN': 'NNG', 'R_W_HASHTAG': 'W_HASHTAG'},
                filterMorphemeAnalyzer='kiwi', filterMorphemeAnalyzerParams=None, filterTargetMorphs=['NNP', 'NNG', 'W_HASHTAG'],
@@ -252,9 +251,26 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
                                     konlpy.tag.Okt      : 'Okt','OKT','okt','오픈코리안텍스트','트위터'
                                     konlpy.tag.Mecab    : 'Mecab','mecab','MECAB','미캐브'
 
-
-
     morphemeAnalyzerParams = None (None / dict) : None
+
+    targetMorphs = ['NNP','NNG'] (list / iterable) : 반환 하는 토큰들의 품사들의 종류를 제한, 기본값 NNP, NNG의 경우 형태소 분석기 기본값인 '고유명사', '일반명사' 형을 반환
+
+    returnEnglishMorph = True (bool) : True 시 해쉬태그, 멘션, 이모티콘, 영어 품사들을 모두 분석해서 반환
+
+    EETagRule = {'NLTK_NNP':'NNP','NLTK_NN':'NNG','R_W_HASHTAG':'W_HASHTAG'} (dict) : "영어 품사로 나올 수 있는 품사" : "해당 품사를 변환할 품사" 쌍의 dict 
+
+    filterMorphemeAnalyzer
+    filterMorphemeAnalyzerParams
+    filterTargetMorphs
+    filterEnglishMorph
+    filterEETagRule
+
+    BM25에 사용할 토큰을 구하는 토큰화에 사용되는 동일한 패러미터
+
+    k_1Filter = 1.5 (float) : BM25의 변수, 1.2 이상, 2.0 이하
+    bFilter = 0.75 (float) : BM25의 변수 (Christopher D. Manning, Prabhakar Raghavan, Hinrich Schütze. An Introduction to Information Retrieval, Cambridge University Press, 2009, p. 233.)
+
+    filterThreshold = 2.5 (float) : BM25로 산출된 각 문서의 키워드들을 문서별로 평균을 구해서 해당 점수 이하의 문서들을 스팸문서로 간주, 제거
 
     다른 분석을 수행할 수 있도록 전처리를 수행
 
@@ -308,7 +324,7 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
 
     # BM25 필터링에 사용 될 토큰화 된 결과값을 저장
     ftok = data_tokenize(data, fma, filterTargetMorphs,
-                         returnMorph=False, returnEnglishMorph=True, eeTagRule=filterEETagRule)
+                         returnMorph=False, returnEnglishMorph=True, eeTagRule=filterEETagRule, kwdMinLen=kwdMinLen)
 
     flag = False
     # 만약 모든 결과 분석의 조건들이 필터 분석의 조건들과 일치하면 이전의 토큰화 결과를 그대로 사용할 것
@@ -384,7 +400,8 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
             returnData = data_tokenize(returnData, tma, targetMorphs,
                                        returnMorph=returnMorph,
                                        returnEnglishMorph=returnEnglishMorph,
-                                       eeTagRule=EETagRule)
+                                       eeTagRule=EETagRule,
+                                       kwdMinLen=kwdMinLen)
             print("%s 개의 데이터가 삭제되었습니다." % spamCount)
             return returnData
 
@@ -420,12 +437,17 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
         returnDatas['tokenized'] = data_tokenize(tdata, tma, targetMorphs,
                                                  returnMorph=returnMorph,
                                                  returnEnglishMorph=returnEnglishMorph,
-                                                 eeTagRule=EETagRule)
+                                                 eeTagRule=EETagRule,
+                                                 kwdMinLen=kwdMinLen)
         print("%s 개의 데이터가 삭제되었습니다." % spamCount)
         return returnDatas
 
 
 def plain_structurize(plaintext, sep='HOTKEY123!@#'):
+    '''
+    구분자로 구분된 문자열을 받아서 구분자를 기준으로 나눠서 리스트에 담아 반환
+    만약 구분자로 나눈 리스트의 마지막 데이터가 비어있다면 (구분자로 문자열이 끝나면) 마지막 데이터를 삭제함
+    '''
     structuredData = plaintext.split(sep)
     if structuredData[-1] == '':
         structuredData = structuredData[:-1]
@@ -438,7 +460,8 @@ def data_tokenize(data, morphemeAnalyzer,
                   returnEnglishMorph=False,
                   eeTagRule={'NLTK_NNP': 'NNP',
                              'NLTK_NN': 'NNG',
-                             'R_W_HASHTAG': 'W_HASHTAG'}):
+                             'R_W_HASHTAG': 'W_HASHTAG'},
+                  kwdMinLen=2):
     '''
     데이터를 주어진 형태소 분석기 인스턴스로 분석하고 정해진 품사를 반환
     '''
@@ -448,23 +471,29 @@ def data_tokenize(data, morphemeAnalyzer,
         for post in data:
             partialReturn = list()
             tokenizedData = HEMEK_tokenize(
-                remove_stopwords(post), morphemeAnalyzer, nltkMA())
+                remove_stopwords(post), morphemeAnalyzer, nltkMA())  # 영문 분석
 
             for tok in tokenizedData:
-                if tok[1] in eeTagRule:
+                if len(tok[0]) < kwdMinLen:
+                    continue
+                if tok[1] in eeTagRule:  # 변환 규칙에 있는 품사는 변환
                     tok[1] = eeTagRule[tok[1]]
                 if tok[1] in targetMorphs:
+                    # 품사까지 반환하도록 요청 받으면 [키워드, 품사] 쌍을 그대로 반환
                     if returnMorph == True:
                         partialReturn.append(tok)
-                    else:
+                    else:  # 품사를 요청받지 않으면 키워드만 뽑아서 반환
                         partialReturn.append(tok[0])
             returnData.append(partialReturn)
 
     else:
         for post in data:
             partialReturn = list()
-            tokenizedData = morphemeAnalyzer(remove_stopwords(post))
+            tokenizedData = morphemeAnalyzer(
+                remove_stopwords(post))  # 형태소 분석기로 한번에 분석 (한글 전용)
             for tok in tokenizedData:
+                if len(tok[0]) < kwdMinLen:
+                    continue
                 if tok[1] in targetMorphs:
                     if returnMorph == True:
                         partialReturn.append(tok)
@@ -494,15 +523,15 @@ def get_demojized_set():
 def regexp_spliter(text, regexps, matchLabels, nomatchLabel, filters=None):
     '''
     정규표현식들을 이용해 입력받은 텍스트들을 나누고 [나눠진 텍스트, 라벨] 리스트를 담은 리스트로 반환
-
     ex : ABCDEFG
     입력 받은 정규 표현식 : BC, EF
     입력 받은 라벨 : label1 label2
     입력 받은 불일치 라벨 : NO
     실행 결과 : [[A, NO], [BC, label1], [D, NO], [EF, label2], [G, NO]]
-
     정규표현식은 모두 re.finditer(정규표현식,입력텍스트) 으로 적용
     '''
+
+    # 만약 입력값이 문자열인 경우 iterable 형식을 갖추기 위해 list에 넣음
     if type(regexps) == str:
         regexps = [regexps]
     if type(matchLabels) == str:
@@ -520,12 +549,15 @@ def regexp_spliter(text, regexps, matchLabels, nomatchLabel, filters=None):
 
     foundDict = dict()
     for idx in range(expCount):
+        # 텍스트에서 정규 표현식으로 일치하는 부분이 있는지 검색
         for found in re.finditer(regexps[idx], text):
-            if filters[idx] == None:
+            if filters[idx] == None:  # 필터가 없을 경우 별도의 처리 없이 이어감
                 pass
+            # 필터 대상에 있는 키워드가 아닐시 다음 키워드로 넘어감
             elif found.group() not in filters[idx]:
                 continue
 
+            # 정규 표현에 일치하는 부분의 시작 인덱스를 키로, 값에 종료 인덱스와 라벨을 튜플로 저장
             foundDict[found.start()] = (found.end(), matchLabels[idx])
 
     starts = list(foundDict.keys())
@@ -629,15 +661,14 @@ def HEMEK_tokenize(text, KRmorphemeAnalyzer, NKRmorphemeAnalyzer):
 
 
 def BM25(data, postLens, k_1=1.5, b=0.75):
-    avgPostLen = np.mean(postLens)
-
     '''
     BM25 알고리즘으로 문서 내의 각 토큰별로 점수를 계산하고 문서별로 문서내에 있는 모든 토큰의 점수의 평균을 리스트에 담아 반환
     '''
+    avgPostLen = np.mean(postLens)
 
     N = len(data)  # 전체 데이터의 길이 (문서의 개수)
 
-    n = dict()
+    n = dict()  # 각 문서별로 키워드가 언급된 횟수
 
     # 전체 문서들을 방문하며 어느 문서에 특정 토큰이 등장했다면 해당 토큰에 1점을 부여
     for post in data:
@@ -652,7 +683,7 @@ def BM25(data, postLens, k_1=1.5, b=0.75):
     for tok in n.keys():
         IDF[tok] = log1p((N-n[tok]+0.5)/(n[tok]+0.5))
 
-    filterScores = list()
+    filterScores = list()  # 점수를 저장할 list
 
     for postidx, post in enumerate(data):
         postScore = 0

@@ -32,14 +32,8 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
         kiwi = Kiwi()
         kiwi.prepare()
 
-    # 전처리함수를 통해 스팸포스트 제거
-        print("\nFiltering spam post...")
-        t0 = time()
         t1 = time()
-        doc = preprocess(plaintext, sep='HOTKEY123!@#',
-                         returnPlain=True).replace('#', '').split('HOTKEY123!@')
-        # doc = plaintext
-        print("done in %0.3fs." % (time() - t0))
+        doc = plaintext.split('HOTKEY123!@#')
 
         print("\nExtracting kiwi features for LDA...")
         t0 = time()

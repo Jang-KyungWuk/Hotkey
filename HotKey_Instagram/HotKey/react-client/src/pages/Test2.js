@@ -66,9 +66,10 @@ const Test2 = () => {
                   </Page1221>
                   <Page1222>
                     <Page12221>
-                      <Img
+                      {/* <Img
                         src={require("../visualization/wordcloud/우래기.png")}
-                      ></Img>
+                      ></Img> */}
+                      <h1>이미지</h1>
                     </Page12221>
                     <Page12222>
                       <P4>

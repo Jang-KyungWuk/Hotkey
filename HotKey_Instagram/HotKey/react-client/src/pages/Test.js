@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Footer from "../components/Footer";
 import styled from "styled-components";
+import loading_1 from "../images/loading_1.gif";
 const H1 = styled.h1`
   font-family = "chosun";
 `;
@@ -21,6 +22,7 @@ const Test = () => {
 
   return (
     <div>
+      <img src={loading_1} />
       <div style={{ height: 900 }}>
         <H1>테스트용 페이지...</H1>
         <H2>Lovely</H2>
@@ -34,7 +36,7 @@ const Test = () => {
             //팝업창 옵션 (창 크기 조절 등 조정)
             const popupOption = "width=1000, height=640, status=no;";
             window.open(
-              "http://localhost:5000/manage/test/network/강인경.html",
+              "http://localhost:5000/manage/test/network/솔로지옥.html",
               "",
               popupOption
             );
