@@ -93,9 +93,9 @@ def sent_visualization(ratios,
                        plotType='pie'):
 
     if plotType == 'pie':
-        label = ["%s%%" % (ratio) for ratio in ratios]
-        plt.pie(ratios, labels=label, labeldistance=0.6, colors=colors)
-        plt.legend(legends)
+        label = ["긍정 %s%%" % (ratio) for ratio in ratios]
+        plt.pie(ratios, labels=label, labeldistance=1.2, colors=colors,
+                explode=[0.05, 0.05, 0.05], startangle=90)
         plt.savefig(saveDir+fileName+'.jpg')
 
     elif plotType == 'bar':
@@ -103,12 +103,25 @@ def sent_visualization(ratios,
         for cursor in range(len(ratios)):
             cratios.append(np.sum(ratios[:cursor+1]))
 
-        fig = plt.figure(figsize=(8, 1))
+        fig, ax = plt.subplots(figsize=(8, 1))
+
+        # fig = plt.figure(figsize=(8,1))
+        '''
+        fig.set_figwidth(8)
+        fig.set_figheight(1)
+        '''
 
         for cursor in range(len(cratios)-1, -1, -1):
-            plt.barh(['ratio'], [cratios[cursor]], color=colors[cursor])
-            plt.barh(['ratio'], [cratios[cursor]], color=colors[cursor])
-            plt.barh(['ratio'], [cratios[cursor]], color=colors[cursor])
+            ax.barh(['ratio'], [cratios[cursor]], color=colors[cursor])
 
         plt.xlim(-10, 110)
+
+        ax.axis('off')
+        ax.margins(0)
+
+        patch = patches.Rectangle(
+            xy=(0, -0.37), width=100, height=0.73, capstyle='round')
+        ax.add_patch(patch)
+        # ax.set_clip_path()
+
         plt.savefig(saveDir+fileName+'.jpg')

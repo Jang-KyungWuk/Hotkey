@@ -70,7 +70,7 @@ def keyword_search(keyword):
 def analyze(tid):
     # tid를 받아서 분석 후 결과를 jsonify해서 프론트로전달 (이미지의 경우, 경로를 react-client안에 넣어두기?)
     returnstatus = {'keyword': '', 'imagenum': 0, 'get_image': True, 'get_corpus': True, 'preprocess': True, 'wordcloud': True,
-                    'barplot': True, 'lda': True, 'spam_filter': True, 'network': True, 'sent_analysis': True}
+                    'barplot': True, 'lda': True, 'topic_num': 0, 'spam_filter': True, 'network': True, 'sent_analysis': True, 'sent_result': []}
     print("analyze API 실행")
     print("get_image 실행")
     status, keyword, imagenum = get_image(tid)
@@ -122,9 +122,10 @@ def analyze(tid):
     ################
     # LDA 테스트 : spam_filtering된 spt를 인풋으로 받음
     print("LDA 분석 시작... (토픽별 워드클라우드생성)")
-    status, lda_result = sklda(
+    status, lda_result, topic_num = sklda(
         spt, filedir='../react-client/src/visualization/lda_results/', keyword=keyword)
     print("LDA 분석 완료")
+    returnstatus['topic_num'] = topic_num
     if not status:
         print('LDA 분석 중 에러..')
         returnstatus['lda'] = False
@@ -143,8 +144,9 @@ def analyze(tid):
     ###############
     # 감성분석 테스트 : spam_filtering된 plaintext를 인풋으로 받음
     print("sentiment analysis 시작... path : ../react-client/src/visualization/sent_results/")
-    status = sent_analysis(spt, saveDir='../react-client/src/visualization/sent_results/',
-                           fileName=keyword)  # 스팸필터링된 plaintext를 인풋으로 받음
+    status, sent_result = sent_analysis(spt, saveDir='../react-client/src/visualization/sent_results/',
+                                        fileName=keyword)  # 스팸필터링된 plaintext를 인풋으로 받음
+    returnstatus['sent_result'] = sent_result
     if not status:
         print('Error during sent_analysis...')
         returnstatus['sent_analysis'] = False

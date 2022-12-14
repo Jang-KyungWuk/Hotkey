@@ -2,6 +2,15 @@ import React, { useState, useEffect } from "react";
 import Footer from "../components/Footer";
 import styled from "styled-components";
 import loading_1 from "../images/loading_1.gif";
+import SentTable from "../components/SentTable.js";
+import {
+  TableHead,
+  Table,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@material-ui/core";
+
 const H1 = styled.h1`
   font-family = "chosun";
 `;
@@ -19,6 +28,17 @@ const Test = () => {
         console.log("받아온 Account 객체", data);
       });
   }, []);
+
+  //테이블 테스트~~~
+  const info = [
+    ["감사", 18, "긍정"],
+    ["사랑", 17, "긍정"],
+    ["^^", 12, "긍정"],
+    ["용기", 11, "긍정"],
+    ["불편", 11, "부정"],
+    ["함부로", 11, "부정"],
+    ["함께", 7, "긍정"],
+  ];
 
   return (
     <div>

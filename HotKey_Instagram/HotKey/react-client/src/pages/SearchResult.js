@@ -7,6 +7,7 @@ import Right from "../images/Right.png";
 import Header from "../components/Header.js";
 import Imagegrid from "../components/Imagegrid";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
+import SentTable from "../components/SentTable";
 import { motion } from "framer-motion";
 
 const bg = [
@@ -18,6 +19,9 @@ const SearchResult = () => {
   //   const navigate = useNavigate();
   const key_word = location.state?.key_word;
   const image_num = location.state?.image_num;
+  const topic_num = location.state?.topic_num;
+  const sent_result = location.state?.sent_result;
+  console.log(sent_result);
   let image_list = [
     "dddefault0",
     "dddefault1",
@@ -32,10 +36,18 @@ const SearchResult = () => {
   for (let i = 0; i < image_num; i++) {
     image_list[i] = key_word + i;
   }
+  let topic_list = ["dddefault0", "dddefault1", "dddefault2", "dddefault3"];
+  for (let i = 0; i < topic_num; i++) {
+    topic_list[i] = key_word + i;
+  }
+
   const [sliderIdx, setSliderIdx] = useState(0);
   console.log("분석 결과 페이지 렌더링...");
   console.log("image_list :", image_list);
+  console.log("topic_list :", topic_list);
+  console.log("topic_num :", topic_num);
   console.log("key_word :", key_word);
+  console.log("sent_result : ", sent_result);
 
   const sent1 = "지금 이 시간 당신이 궁금한" + " ' " + key_word + " ' ";
   return (
@@ -49,71 +61,211 @@ const SearchResult = () => {
                 style={{ transform: `translateX(-${sliderIdx * 95.5}vw)` }}
               >
                 <SliderContent1>
-                  <Page11>
-                    <Page111>
-                      <Page1111>{key_word}</Page1111>
-                      <Page1112>
-                        <P1>{sent1}</P1>
-                        <P2>
-                          MADE BY [핫키 에디터]
-                          <br />
-                          @고려대학교 지능정보 SW아카데미
-                          <br />
-                          #인스타그램으로보는 #실시간 #트렌드 #분석
-                        </P2>
-                      </Page1112>
-                    </Page111>
-                  </Page11>
-                  <Page12>
-                    <Page121>
-                      <Page1211>
-                        <P3>
-                          지금 이 시간,
-                          <br />
-                          사람들이 주목하는 핫한 사진
-                        </P3>
-                      </Page1211>
-                    </Page121>
-                    <Page122>
-                      <Page1221>
-                        {image_list.map((file) => (
-                          <Imagegrid key={file} image={file} />
-                        ))}
-                      </Page1221>
-                      <Page1222>
-                        <Page12221>
-                          <Img
-                            src={require("../visualization/wordcloud/" +
-                              key_word +
-                              ".png")}
-                          ></Img>
-                        </Page12221>
-                        <Page12222>
-                          <P4>
+                  <Tmp1>
+                    <Page11>
+                      <Page111>
+                        <Page1111>{key_word}</Page1111>
+                        <Page1112>
+                          <P1>{sent1}</P1>
+                          <P2>
+                            MADE BY [핫키 에디터]
+                            <br />
+                            @고려대학교 지능정보 SW아카데미
+                            <br />
+                            #인스타그램으로보는 #실시간 #트렌드 #분석
+                          </P2>
+                        </Page1112>
+                      </Page111>
+                    </Page11>
+                    <Page12>
+                      <Page121>
+                        <Page1211>
+                          <P3>
                             지금 이 시간,
                             <br />
-                            사람들이 주목하는 핫 키워드
-                          </P4>
-                        </Page12222>
-                      </Page1222>
-                      <Page1223>
-                        <Direction
-                          src={Right}
-                          onClick={() => {
-                            setSliderIdx(1);
-                          }}
-                        ></Direction>
-                      </Page1223>
-                    </Page122>
-                  </Page12>
+                            사람들이 주목하는 핫한 사진
+                          </P3>
+                        </Page1211>
+                      </Page121>
+                      <Page122>
+                        <Page1221>
+                          {image_list.map((file) => (
+                            <Imagegrid key={file} image={file} />
+                          ))}
+                        </Page1221>
+                        <Page1222>
+                          <Page12221>
+                            <Img
+                              src={require("../visualization/wordcloud/" +
+                                key_word +
+                                ".png")}
+                            ></Img>
+                          </Page12221>
+                          <Page12222>
+                            <P4>
+                              지금 이 시간,
+                              <br />
+                              사람들이 주목하는 핫 키워드
+                            </P4>
+                          </Page12222>
+                        </Page1222>
+                      </Page122>
+                    </Page12>
+                  </Tmp1>
+                  <ButtonDiv>
+                    <Direction
+                      src={Right}
+                      onClick={() => {
+                        setSliderIdx(1);
+                      }}
+                    ></Direction>
+                  </ButtonDiv>
                 </SliderContent1>
                 <SliderContent2>
-                  <Direction
-                    src={Left}
-                    onClick={() => {
-                      setSliderIdx(0);
-                    }}
-                  ></Direction>
+                  <Page21>
+                    <Direction
+                      src={Left}
+                      onClick={() => {
+                        setSliderIdx(0);
+                      }}
+                    ></Direction>
+                  </Page21>
+                  <Page22>
+                    <Page221>
+                      <Page2211 url={require("../images/TextCircle.jpg")}>
+                        <H1>{key_word}</H1>
+                      </Page2211>
+                      <Page2212>
+                        <Img
+                          src={require("../visualization/barplot/" +
+                            key_word +
+                            ".png")}
+                          style={{ height: "98%" }}
+                        />
+                      </Page2212>
+                    </Page221>
+                    <Page222>
+                      <Page2221>
+                        <P5>
+                          지금 이 시간
+                          <br />
+                          키워드에 대한 사람들의 느낌은
+                        </P5>
+                      </Page2221>
+                      <Page2222>[ 감성분석 piechart ]</Page2222>
+                      <Page2223>
+                        <SentTable sent_result={sent_result} />
+                      </Page2223>
+                    </Page222>
+                    <Page223>
+                      <Page2231>
+                        <Page22311>
+                          <Page223111>
+                            <Page2231111>
+                              <br />
+                              지금 이 시간
+                              <br />
+                              키워드간의 연관관계가 보고 싶다면
+                            </Page2231111>
+                            <Page2231112>
+                              <NetButton
+                                onClick={() => {
+                                  console.log("네트워크 팝업 구현");
+                                  //json에서 proxy설정한 것은 리액트 자체에서 request할때만 작용하는 것으로보임, 아래처럼 서버에 직접 접근하려면 서버의 주소를 적어줘야한다.
+                                  //팝업창 옵션 (창 크기 조절 등 조정)
+                                  const popupOption =
+                                    "left=800, top=200, width=600, height=600, status=no;";
+                                  window.open(
+                                    "http://localhost:5000/manage/test/network/" +
+                                      key_word +
+                                      ".html",
+                                    "",
+                                    popupOption
+                                  );
+                                  // window.open(
+                                  //   "http://localhost:5000/manage/test/network/" +
+                                  //     key_word +
+                                  //     ".html"
+                                  // );
+                                }}
+                              >
+                                네트워크 보기
+                              </NetButton>
+                            </Page2231112>
+                          </Page223111>
+                          <Page223112>[ 네트워크 보는법 ]</Page223112>
+                        </Page22311>
+                        <Page22312>
+                          <P6>
+                            지금 이 시간
+                            <br />
+                            핫키 에디터가 나눈 토픽 분류별 모음
+                            <br />
+                          </P6>
+                          <>*키워드를 기반으로 숨겨진 주제를 찾아놓았습니다.</>
+                        </Page22312>
+                      </Page2231>
+                      <Page2232>
+                        {topic_num === 2 ? (
+                          <>
+                            <Grid>
+                              <GridImg
+                                style={{ height: "65%", width: "55%" }}
+                                src={process.env.PUBLIC_URL + "/searching.png"}
+                              ></GridImg>
+                            </Grid>
+                            <Grid>"두 개의 토픽으로 최적화 됩니다"</Grid>
+                            <Grid>
+                              <GridImg
+                                src={require("../visualization/lda_results/" +
+                                  topic_list[0] +
+                                  ".png")}
+                              ></GridImg>
+                            </Grid>
+                            <Grid>
+                              <GridImg
+                                src={require("../visualization/lda_results/" +
+                                  topic_list[1] +
+                                  ".png")}
+                              ></GridImg>
+                            </Grid>
+                          </>
+                        ) : (
+                          <>
+                            <Grid>
+                              <GridImg
+                                src={require("../visualization/lda_results/" +
+                                  topic_list[0] +
+                                  ".png")}
+                              ></GridImg>
+                            </Grid>
+                            <Grid>
+                              <GridImg
+                                src={require("../visualization/lda_results/" +
+                                  topic_list[1] +
+                                  ".png")}
+                              ></GridImg>
+                            </Grid>
+                            <Grid>
+                              <GridImg
+                                src={require("../visualization/lda_results/" +
+                                  topic_list[2] +
+                                  ".png")}
+                              ></GridImg>
+                            </Grid>
+                            <Grid>
+                              <GridImg
+                                src={require("../visualization/lda_results/" +
+                                  topic_list[3] +
+                                  ".png")}
+                              ></GridImg>
+                            </Grid>
+                          </>
+                        )}
+                      </Page2232>
+                    </Page223>
+                    <Ttmp></Ttmp>
+                  </Page22>
                 </SliderContent2>
               </Slider>
             </ResultWrapper>
@@ -129,13 +281,13 @@ const SearchResult = () => {
             ></img>
           </Link>
           <h1>페이지가 존재하지 않습니다.</h1>
-          <Link to="/search">검색페이지로 돌아가기</Link>
+          <Link to="/">검색페이지로 돌아가기</Link>
         </div>
       )}
     </>
   );
 };
-const Wrapper = styled(motion.div)`
+const Wrapper = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 7vh; //헤더 크기 만큼
@@ -143,13 +295,12 @@ const Wrapper = styled(motion.div)`
   width: 100vw;
   background-size: cover;
   background-image: url(${(prop) => prop.url});
-  transition: all 0.5s ease-out;
+  transition: all 1.5s ease-out;
 `;
 const ResultWrapper = styled.div`
   display: flex;
   height: 96.5%;
   width: 95.5%;
-  // background-color: #f1eee7;
   background-color: white;
   overflow: hidden;
 `;
@@ -162,9 +313,22 @@ const Slider = styled.div`
 `;
 const SliderContent1 = styled.div`
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
   width: 95.5vw;
+`;
+//page1의 왼쪽 (버튼 없이 결과만 들어가는)
+const Tmp1 = styled.div`
+  height: 100%;
+  width: 96%;
+`;
+//page1의 맨 오른쪽 (버튼 들어갈 공간)
+const ButtonDiv = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 4%;
 `;
 //page1의위
 const Page11 = styled.div`
@@ -239,7 +403,6 @@ const P3 = styled.p`
 //Page12의 아래, 레이아웃 들어갈 공간
 const Page122 = styled.div`
   display: flex;
-  justify-content: flex-end;
   height: 90%;
   width: 100%;
 `;
@@ -249,10 +412,11 @@ const Page1221 = styled.div`
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(3, 1fr);
   grid-gap: 10px;
-  width: 42%;
+  width: 46%;
+  margin-left: 5%;
   margin-top: 1%;
   margin-right: 4%;
-  height: 85%;
+  height: 90%;
 `;
 //Page122 의 오른쪽, 워드클라우드 & 텍스트 들어갈 공간
 const Page1222 = styled.div`
@@ -269,15 +433,20 @@ const Page12221 = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  border-radius: 20px;
+  border: 1px outset;
   overflow: hidden;
 `;
 //워드클라우드 이미지
 const Img = styled.img`
   display: block;
-  height: 90%;
+  height: 100%;
 `;
 //Page 1222의 아래쪽, 텍스트
 const Page12222 = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   width: 100%;
   height: 20%;
 `;
@@ -285,29 +454,210 @@ const Page12222 = styled.div`
 const P4 = styled.div`
   display: flex;
   margin-left: 8%;
-  // justify-content: flex-end;
+  height: 70%;
   font-size: calc(0.8vw + 0.8vh);
   font-family: chosun;
-  line-height: 110%;
-`;
-//Page122의 맨 오른족, 버튼들어갈 공간
-const Page1223 = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 6%;
+  line-height: 120%;
 `;
 const SliderContent2 = styled.div`
   height: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   width: 95.5vw;
 `;
 const Direction = styled.img`
   display: block;
   cursor: pointer;
+  width: 60%;
+`;
+//2페이지
+//버튼 들어갈 공간
+const Page21 = styled.div`
+  display: flex;
+  flex-diretion: column;
+  justify-content: center;
+  align-items: center;
+  width: 4%;
+  height: 100%;
+`;
+//결과 들어갈 공간 2페이지 오른쪽
+const Page22 = styled.div`
+  display: flex;
+  justify-content: space-around;
+  width: 93%;
+  height: 97%;
+`;
+//2페이지 오른쪽 맨 왼쪽
+const Page221 = styled.div`
+  width: 21%;
+`;
+//Page221의 위, 이미지+키워드 들어갈자리
+const Page2211 = styled.div`
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 27%;
+  width: 80%;
+  background-image: url(${(prop) => prop.url});
+  background-size: 100% 100%;
+`;
+//Page2211에 들어가는 텍스트, 텍스트 길이에 따라 폰트 조정해야함! (1.3씩 정도?)
+const H1 = styled.p`
+  font-size: calc(1.8vw + 1.8vh);
+  font-family: chosun;
+`;
+//Page221의 아래, 빈도분석 result 들어갈자리
+const Page2212 = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 73%;
+  border: 1px outset;
+  border-radius: 20px;
+`;
+//2페이지 오른쪽 중간
+const Page222 = styled.div`
+  width: 21%;
+`;
+//14%, 42%, 42%
+//Page222의 맨 위 글자 들어갈 div
+const Page2221 = styled.div`
+  display: flex;
+  flex-direciton: column;
+  align-items: flex-end;
+  height: 20%;
+`;
+const P5 = styled.div`
+  font-size: calc(0.8vw + 0.8vh);
+  font-family: chosun;
+  line-height: 120%;
+  margin-bottom: 3%;
+`;
+//Page222의 중간 감성분석 pie chart 들어갈 div
+const Page2222 = styled.div`
+  height: 40%;
+  border: 1px outset;
+  border-radius: 20px;
+  font-family: chosun;
+  font-size: calc(1vw + 1vh);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+//Page223의 아래 감성분석 결과 table div
+const Page2223 = styled.div`
+  height: 40%;
+  border: 1px outset;
+  border-radius: 20px;
+`;
+//2페이지 오른쪽 맨 오른쪽
+const Page223 = styled.div`
+  width: 50%;
+`;
+const Ttmp = styled.div`
+  width: 5%;
+`;
+//Page223의 위 (네트워크 + 설명까지)
+const Page2231 = styled.div`
+  height: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+`;
+//Page2231의 위 (네트워크)
+const Page22311 = styled.div`
+  display: flex;
+  height: 50%;
+`;
+//Page22311 왼쪽 (텍스트, 버튼)
+const Page223111 = styled.div`
+  width: 50%;
+`;
+//Page223111 위 ( 텍스트 )
+const Page2231111 = styled.div`
+  height: 50%;
+  margin-left: 10%;
   width: 90%;
-  width: 50px;
+  font-size: calc(0.8vw + 0.8vh);
+  font-family: chosun;
+  line-height: 120%;
+`;
+//Page223111 아래 ( 버튼div )
+const Page2231112 = styled.div`
+  margin-top: 2%;
+  height: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+//네트워크버튼
+const NetButton = styled.button`
+  height: 100%;
+  width: 85%;
+  background-color: black;
+  color: white;
+  font-size: calc(1vw + 1vh);
+  font-family: chosun;
+  letter-spacing: 0.2vw;
+  cursor: pointer;
+  border-radius: calc(0.5vw + 0.5vh);
+`;
+//Page22311오른쪽 (네트워크 보는법 설명)
+const Page223112 = styled.div`
+  width: 40%;
+  border: 1px outset;
+  border-radius: 20px;
+  font-family: chosun;
+  font-size: calc(1vw + 1vh);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+//Page2231의 아래 (설명)
+const Page22312 = styled.div`
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: chosun;
+  line-height: 200%;
+  font-size: calc(0.6vw + 0.6vh);
+`;
+const P6 = styled.div`
+  font-size: calc(1vw + 1vh);
+  font-family: chosun;
+  line-height: 150%;
+  text-align: center;
+`;
+//Page223의 아래 (토픽모델링 워드클라우드)
+const Page2232 = styled.div`
+  margin: auto;
+  height: 53%;
+  width: 80%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-row-gap: 2%;
+  grid-column-gap: 2%;
+  padding: 1%;
+`;
+//그리드 자식 컴포넌트
+const Grid = styled.div`
+  height: 100%;
+  width: 100%;
+  border: 1px outset;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: chosun;
+  font-size: 1.2vw;
+  text-align: center;
+`;
+const GridImg = styled.img`
+  width: 86%;
 `;
 
 export default SearchResult;

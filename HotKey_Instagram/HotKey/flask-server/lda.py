@@ -126,37 +126,16 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
 
     # 워드클라우드 마스크 이미지 생성
 
-        im1 = Image.open('./templates/masks/mask3.png')
-        im2 = Image.open('./templates/masks/mask4.png')
-        im3 = Image.open('./templates/masks/mask5.png')
         im4 = Image.open('./templates/masks/mask7.png')
 
     # 이미지 파일 전처리
-        mask1 = Image.new("RGB", im1.size, (255, 255, 255))
-        mask1.paste(im1)
-    #     mask1 = mask1.resize((500, 400))
-        mask1 = np.array(mask1)
-
-        mask2 = Image.new("RGB", im2.size, (255, 255, 255))
-        mask2.paste(im2)
-    #     mask2 = mask2.resize((500, 400))
-        mask2 = np.array(mask2)
-
-        mask3 = Image.new("RGB", im3.size, (255, 255, 255))
-        mask3.paste(im3)
-    #     mask3 = mask3.resize((500, 400))
-        mask3 = np.array(mask3)
 
         mask4 = Image.new("RGB", im4.size, (255, 255, 255))
         mask4.paste(im4)
     #     mask4 = mask4.resize((500, 400))
         mask4 = np.array(mask4)
 
-        mask = []
-        mask.append(mask1)
-        mask.append(mask2)
-        mask.append(mask3)
-        mask.append(mask4)
+        mask = [mask4, mask4, mask4, mask4]
 
     # 워드클라우드 생성
         terms = kiwi_vectorizer.get_feature_names()
@@ -187,7 +166,7 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
 
         print("done in %0.3fs." % (time() - t0))
         print("in total, %0.3fs." % (time() - t1))
-
-        return True, topic_list
+        # 1214수정 세윤 => topic 개수도 리턴
+        return True, topic_list, len(topic_list)
     except:
-        return False, []
+        return False, [], 0

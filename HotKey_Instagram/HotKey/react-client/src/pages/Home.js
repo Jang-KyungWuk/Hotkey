@@ -5,12 +5,9 @@ import BlackLogo from "../images/BlackLogo.png";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 const images = [
-  require("../home_imgs/home0.png"),
-  require("../home_imgs/home1.png"),
-  require("../home_imgs/home2.png"),
-  require("../home_imgs/home3.png"),
-  require("../home_imgs/home4.png"),
-  // require("../home_imgs/home5.jpg"),
+  require("../home_imgs/home0.jpg"),
+  require("../home_imgs/home1.jpg"),
+  require("../home_imgs/home2.jpg"),
 ];
 const Home = () => {
   const navigate = useNavigate();
@@ -56,7 +53,7 @@ const Home = () => {
         }}
       >
         <motion.img
-          src={NewLogo}
+          src={BlackLogo}
           style={{ height: "33vh", width: "90vw" }}
           initial={{ opacity: 0, y: "-30vh" }}
           animate={{ opacity: 1, y: 0 }}

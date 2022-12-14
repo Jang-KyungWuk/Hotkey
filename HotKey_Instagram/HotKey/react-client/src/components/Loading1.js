@@ -1,61 +1,94 @@
 import React from "react";
 import styled from "styled-components";
-import PacmanLoader from "react-spinners/PacmanLoader";
-import crawling from "../images/crawling.jpg";
+import { PulseLoader } from "react-spinners";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faHourglassHalf,
+  faFileLines,
+  faChartBar,
+} from "@fortawesome/free-regular-svg-icons";
+import { CircleProgress } from "react-gradient-progress";
 
 const Loading1 = () => {
   return (
-    <>
-      <Load1>
-        <Load11>
-          <Load111>
-            <PacmanLoader size={"2vw"} color={"#DAE2F1"} />
-          </Load111>
-          <Load112>
-            <Img src={crawling}></Img>
-          </Load112>
-        </Load11>
-      </Load1>
-    </>
+    <Div>
+      <Div1>
+        <Icondiv>
+          <FontAwesomeIcon icon={faHourglassHalf} size="3x" />
+        </Icondiv>
+        <Textdiv>데이터를 수집하고 있습니다</Textdiv>
+        <Spindiv>
+          <PulseLoader size={10} />
+        </Spindiv>
+      </Div1>
+      <Div2>
+        <Icondiv>
+          <FontAwesomeIcon icon={faChartBar} size="3x" />
+        </Icondiv>
+        <Textdiv>
+          <PulseLoader size={10} />
+        </Textdiv>
+      </Div2>
+      <Div3>
+        <Icondiv>
+          <FontAwesomeIcon icon={faFileLines} size="3x" />
+        </Icondiv>
+        <Textdiv>
+          <PulseLoader size={10} />
+        </Textdiv>
+      </Div3>
+    </Div>
   );
 };
-//loading div1 => 로딩중 action 구현
-const Load1 = styled.div`
+//전체 감싸는 Div
+const Div = styled.div`
+  margin-top: 10%;
+  margin-left: 5%;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
+  justify-content: space-around;
   height: 40%;
+  width: 80%;
+  border-radius: 20px;
 `;
-//loading div1-1 => 각 loading section (총 3개)
-const Load11 = styled.div`
+//첫번째 칸
+const Div1 = styled.div`
   display: flex;
-  height: 100%;
-  width: 60%;
+  height: 30%;
+`;
+//아이콘 들어갈 칸
+const Icondiv = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 15%;
+`;
+//텍스트 들어갈 칸
+const Textdiv = styled.div`
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 70%;
+  font-family: chosun;
+  font-size: 30px;
 `;
-//loading div1-1-1 => Load11내부에서 Pacman이 들어갈 div
-const Load111 = styled.div`
+//spinner 들어갈 칸
+const Spindiv = styled.div`
   display: flex;
-  height: 100%;
   align-items: center;
   justify-content: center;
+  width: 15%;
 `;
-//loading div1-1-2 => Load12내부에서 Text Img가 들어갈 div
-const Load112 = styled.div`
+//두번째 칸
+const Div2 = styled.div`
   display: flex;
-  margin-left: 10%;
-  width: 65%;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
+  height: 30%;
+  border-radius: 20px;
 `;
-//로딩 중 텍스트 이미지
-const Img = styled.img`
-  margin-left: 15%;
-  height: 16%;
-  border: 0px solid;
+//세번째 칸
+const Div3 = styled.div`
+  display: flex;
+  height: 30%;
+  border-radius: 20px;
 `;
 export default Loading1;

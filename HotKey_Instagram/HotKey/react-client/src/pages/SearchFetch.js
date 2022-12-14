@@ -3,7 +3,7 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import loading from "../images/loading.jpg";
+import Loading from "../images/Loading.gif";
 import Loading1 from "../components/Loading1";
 import Loading2 from "../components/Loading2";
 import Loading3 from "../components/Loading3";
@@ -44,7 +44,12 @@ const SearchFetch = () => {
                   setTimeout(() => {
                     setLstate(0);
                     navigate("/search_result", {
-                      state: { key_word: keyword, image_num: data2.imagenum },
+                      state: {
+                        key_word: keyword,
+                        image_num: data2.imagenum,
+                        topic_num: data2.topic_num,
+                        sent_result: data2.sent_result,
+                      },
                     });
                   }, 2000);
                 } else
@@ -58,7 +63,7 @@ const SearchFetch = () => {
           }
         })
         .catch((err) => {
-          alert("keyword search 에러 :", err);
+          // alert("keyword search 에러 :", err);
         });
     }
   }, [keyword]); //한번만 실행되네요~
@@ -79,53 +84,27 @@ const SearchFetch = () => {
     );
   //분기 : keyword가 존재하는 경우 => loading이 있는가? -> lstate에 따라 분기. (3항 연산자 중첩 사용하거나? 어떻게 할지 생각..ㅇㅇ 최대한 state안꼬이게)
   else {
-    //여기서 로딩중인경우
-    if (lstate === 0)
-      return (
-        <div>
-          <Header loading={true} />
-          <Wrapper>
-            <Loadingdiv>
-              <Loading1 />
-              <Load2>
-                <Img src={loading}></Img>
-              </Load2>
-            </Loadingdiv>
-          </Wrapper>
-          <Footer />
-        </div>
-      );
-    else if (lstate === 1)
-      return (
-        <div>
-          <Header loading={true} />
-          <Wrapper>
-            <Loadingdiv>
-              <Loading2 />
-              <Load2>
-                <Img src={loading}></Img>
-              </Load2>
-            </Loadingdiv>
-          </Wrapper>
-          <Footer />
-        </div>
-      );
-    //lstate가 2인경우
-    else
-      return (
-        <div>
-          <Header loading={true} />
-          <Wrapper>
-            <Loadingdiv>
-              <Loading3 />
-              <Load2>
-                <Img src={loading}></Img>
-              </Load2>
-            </Loadingdiv>
-          </Wrapper>
-          <Footer />
-        </div>
-      );
+    console.log(lstate);
+    return (
+      <>
+        <Header loading={true} />
+        <Wrapper>
+          <Loadingdiv>
+            <Load1>
+              {lstate === 0 ? (
+                <Loading1 />
+              ) : (
+                <>{lstate === 1 ? <Loading2 /> : <Loading3 />}</>
+              )}
+            </Load1>
+            <Load2>
+              <Img src={Loading} />
+            </Load2>
+          </Loadingdiv>
+        </Wrapper>
+        <Footer />
+      </>
+    );
   }
 };
 //로딩인경우 wrapper
@@ -138,22 +117,30 @@ const Wrapper = styled.div`
 // fetch되지 않은 경우, 로딩 Div => 반응형
 const Loadingdiv = styled.div`
   display: flex;
-  flex-direction: column;
+  justify-content: space-around;
   width: 100vw;
-  height: 85vh;
+  height: 85.5vh;
+`;
+//progress bar가 들어갈 div
+const Load1 = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 90%;
+  width: 50%;
 `;
 //loading div2 => 분석중 이미지가 들어갈 div
 const Load2 = styled.div`
+  height: 100%;
+  width: 40%;
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100vw;
-  height: 60%;
 `;
 //이미지
 const Img = styled.img`
   height: 70%;
-  border: 0px solid;
 `;
 
 export default SearchFetch;

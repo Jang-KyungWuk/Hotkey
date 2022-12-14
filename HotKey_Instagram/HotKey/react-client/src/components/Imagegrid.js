@@ -54,6 +54,8 @@ const Imgdiv = styled.div`
   justify-content: center;
   align-items: center;
   overflow: hidden;
+  border-radius: 5px;
+  border: 1px outset;
 `;
 const Imgdiv1 = styled(Imgdiv)`
   grid-row-start: 1;

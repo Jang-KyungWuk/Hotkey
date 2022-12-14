@@ -2,9 +2,8 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { motion } from "framer-motion";
 import Left from "../images/Left.png";
-import Right from "../images/Right.png";
 import Header from "../components/Header.js";
-import Imagegrid from "../components/Imagegrid";
+import Explain from "../images/Explain.png";
 
 console.log("현재화면크기 : ", window.innerWidth, "x", window.innerHeight);
 const bg = [
@@ -32,71 +31,85 @@ const Test2 = () => {
       <Wrapper url={bg[sliderIdx]}>
         <ResultWrapper>
           <Slider style={{ transform: `translateX(-${sliderIdx * 95.5}vw)` }}>
-            <SliderContent1>
-              <Page11>
-                <Page111>
-                  <Page1111>키워드</Page1111>
-                  <Page1112>
-                    <P1>지금 이 시간 당신이 궁금한 ' 키워드 '</P1>
-                    <P2>
-                      MADE BY [조 이름]
-                      <br />
-                      @고려대학교 지능정보 SW아카데미
-                      <br />
-                      #인스타그램으로보는 #실시간 #트렌드 #분석
-                    </P2>
-                  </Page1112>
-                </Page111>
-              </Page11>
-              <Page12>
-                <Page121>
-                  <Page1211>
-                    <P3>
-                      지금 이 시간,
-                      <br />
-                      사람들이 주목하는 핫한 사진
-                    </P3>
-                  </Page1211>
-                </Page121>
-                <Page122>
-                  <Page1221>
-                    {image_list.map((file) => (
-                      <Imagegrid key={file} image={file} />
-                    ))}
-                  </Page1221>
-                  <Page1222>
-                    <Page12221>
-                      {/* <Img
-                        src={require("../visualization/wordcloud/우래기.png")}
-                      ></Img> */}
-                      <h1>이미지</h1>
-                    </Page12221>
-                    <Page12222>
-                      <P4>
-                        지금 이 시간,
-                        <br />
-                        사람들이 주목하는 핫 키워드
-                      </P4>
-                    </Page12222>
-                  </Page1222>
-                  <Page1223>
-                    <Direction
-                      src={Right}
-                      onClick={() => {
-                        setSliderIdx(1);
-                      }}
-                    ></Direction>
-                  </Page1223>
-                </Page122>
-              </Page12>
-            </SliderContent1>
             <SliderContent2>
-              <Direction
-                src={Left}
-                onClick={() => {
-                  setSliderIdx(0);
-                }}
-              ></Direction>
+              <Page21>
+                <Direction
+                  src={Left}
+                  onClick={() => {
+                    setSliderIdx(0);
+                  }}
+                ></Direction>
+              </Page21>
+              <Page22>
+                <Page221>
+                  <Page2211 url={require("../images/TextCircle.jpg")}>
+                    <H1>인스타그램</H1>
+                  </Page2211>
+                  <Page2212>[빈도분석 result]</Page2212>
+                </Page221>
+                <Page222>
+                  <Page2221>
+                    <P5>
+                      지금 이 시간
+                      <br />
+                      키워드에 대한 사람들의 느낌은
+                    </P5>
+                  </Page2221>
+                  <Page2222>[감성분석 piechart]</Page2222>
+                  <Page2223>[감성분석 table]</Page2223>
+                </Page222>
+                <Page223>
+                  <Page2231>
+                    <Page22311>
+                      <Page223111>
+                        <Page2231111>
+                          <br />
+                          지금 이 시간
+                          <br />
+                          키워드간의 연관관계가 보고 싶다면
+                        </Page2231111>
+                        <Page2231112>
+                          <NetButton>네트워크 보기</NetButton>
+                        </Page2231112>
+                      </Page223111>
+                      <Page223112>[네트워크 보는법 설명]</Page223112>
+                    </Page22311>
+                    <Page22312>
+                      <P6>
+                        지금 이 시간
+                        <br />
+                        핫키 에디터가 나눈 토픽 분류별 모음
+                        <br />
+                      </P6>
+                      <>*키워드를 기반으로 숨겨진 주제를 찾아놓았습니다.</>
+                    </Page22312>
+                  </Page2231>
+                  <Page2232>
+                    <Grid>
+                      <GridImg
+                        src={require("../visualization/lda_results/국정원0.png")}
+                      ></GridImg>
+                    </Grid>
+
+                    <Grid>
+                      <GridImg
+                        src={require("../visualization/lda_results/국정원0.png")}
+                      ></GridImg>
+                    </Grid>
+                    <Grid>
+                      <GridImg
+                        src={require("../visualization/lda_results/국정원0.png")}
+                      ></GridImg>
+                    </Grid>
+                    <Grid>
+                      <GridImg
+                        src={require("../visualization/lda_results/국정원0.png")}
+                      ></GridImg>
+                    </Grid>
+                  </Page2232>
+                </Page223>
+                <Ttmp></Ttmp>
+              </Page22>
             </SliderContent2>
           </Slider>
         </ResultWrapper>
@@ -105,6 +118,197 @@ const Test2 = () => {
   );
 };
 
+const SliderContent2 = styled.div`
+  height: 100%;
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  width: 95.5vw;
+`;
+//2페이지
+//버튼 들어갈 공간
+const Page21 = styled.div`
+  display: flex;
+  flex-diretion: column;
+  justify-content: center;
+  align-items: center;
+  width: 4%;
+  height: 100%;
+`;
+const Direction = styled.img`
+  display: block;
+  cursor: pointer;
+  width: 60%;
+`;
+//결과 들어갈 공간 2페이지 오른쪽
+const Page22 = styled.div`
+  display: flex;
+  justify-content: space-around;
+  width: 93%;
+  height: 97%;
+`;
+//2페이지 오른쪽 맨 왼쪽
+const Page221 = styled.div`
+  width: 21%;
+`;
+//Page221의 위, 이미지+키워드 들어갈자리
+const Page2211 = styled.div`
+  margin: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 27%;
+  width: 80%;
+  background-image: url(${(prop) => prop.url});
+  background-size: 100% 100%;
+`;
+//Page2211에 들어가는 텍스트, 텍스트 길이에 따라 폰트 조정해야함! (1.3씩 정도?)
+const H1 = styled.p`
+  font-size: calc(1.8vw + 1.8vh);
+  font-family: chosun;
+`;
+//Page221의 아래, 빈도분석 result 들어갈자리
+const Page2212 = styled.div`
+  height: 73%;
+  background-color: ivory;
+  border: 1px solid;
+  border-radius: 20px;
+`;
+//2페이지 오른쪽 중간
+const Page222 = styled.div`
+  width: 21%;
+`;
+//14%, 42%, 42%
+//Page222의 맨 위 글자 들어갈 div
+const Page2221 = styled.div`
+  display: flex;
+  flex-direciton: column;
+  align-items: flex-end;
+  height: 20%;
+`;
+const P5 = styled.div`
+  font-size: calc(0.8vw + 0.8vh);
+  font-family: chosun;
+  line-height: 120%;
+  margin-bottom: 3%;
+`;
+//Page222의 중간 감성분석 pie chart 들어갈 div
+const Page2222 = styled.div`
+  height: 40%;
+  background-color: ivory;
+  border: 1px solid;
+  border-radius: 20px;
+`;
+//Page223의 아래 감성분석 결과 table div
+const Page2223 = styled.div`
+  height: 40%;
+  background-color: ivory;
+  border: 1px solid;
+  border-radius: 20px;
+`;
+//2페이지 오른쪽 맨 오른쪽
+const Page223 = styled.div`
+  width: 50%;
+`;
+const Ttmp = styled.div`
+  width: 5%;
+`;
+//Page223의 위 (네트워크 + 설명까지)
+const Page2231 = styled.div`
+  height: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+`;
+//Page2231의 위 (네트워크)
+const Page22311 = styled.div`
+  display: flex;
+  height: 50%;
+`;
+//Page22311 왼쪽 (텍스트, 버튼)
+const Page223111 = styled.div`
+  width: 50%;
+`;
+//Page223111 위 ( 텍스트 )
+const Page2231111 = styled.div`
+  height: 50%;
+  margin-left: 10%;
+  width: 90%;
+  font-size: calc(0.8vw + 0.8vh);
+  font-family: chosun;
+  line-height: 120%;
+`;
+//Page223111 아래 ( 버튼div )
+const Page2231112 = styled.div`
+  margin-top: 2%;
+  height: 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+//네트워크버튼
+const NetButton = styled.button`
+  height: 100%;
+  width: 85%;
+  background-color: black;
+  color: white;
+  font-size: calc(1vw + 1vh);
+  font-family: chosun;
+  letter-spacing: 0.2vw;
+  cursor: pointer;
+  border-radius: calc(0.5vw + 0.5vh);
+`;
+//Page22311오른쪽 (네트워크 보는법 설명)
+const Page223112 = styled.div`
+  width: 40%;
+  background-color: ivory;
+  border: 1px solid;
+  border-radius: 20px;
+`;
+//Page2231의 아래 (설명)
+const Page22312 = styled.div`
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: chosun;
+  line-height: 200%;
+  font-size: calc(0.6vw + 0.6vh);
+`;
+const P6 = styled.div`
+  font-size: calc(1vw + 1vh);
+  font-family: chosun;
+  line-height: 150%;
+  text-align: center;
+`;
+//Page223의 아래 (토픽모델링 워드클라우드)
+const Page2232 = styled.div`
+  margin: auto;
+  height: 53%;
+  width: 80%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-row-gap: 2%;
+  grid-column-gap: 2%;
+  padding: 1%;
+`;
+//그리드 자식 컴포넌트
+const Grid = styled.div`
+  height: 100%;
+  width: 100%;
+  border: 0.5px solid;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: white;
+`;
+const GridImg = styled.img`
+  width: 87%;
+`;
+//여기부터 1페이지
 const Wrapper = styled.div`
   display: flex;
   justify-content: center;
@@ -128,155 +332,6 @@ const Slider = styled.div`
   width: calc(2 * 95.5vw);
   height: 100%;
   transition: all 0.5s ease-in;
-`;
-const SliderContent1 = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  width: 95.5vw;
-`;
-//page1의위
-const Page11 = styled.div`
-  height: 27%;
-`;
-//Page11의 왼쪽 (Text자리)
-const Page111 = styled.div`
-  display: flex;
-  align-items: center;
-  height: 100%;
-  width: 80%;
-`;
-//Page111의 왼쪽 (키워드자리)
-//글자수가 6개이상이면  width 변경!!, calc(3.8vw + 3.8vh)로 조정
-const Page1111 = styled.div`
-  display: flex;
-  width: 40%;
-  height: 100%;
-  justify-content: flex-end;
-  align-items: center;
-  font-family: chosun;
-  font-size: calc(4.3vw + 4.3vh);
-  letter-spacing: -1px;
-`;
-//Page111의 오른쪽 (description)
-//키워드가 6글자 이상이면 width, margin 변경!!
-const Page1112 = styled.div`
-  display: flex;
-  flex-direction: column;
-  margin-left: 5%;
-  width: 55%;
-  height: 100%;
-  align-items: flex-start;
-`;
-const P1 = styled.p`
-  font-size: calc(1.2vw + 1.2vh);
-  font-family: chosun;
-  font-weight: bold;
-`;
-const P2 = styled.p`
-  font-size: calc(0.8vw + 0.8vh);
-  font-family: chosun;
-  line-height: 130%;
-`;
-//page1의아래
-const Page12 = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  height: 73%;
-`;
-//page12의 위, 텍스트 들어갈 공간
-const Page121 = styled.div`
-  display: flex;
-  height: 10%;
-  width: 100%;
-`;
-//Page121의 왼쪽, 텍스트 들어갈 공간
-const Page1211 = styled.div`
-  display: flex;
-  margin-left: 8%;
-  height: 100%;
-  width: 45%;
-  align-items: flex-end;
-`;
-const P3 = styled.p`
-  font-size: calc(0.8vw + 0.8vh);
-  font-family: chosun;
-  line-height: 110%;
-  margin-bottom: 3px;
-`;
-//Page12의 아래, 레이아웃 들어갈 공간
-const Page122 = styled.div`
-  display: flex;
-  justify-content: flex-end;
-  height: 90%;
-  width: 100%;
-`;
-//Page122의 왼족, 이미지 그리드 들어갈 공간
-const Page1221 = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  grid-template-rows: repeat(3, 1fr);
-  grid-gap: 10px;
-  width: 42%;
-  margin-top: 1%;
-  margin-right: 4%;
-  height: 85%;
-`;
-//Page122 의 오른쪽, 워드클라우드 & 텍스트 들어갈 공간
-const Page1222 = styled.div`
-  width: 42%;
-  height: 97%;
-  display: flex;
-  flex-direction: column;
-`;
-//Page 1222의 위쪽, 워드클라우드
-const Page12221 = styled.div`
-  width: 100%;
-  height: 80%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-`;
-//워드클라우드 이미지
-const Img = styled.img`
-  display: block;
-  width: 100%;
-`;
-//Page 1222의 아래쪽, 텍스트
-const Page12222 = styled.div`
-  width: 100%;
-  height: 20%;
-`;
-//Page 12222의 텍스트
-const P4 = styled.div`
-  display: flex;
-  margin-left: 8%;
-  // justify-content: flex-end;
-  font-size: calc(0.8vw + 0.8vh);
-  font-family: chosun;
-  line-height: 110%;
-`;
-//Page122의 맨 오른족, 버튼들어갈 공간
-const Page1223 = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 6%;
-`;
-const SliderContent2 = styled.div`
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  width: 95.5vw;
-`;
-const Direction = styled.img`
-  display: block;
-  cursor: pointer;
-  width: 90%;
-  width: 50px;
 `;
 
 export default Test2;
