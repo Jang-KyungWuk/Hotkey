@@ -15,7 +15,6 @@ const bg = [
   require("../images/ResultBackground1.png"), //2페이지백그라운드
 ];
 const SearchResult = () => {
-  console.log(bg[0]);
   const location = useLocation();
   const key_word = location.state?.key_word;
   const image_num = location.state?.image_num;
@@ -48,7 +47,7 @@ const SearchResult = () => {
   console.log("key_word :", key_word);
   console.log("sent_result : ", sent_result);
 
-  const sent1 = "지금 이 시간 당신이 궁금한" + " '" + key_word + "'";
+  const sent1 = "지금 이 시간 당신이 궁금한 '" + key_word + "'";
   return (
     <>
       {location.state ? (
@@ -225,7 +224,38 @@ const SearchResult = () => {
                               </NetButton>
                             </Page2231112>
                           </Page223111>
-                          <Page223112>[ 네트워크 보는법 ]</Page223112>
+                          <Page223112>
+                            <P>
+                              <span
+                                style={{
+                                  fontWeight: "bold",
+                                  fontSize: "calc(1vw + 1vh)",
+                                }}
+                              >
+                                네트워크
+                              </span>
+                              란,
+                              <br />
+                              단어들 간의 연관 관계를
+                              <br />
+                              <span style={{ color: "#e17781" }}>정점</span>과
+                              <span style={{ color: "#7db3f2" }}>간선</span>으로
+                              표현합니다.
+                              <br />
+                              <span style={{ color: "#e17781" }}>
+                                이어져 있으면
+                              </span>{" "}
+                              <span style={{ fontWeight: "bold" }}>연관어</span>
+                              , <br />
+                              <span style={{ color: "#7db3f2" }}>
+                                색이 같으면
+                              </span>{" "}
+                              <span style={{ fontWeight: "bold" }}>
+                                유사 주제의 단어
+                              </span>
+                              입니다.
+                            </P>
+                          </Page223112>
                         </Page22311>
                         <Page22312>
                           <P6>
@@ -625,7 +655,6 @@ const Page2223 = styled.div`
   height: 40%;
   border: 0px outset;
   border-radius: 20px;
-  overflow: hidden;
 `;
 //2페이지 오른쪽 맨 오른쪽
 const Page223 = styled.div`
@@ -681,14 +710,21 @@ const NetButton = styled.button`
 `;
 //Page22311오른쪽 (네트워크 보는법 설명)
 const Page223112 = styled.div`
+  font-size: calc(0.6vw + 0.6vh);
   width: 40%;
-  border: 1px outset;
-  border-radius: 20px;
+  // border: 1px outset;
+  // border-radius: 20px;
   font-family: chosun;
-  font-size: calc(1vw + 1vh);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  font-size: calc(0.7vw + 0.7vh);
+  // display: flex;
+  // justify-content: center;
+  // align-items: center;
+  text-align: center;
+`;
+const P = styled.p`
+  margin-left: 5%;
+  line-height: 3.3vh;
+  text-align: left;
 `;
 //Page2231의 아래 (설명)
 const Page22312 = styled.div`

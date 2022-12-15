@@ -28,71 +28,77 @@ def sent_analysis(plaintext,
     single tok sent
     'IC', 'MAG', 'MM', 'NNB', 'NNG', 'NNP', 'NP', 'NR', 'SL', 'SP', 'SW', 'VA', 'XR'
     '''
-    try:
 
-        # 감성 사전을 열고 데이터를 불러옴
-        with open(sentDictFile, 'rb') as file:
-            sentDict = pkl.load(file)
+    # 감성 사전을 열고 데이터를 불러옴
+    with open(sentDictFile, 'rb') as file:
+        sentDict = pkl.load(file)
 
-        # 감성 사전과 동일한 기준으로 토큰화 수행
-        tokenized = pp.data_tokenize(data=pp.plain_structurize(plaintext),
-                                     morphemeAnalyzer=pp.setMorphemeAnalyzer(
-            "키위"),
-            targetMorphs=sentMorph)
+    # 감성 사전과 동일한 기준으로 토큰화 수행
+    tokenized = pp.data_tokenize(data=pp.plain_structurize(plaintext),
+                                 morphemeAnalyzer=pp.setMorphemeAnalyzer(
+        "키위"),
+        targetMorphs=sentMorph)
 
-        # 긍정 / 중립 / 부정 키워드들을 관리하는 dict
-        positiveDict = dict()
-        neutralDict = dict()
-        negativeDict = dict()
+    # 긍정 / 중립 / 부정 키워드들을 관리하는 dict
+    positiveDict = dict()
+    neutralDict = dict()
+    negativeDict = dict()
 
-        # 포스트별, 토큰별로 돌면서 감성 사전에 등재된 단어인지 체크하고 등재된 단어일 시 점수에 따라 긍정/중립/부정 dict에 추가
-        for post in tokenized:
-            for kwd in post:
-                if kwd in sentDict:
-                    if sentDict[kwd] > 0:
-                        try:
-                            positiveDict[kwd] += 1
-                        except:
-                            positiveDict[kwd] = 1
+    # 포스트별, 토큰별로 돌면서 감성 사전에 등재된 단어인지 체크하고 등재된 단어일 시 점수에 따라 긍정/중립/부정 dict에 추가
+    for post in tokenized:
+        for kwd in post:
+            if kwd in sentDict:
+                if sentDict[kwd] > 0:
+                    try:
+                        positiveDict[kwd] += 1
+                    except:
+                        positiveDict[kwd] = 1
 
-                    elif sentDict[kwd] == 0:
-                        try:
-                            neutralDict[kwd] += 1
-                        except:
-                            neutralDict[kwd] = 1
-                    else:
-                        try:
-                            negativeDict[kwd] += 1
-                        except:
-                            negativeDict[kwd] = 1
+                elif sentDict[kwd] == 0:
+                    try:
+                        neutralDict[kwd] += 1
+                    except:
+                        neutralDict[kwd] = 1
+                else:
+                    try:
+                        negativeDict[kwd] += 1
+                    except:
+                        negativeDict[kwd] = 1
 
-        # 비율 계산
-        ratios = np.array([sum(list(positiveDict.values())),
-                           sum(list(neutralDict.values())),
-                           sum(list(negativeDict.values()))], dtype='float16')
-        counts = np.sum(ratios)
-        ratios = ratios/counts*100
-
-        # 시각화
-        sent_visualization(ratios, saveDir=saveDir, fileName=fileName)
-
-        # 빈도수가 높은 순으로 키워드 - 빈도 - 긍부정 여부을 하나의 튜플로 묶은 데이터의 list를 반환
-        sentKwds = list(positiveDict.keys()) + \
-            list(neutralDict.keys())+list(negativeDict.keys())
-        sentLabels = ['긍정' for cursor in range(len(positiveDict))]+['중립' for cursor in range(
-            len(neutralDict))]+['부정' for cursor in range(len(negativeDict))]
-        sentKwdCounts = list(positiveDict.values()) + \
-            list(neutralDict.values())+list(negativeDict.values())
-
-        results = list()
-        for got in range(topSentReturn):
-            idx = sentKwdCounts.index(max(sentKwdCounts))
-            results.append(
-                (sentKwds.pop(idx), sentKwdCounts.pop(idx), sentLabels.pop(idx)))
-
-        return (True, results)
-    except:
+    # 예외 처리 1
+    if positiveDict == {} and neutralDict == {} and negativeDict == {}:
         return (False, [])
+    # 예외 처리 1
+
+    # 비율 계산
+    ratios = np.array([sum(list(positiveDict.values())),
+                       sum(list(neutralDict.values())),
+                       sum(list(negativeDict.values()))], dtype='float16')
+    counts = np.sum(ratios)
+    ratios = ratios/counts*100
+
+    # 시각화
+    sent_visualization(ratios, saveDir=saveDir, fileName=fileName)
+
+    # 빈도수가 높은 순으로 키워드 - 빈도 - 긍부정 여부을 하나의 튜플로 묶은 데이터의 list를 반환
+    sentKwds = list(positiveDict.keys()) + \
+        list(neutralDict.keys())+list(negativeDict.keys())
+    sentLabels = ['긍정' for cursor in range(len(positiveDict))]+['중립' for cursor in range(
+        len(neutralDict))]+['부정' for cursor in range(len(negativeDict))]
+    sentKwdCounts = list(positiveDict.values()) + \
+        list(neutralDict.values())+list(negativeDict.values())
+
+    results = list()
+    # 예외 처리 2
+    if topSentReturn > len(sentKwdCounts):
+        topSentReturn = len(sentKwdCounts)
+    # 예외 처리 2
+    for got in range(topSentReturn):
+        idx = sentKwdCounts.index(max(sentKwdCounts))
+        results.append(
+            (sentKwds.pop(idx), sentKwdCounts.pop(idx), sentLabels.pop(idx)))
+
+    return (True, results)
 
 
 def sent_visualization(ratios,
