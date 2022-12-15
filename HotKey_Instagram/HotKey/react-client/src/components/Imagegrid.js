@@ -14,7 +14,12 @@ const Imagegrid = ({ image }) => {
           </Imgdiv1>
         ) : (
           <Imgdiv1>
-            <Img src={require("../top_imgs/" + image + ".jpg")} />
+            <Img
+              src={require("../top_imgs/" + image + ".jpg")}
+              onClick={() => {
+                window.open(require("../top_imgs/" + image + ".jpg"));
+              }}
+            />
           </Imgdiv1>
         )}
       </>
@@ -28,7 +33,12 @@ const Imagegrid = ({ image }) => {
           </Imgdiv5>
         ) : (
           <Imgdiv5>
-            <Img src={require("../top_imgs/" + image + ".jpg")} />
+            <Img
+              src={require("../top_imgs/" + image + ".jpg")}
+              onClick={() => {
+                window.open(require("../top_imgs/" + image + ".jpg"));
+              }}
+            />
           </Imgdiv5>
         )}
       </>
@@ -42,7 +52,12 @@ const Imagegrid = ({ image }) => {
     );
   return (
     <Imgdiv>
-      <Img src={require("../top_imgs/" + image + ".jpg")} />
+      <Img
+        src={require("../top_imgs/" + image + ".jpg")}
+        onClick={() => {
+          window.open(require("../top_imgs/" + image + ".jpg"));
+        }}
+      />
     </Imgdiv>
   );
 };
@@ -74,5 +89,6 @@ const Img = styled.img`
   width: 100%;
   border-radius: 0px;
   opacity: 1;
+  cursor: pointer;
 `;
 export default Imagegrid;

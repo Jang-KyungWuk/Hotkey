@@ -37,7 +37,7 @@ def frequency(pt):
 
 
 def wordcloud(pt, wc_filename='../react-client/src/visualization/wordcloud/tmp.png', wc_backgroundcolor='white',
-              wc_colormap='autumn', font_path='./templates/fonts/NanumGothic.ttf'):
+              wc_colormap='copper', font_path='./templates/fonts/NanumGothic.ttf'):
     """
     ------------------------------------------------------------------------------
 
@@ -128,7 +128,7 @@ def barplot(pt, bp_filename='../react-client/src/visualization/barplot/tmp.png')
         index_list = [[i[0], i[-1]+1] for i in np.array_split(range(100), 5)]
 
         n = df_words['count'].max()
-        color_dict = get_colordict('PuRd', n, 1)
+        color_dict = get_colordict('bone_r', n, 1)
         plt.rcParams['font.family'] = 'Malgun Gothic'
 
         fig, axs = plt.subplots(1, 1, figsize=(

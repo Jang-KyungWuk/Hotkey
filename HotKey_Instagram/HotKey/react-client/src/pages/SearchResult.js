@@ -15,8 +15,8 @@ const bg = [
   require("../images/ResultBackground1.png"), //2페이지백그라운드
 ];
 const SearchResult = () => {
+  console.log(bg[0]);
   const location = useLocation();
-  //   const navigate = useNavigate();
   const key_word = location.state?.key_word;
   const image_num = location.state?.image_num;
   const topic_num = location.state?.topic_num;
@@ -42,14 +42,13 @@ const SearchResult = () => {
   }
 
   const [sliderIdx, setSliderIdx] = useState(0);
-  console.log("분석 결과 페이지 렌더링...");
   console.log("image_list :", image_list);
   console.log("topic_list :", topic_list);
   console.log("topic_num :", topic_num);
   console.log("key_word :", key_word);
   console.log("sent_result : ", sent_result);
 
-  const sent1 = "지금 이 시간 당신이 궁금한" + " ' " + key_word + " ' ";
+  const sent1 = "지금 이 시간 당신이 궁금한" + " '" + key_word + "'";
   return (
     <>
       {location.state ? (
@@ -99,6 +98,13 @@ const SearchResult = () => {
                               src={require("../visualization/wordcloud/" +
                                 key_word +
                                 ".png")}
+                              onClick={() => {
+                                window.open(
+                                  require("../visualization/wordcloud/" +
+                                    key_word +
+                                    ".png")
+                                );
+                              }}
                             ></Img>
                           </Page12221>
                           <Page12222>
@@ -140,7 +146,13 @@ const SearchResult = () => {
                           src={require("../visualization/barplot/" +
                             key_word +
                             ".png")}
-                          style={{ height: "98%" }}
+                          onClick={() => {
+                            window.open(
+                              require("../visualization/barplot/" +
+                                key_word +
+                                ".png")
+                            );
+                          }}
                         />
                       </Page2212>
                     </Page221>
@@ -152,7 +164,20 @@ const SearchResult = () => {
                           키워드에 대한 사람들의 느낌은
                         </P5>
                       </Page2221>
-                      <Page2222>[ 감성분석 piechart ]</Page2222>
+                      <Page2222>
+                        <Img
+                          src={require("../visualization/sent_results/" +
+                            key_word +
+                            ".png")}
+                          onClick={() => {
+                            window.open(
+                              require("../visualization/sent_results/" +
+                                key_word +
+                                ".png")
+                            );
+                          }}
+                        />
+                      </Page2222>
                       <Page2223>
                         <SentTable sent_result={sent_result} />
                       </Page2223>
@@ -182,11 +207,6 @@ const SearchResult = () => {
                                     "",
                                     popupOption
                                   );
-                                  // window.open(
-                                  //   "http://localhost:5000/manage/test/network/" +
-                                  //     key_word +
-                                  //     ".html"
-                                  // );
                                 }}
                               >
                                 네트워크 보기
@@ -220,6 +240,13 @@ const SearchResult = () => {
                                 src={require("../visualization/lda_results/" +
                                   topic_list[0] +
                                   ".png")}
+                                onClick={() => {
+                                  window.open(
+                                    require("../visualization/lda_results/" +
+                                      topic_list[0] +
+                                      ".png")
+                                  );
+                                }}
                               ></GridImg>
                             </Grid>
                             <Grid>
@@ -227,6 +254,13 @@ const SearchResult = () => {
                                 src={require("../visualization/lda_results/" +
                                   topic_list[1] +
                                   ".png")}
+                                onClick={() => {
+                                  window.open(
+                                    require("../visualization/lda_results/" +
+                                      topic_list[1] +
+                                      ".png")
+                                  );
+                                }}
                               ></GridImg>
                             </Grid>
                           </>
@@ -427,7 +461,7 @@ const Page1222 = styled.div`
 `;
 //Page 1222의 위쪽, 워드클라우드
 const Page12221 = styled.div`
-  width: 100%;
+  width: 95%;
   height: 80%;
   display: flex;
   flex-direction: column;
@@ -441,6 +475,7 @@ const Page12221 = styled.div`
 const Img = styled.img`
   display: block;
   height: 100%;
+  cursor: pointer;
 `;
 //Page 1222의 아래쪽, 텍스트
 const Page12222 = styled.div`
@@ -548,8 +583,9 @@ const Page2222 = styled.div`
 //Page223의 아래 감성분석 결과 table div
 const Page2223 = styled.div`
   height: 40%;
-  border: 1px outset;
+  border: 0px outset;
   border-radius: 20px;
+  overflow: hidden;
 `;
 //2페이지 오른쪽 맨 오른쪽
 const Page223 = styled.div`
@@ -658,6 +694,7 @@ const Grid = styled.div`
 `;
 const GridImg = styled.img`
   width: 86%;
+  cursor: pointer;
 `;
 
 export default SearchResult;

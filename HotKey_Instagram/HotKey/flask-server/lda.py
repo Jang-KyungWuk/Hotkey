@@ -157,7 +157,10 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
             for i in range(len(topic)):
                 dict_word_frequency[topic_terms_sorted[i]
                                     [0]] = topic_terms_sorted[i][1]
-            wc = WordCloud(background_color="white", colormap='autumn', mask=mask[idx], max_words=100,
+            color_map = 'bone'
+            if (idx in [1, 3]):
+                color_map = 'RdGy'
+            wc = WordCloud(background_color="white", colormap=color_map, mask=mask[idx], max_words=100,
                            max_font_size=60, min_font_size=11, prefer_horizontal=0.9, font_path='./templates/fonts/NanumGothic.ttf')
             wc.generate_from_frequencies(dict_word_frequency)
             # wc.to_file(filename=f'./templates/lda_results/Topic#{idx+1}.png')
@@ -167,6 +170,6 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
         print("done in %0.3fs." % (time() - t0))
         print("in total, %0.3fs." % (time() - t1))
         # 1214수정 세윤 => topic 개수도 리턴
-        return True, topic_list, len(topic_list)
+        return True, topic_list, len(lda.components_)
     except:
         return False, [], 0

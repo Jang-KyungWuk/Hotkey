@@ -15,23 +15,58 @@ from math import log1p
 import numpy as np
 
 
+def spam_filter(plaintext):
+    # 1211추가 - seyun
+    # db로 부터 말뭉치를 받아서 스팸을 제거하고 다시 플레인텍스트 반환
+    status = True
+    pt = ''
+    try:
+        pt = preprocess(plaintext, returnPlain=True)
+    except:
+        status = False
+    return (pt, status)
+
+
 class nltkMA:
-    def __init__(self,
-                 morph_header='NLTK_',
-                 word_tokenize_language='english',
-                 word_tokenize_preserve_line=False,
-                 pos_tag_tagset=None,
-                 pos_tag_lang='eng'):
+    def __init__(self, maParamDict=None):
         """
         create instance and set parameters
         """
-
         # nltk로 형태소 분석에 사용되는 패러미터들을 할당
-        self.morph_header = morph_header
-        self.word_tokenize_language = word_tokenize_language
-        self.word_tokenize_preserve_line = word_tokenize_preserve_line
-        self.pos_tag_tagset = pos_tag_tagset
-        self.pos_tag_lang = pos_tag_lang
+        self.morph_header = 'NLTK_'
+        self.word_tokenize_language = 'english'
+        self.word_tokenize_preserve_line = False
+        self.pos_tag_tagset = None
+        self.pos_tag_lang = 'eng'
+
+        if maParamDict == None:
+            pass
+
+        else:
+            if 'morph_header' in maParamDict:
+                self.morph_header = maParamDict['morph_header']
+            elif 'header' in maParamDict:
+                self.morph_header = maParamDict['header']
+
+            if 'word_tokenize_language' in maParamDict:
+                self.word_tokenize_language = maParamDict['word_tokenize_language']
+            elif 'language' in maParamDict:
+                self.word_tokenize_language = maParamDict['language']
+
+            if 'word_tokenize_preserve_line' in maParamDict:
+                self.word_tokenize_preserve_line = maParamDict['word_tokenize_preserve_line']
+            elif 'preserve_line' in maParamDict:
+                self.word_tokenize_preserve_line = maParamDict['preserve_line']
+
+            if 'pos_tag_tagset' in maParamDict:
+                self.pos_tag_tagset = maParamDict['pos_tag_tagset']
+            elif 'tagset' in maParamDict:
+                self.pos_tag_tagset = maParamDict['tagset']
+
+            if 'pos_tag_lang' in maParamDict:
+                self.pos_tag_lang = maParamDict['pos_tag_lang']
+            elif 'lang' in maParamDict:
+                self.pos_tag_lang = maParamDict['lang']
 
     def __call__(self, text):
         """
@@ -219,8 +254,10 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
                kwdMinLen=2,
                morphemeAnalyzer='kiwi', morphemeAnalyzerParams=None, targetMorphs=['NNP', 'NNG'],
                returnEnglishMorph=True, EETagRule={'NLTK_NNP': 'NNP', 'NLTK_NN': 'NNG', 'R_W_HASHTAG': 'W_HASHTAG'},
+               enMorphemeAnalyzerParams=None,
                filterMorphemeAnalyzer='kiwi', filterMorphemeAnalyzerParams=None, filterTargetMorphs=['NNP', 'NNG', 'W_HASHTAG'],
                filterEnglishMorph=True, filterEETagRule={'NLTK_NNP': 'NNP', 'NLTK_NN': 'NNG', 'R_W_HASHTAG': 'W_HASHTAG'},
+               filterEnMorphemeAnalyzerParams=None,
                k_1Filter=1.5, bFilter=0.75, filterThreshold=2.5):
     '''
     plaintext (str) : 구분자로 구분 된 글의 문자열 데이터 ex: "글1(구분자)글2(구분자)글3(구분자)글4"
@@ -301,8 +338,17 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
 
     # 형태소 분석기 인스턴스 생성
     tma = setMorphemeAnalyzer(morphemeAnalyzer, morphemeAnalyzerParams)
-    fma = setMorphemeAnalyzer(filterMorphemeAnalyzer,
-                              filterMorphemeAnalyzerParams)
+    if (morphemeAnalyzer == filterMorphemeAnalyzer and morphemeAnalyzerParams == filterMorphemeAnalyzerParams):
+        fma = tma
+    else:
+        fma = setMorphemeAnalyzer(
+            filterMorphemeAnalyzer, filterMorphemeAnalyzerParams)
+
+    tenma = nltkMA(enMorphemeAnalyzerParams)
+    if (enMorphemeAnalyzerParams == filterEnMorphemeAnalyzerParams):
+        fenma = tenma
+    else:
+        fenma = nltkMA(filterEnMorphemeAnalyzerParams)
 
     # 구분자가 마지막에도 붙어있어 data 마지막에 비어있는 포스트가 있을 경우 이를 제거
     data = plain_structurize(plaintext, sep)
@@ -324,7 +370,8 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
 
     # BM25 필터링에 사용 될 토큰화 된 결과값을 저장
     ftok = data_tokenize(data, fma, filterTargetMorphs,
-                         returnMorph=False, returnEnglishMorph=True, eeTagRule=filterEETagRule, kwdMinLen=kwdMinLen)
+                         returnMorph=False, returnEnglishMorph=True, morphemeAnalyzerEN=fenma,
+                         eeTagRule=filterEETagRule, kwdMinLen=kwdMinLen)
 
     flag = False
     # 만약 모든 결과 분석의 조건들이 필터 분석의 조건들과 일치하면 이전의 토큰화 결과를 그대로 사용할 것
@@ -400,6 +447,7 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
             returnData = data_tokenize(returnData, tma, targetMorphs,
                                        returnMorph=returnMorph,
                                        returnEnglishMorph=returnEnglishMorph,
+                                       morphemeAnalyzerEN=tenma,
                                        eeTagRule=EETagRule,
                                        kwdMinLen=kwdMinLen)
             print("%s 개의 데이터가 삭제되었습니다." % spamCount)
@@ -437,20 +485,29 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
         returnDatas['tokenized'] = data_tokenize(tdata, tma, targetMorphs,
                                                  returnMorph=returnMorph,
                                                  returnEnglishMorph=returnEnglishMorph,
+                                                 morphemeAnalyzerEN=tenma,
                                                  eeTagRule=EETagRule,
                                                  kwdMinLen=kwdMinLen)
         print("%s 개의 데이터가 삭제되었습니다." % spamCount)
         return returnDatas
 
 
-def plain_structurize(plaintext, sep='HOTKEY123!@#'):
+def plain_structurize(plaintext, sep='HOTKEY123!@#', lineSplit=False):
     '''
     구분자로 구분된 문자열을 받아서 구분자를 기준으로 나눠서 리스트에 담아 반환
     만약 구분자로 나눈 리스트의 마지막 데이터가 비어있다면 (구분자로 문자열이 끝나면) 마지막 데이터를 삭제함
     '''
-    structuredData = plaintext.split(sep)
-    if structuredData[-1] == '':
-        structuredData = structuredData[:-1]
+    if lineSplit == False:
+        structuredData = plaintext.split(sep)
+        if structuredData[-1] == '':
+            structuredData = structuredData[:-1]
+
+    else:
+        structuredData = list()
+        posts = plaintext.split(sep)
+        for post in posts:
+            structuredData.append(line_split(post))
+
     return structuredData
 
 
@@ -458,26 +515,60 @@ def data_tokenize(data, morphemeAnalyzer,
                   targetMorphs=['NNP', 'NNG'],
                   returnMorph=False,
                   returnEnglishMorph=False,
+                  morphemeAnalyzerEN=nltkMA(),
                   eeTagRule={'NLTK_NNP': 'NNP',
                              'NLTK_NN': 'NNG',
                              'R_W_HASHTAG': 'W_HASHTAG'},
-                  kwdMinLen=2):
+                  kwdMinLen=2,
+                  lineSplit=False):
     '''
     데이터를 주어진 형태소 분석기 인스턴스로 분석하고 정해진 품사를 반환
     '''
     returnData = list()
 
-    if returnEnglishMorph == True:
+    if lineSplit == True:
+        for post in data:
+            partialReturnPost = list()
+            for line in post:
+                partialReturn = list()
+                if returnEnglishMorph == True:
+                    tokenizedData = HEMEK_tokenize(remove_stopwords(
+                        line), morphemeAnalyzer, morphemeAnalyzerEN)
+                else:
+                    tokenizedData = morphemeAnalyzer(remove_stopwords(line))
+
+                for tok in tokenizedData:
+                    if len(tok[0]) < kwdMinLen:
+                        continue
+                    # 변환 규칙에 있는 품사는 변환
+                    if returnEnglishMorph == True and tok[1] in eeTagRule:
+                        tok[1] = eeTagRule[tok[1]]
+
+                    if tok[1] in targetMorphs:
+                        # 품사까지 반환하도록 요청 받으면 [키워드, 품사] 쌍을 그대로 반환
+                        if returnMorph == True:
+                            partialReturn.append(tok)
+                        else:  # 품사를 요청받지 않으면 키워드만 뽑아서 반환
+                            partialReturn.append(tok[0])
+                partialReturnPost.append(partialReturn)
+            returnData.append(partialReturnPost)
+
+    else:
         for post in data:
             partialReturn = list()
-            tokenizedData = HEMEK_tokenize(
-                remove_stopwords(post), morphemeAnalyzer, nltkMA())  # 영문 분석
+            if returnEnglishMorph == True:
+                tokenizedData = HEMEK_tokenize(remove_stopwords(
+                    post), morphemeAnalyzer, morphemeAnalyzerEN)  # 영문 분석
+            else:
+                tokenizedData = morphemeAnalyzer(remove_stopwords(post))
 
             for tok in tokenizedData:
                 if len(tok[0]) < kwdMinLen:
                     continue
-                if tok[1] in eeTagRule:  # 변환 규칙에 있는 품사는 변환
+                # 변환 규칙에 있는 품사는 변환
+                if returnEnglishMorph == True and tok[1] in eeTagRule:
                     tok[1] = eeTagRule[tok[1]]
+
                 if tok[1] in targetMorphs:
                     # 품사까지 반환하도록 요청 받으면 [키워드, 품사] 쌍을 그대로 반환
                     if returnMorph == True:
@@ -486,22 +577,20 @@ def data_tokenize(data, morphemeAnalyzer,
                         partialReturn.append(tok[0])
             returnData.append(partialReturn)
 
-    else:
-        for post in data:
-            partialReturn = list()
-            tokenizedData = morphemeAnalyzer(
-                remove_stopwords(post))  # 형태소 분석기로 한번에 분석 (한글 전용)
-            for tok in tokenizedData:
-                if len(tok[0]) < kwdMinLen:
-                    continue
-                if tok[1] in targetMorphs:
-                    if returnMorph == True:
-                        partialReturn.append(tok)
-                    else:
-                        partialReturn.append(tok[0])
-            returnData.append(partialReturn)
-
     return returnData
+
+
+def line_split(text, lineSplitSep='[\.\?\!] |[\\n]|[\n]|[\\\\]n', regexp=True):
+    if regexp == True:
+        returnData = list()
+        chunks = regexp_spliter(text, lineSplitSep, 'split', 'target')
+        for chunk in chunks:
+            if chunk[1] == 'target':
+                returnData.append(chunk[0])
+        return returnData
+
+    else:
+        return text.split(lineSplitSep)
 
 
 def remove_stopwords(text, stopwordRule={'\n': ' ', '\u200b': ' ', '\\n': ' '}):
@@ -523,11 +612,13 @@ def get_demojized_set():
 def regexp_spliter(text, regexps, matchLabels, nomatchLabel, filters=None):
     '''
     정규표현식들을 이용해 입력받은 텍스트들을 나누고 [나눠진 텍스트, 라벨] 리스트를 담은 리스트로 반환
+
     ex : ABCDEFG
     입력 받은 정규 표현식 : BC, EF
     입력 받은 라벨 : label1 label2
     입력 받은 불일치 라벨 : NO
     실행 결과 : [[A, NO], [BC, label1], [D, NO], [EF, label2], [G, NO]]
+
     정규표현식은 모두 re.finditer(정규표현식,입력텍스트) 으로 적용
     '''
 
@@ -556,7 +647,6 @@ def regexp_spliter(text, regexps, matchLabels, nomatchLabel, filters=None):
             # 필터 대상에 있는 키워드가 아닐시 다음 키워드로 넘어감
             elif found.group() not in filters[idx]:
                 continue
-
             # 정규 표현에 일치하는 부분의 시작 인덱스를 키로, 값에 종료 인덱스와 라벨을 튜플로 저장
             foundDict[found.start()] = (found.end(), matchLabels[idx])
 
@@ -645,13 +735,13 @@ def HEMEK_tokenize(text, KRmorphemeAnalyzer, NKRmorphemeAnalyzer):
     result = []
     for chunk in HEMEK:
         text = chunk[0]
-        if re.fullmatch('[ ]+||[\n]+', text):
+        if re.fullmatch('[ ]+||[\n]+', text):  # 비어있는
             continue
-        elif chunk[1] == 'KR_CHUNK':
+        elif chunk[1] == 'KR_CHUNK':  # 한글 덩어리면 한글 형태소 분석기 적용
             for token in KRmorphemeAnalyzer(text):
                 result.append([token[0], token[1]])
 
-        elif chunk[1] == 'NKR_CHUNK':
+        elif chunk[1] == 'NKR_CHUNK':  # 한글이 아니면 (주로 영어 예상) 이면 영문 형태소 분석기 적용
             for token in NKRmorphemeAnalyzer(text):
                 result.append([token[0], token[1]])
         else:
@@ -664,7 +754,8 @@ def BM25(data, postLens, k_1=1.5, b=0.75):
     '''
     BM25 알고리즘으로 문서 내의 각 토큰별로 점수를 계산하고 문서별로 문서내에 있는 모든 토큰의 점수의 평균을 리스트에 담아 반환
     '''
-    avgPostLen = np.mean(postLens)
+
+    avgPostLen = np.mean(postLens)  # 문서들의 평균 길이
 
     N = len(data)  # 전체 데이터의 길이 (문서의 개수)
 
@@ -699,14 +790,3 @@ def BM25(data, postLens, k_1=1.5, b=0.75):
 
     return filterScores
 
-
-def spam_filter(plaintext):
-    # 1211추가 - seyun
-    # db로 부터 말뭉치를 받아서 스팸을 제거하고 다시 플레인텍스트 반환
-    status = True
-    pt = ''
-    try:
-        pt = preprocess(plaintext, returnPlain=True)
-    except:
-        status = False
-    return (pt, status)

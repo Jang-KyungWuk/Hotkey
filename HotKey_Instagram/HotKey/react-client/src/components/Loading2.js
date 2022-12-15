@@ -15,30 +15,28 @@ const Loading2 = () => {
     <Div>
       <Div1>
         <Icondiv>
-          <FontAwesomeIcon icon={faHourglassHalf} size="3x" />
+          <FontAwesomeIcon icon={faHourglassHalf} size="2xl" />
         </Icondiv>
         <Textdiv>데이터를 수집하고 있습니다</Textdiv>
         <Spindiv>
-          <FontAwesomeIcon icon={faCircleCheck} size="3x" />
+          <FontAwesomeIcon icon={faCircleCheck} size="2xl" />
         </Spindiv>
       </Div1>
       <Div2>
         <Icondiv>
-          <FontAwesomeIcon icon={faChartBar} size="3x" />
+          <FontAwesomeIcon icon={faChartBar} size="2xl" />
         </Icondiv>
         <Textdiv>수집된 데이터를 분석하고 있습니다</Textdiv>
         <Spindiv>
-          <PulseLoader size={10} />
+          <PulseLoader size={8} />
         </Spindiv>
       </Div2>
-      <Div3>
+      {/* <Div3>
         <Icondiv>
-          <FontAwesomeIcon icon={faFileLines} size="3x" />
+          <FontAwesomeIcon icon={faFileLines} size="2xl" />
         </Icondiv>
-        <Textdiv>
-          <PulseLoader size={10} />
-        </Textdiv>
-      </Div3>
+        <Textdiv><PulseLoader size={10} /></Textdiv>
+      </Div3> */}
     </Div>
   );
 }; //전체 감싸는 Div
@@ -47,9 +45,9 @@ const Div = styled.div`
   margin-left: 5%;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: center;
   height: 40%;
-  width: 80%;
+  width: 90%;
   border-radius: 20px;
 `;
 //첫번째 칸
@@ -71,7 +69,7 @@ const Textdiv = styled.div`
   justify-content: center;
   width: 70%;
   font-family: chosun;
-  font-size: 30px;
+  font-size: calc(1.2vw + 1.2vh);
 `;
 //spinner 들어갈 칸
 const Spindiv = styled.div`
@@ -85,6 +83,7 @@ const Div2 = styled.div`
   display: flex;
   height: 30%;
   border-radius: 20px;
+  margin-top: 2%;
 `;
 //세번째 칸
 const Div3 = styled.div`

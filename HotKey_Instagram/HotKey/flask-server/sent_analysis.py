@@ -4,6 +4,8 @@ import preprocess as pp
 import pickle as pkl
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
+import plotly.express as px
 
 """spamfilter를 통과한 플레인텍스트를 받아서 감성분석 수행
 기본 디렉토리 ./templates/ 에 sent_pie.jpg 저장
@@ -14,11 +16,18 @@ return True
 def sent_analysis(plaintext,
                   sentMorph=['IC', 'MAG', 'MM', 'NNB', 'NNG', 'NNP',
                              'NP', 'NR', 'SL', 'SP', 'SW', 'VA', 'XR'],
-                  saveDir='../react-client/src/visualization/sent_results/', fileName='sent_pie',
+                  saveDir='./templates/', fileName='sent_pie',
                   sentDictFile='sent_dict.pkl',
-                  legends=['Positive', 'Neutral', 'Negative'],
                   colors=['#FFBF25', '#D6DFE1', '#272B3A'],
+                  fontPath=None,
                   topSentReturn=12):
+    '''
+    multi tok sent
+    NNG,EFN,VV,VA,XR,ECS,EMO,ETD,VXV,VXA,JC,MAG,ECD,XR,ECE,JKG,MDT,JKO,NNB,NNP,JKS,JKM,ETN,XSV,XSA,XSN,NP,IC,VCN,NNM,MDN,JX
+
+    single tok sent
+    'IC', 'MAG', 'MM', 'NNB', 'NNG', 'NNP', 'NP', 'NR', 'SL', 'SP', 'SW', 'VA', 'XR'
+    '''
     try:
         # 감성 사전을 열고 데이터를 불러옴
         with open(sentDictFile, 'rb') as file:
@@ -27,8 +36,8 @@ def sent_analysis(plaintext,
         # 감성 사전과 동일한 기준으로 토큰화 수행
         tokenized = pp.data_tokenize(data=pp.plain_structurize(plaintext),
                                      morphemeAnalyzer=pp.setMorphemeAnalyzer(
-            "키위"),
-            targetMorphs=sentMorph)
+                                         "키위"),
+                                     targetMorphs=sentMorph)
 
         # 긍정 / 중립 / 부정 키워드들을 관리하는 dict
         positiveDict = dict()
@@ -63,9 +72,8 @@ def sent_analysis(plaintext,
         counts = np.sum(ratios)
         ratios = ratios/counts*100
 
-        sent_visualization(ratios,
-                           saveDir=saveDir, fileName=fileName,
-                           legends=legends, colors=colors)
+        # 시각화
+        sent_visualization(ratios, saveDir=saveDir, fileName=fileName)
 
         # 빈도수가 높은 순으로 키워드 - 빈도 - 긍부정 여부을 하나의 튜플로 묶은 데이터의 list를 반환
         sentKwds = list(positiveDict.keys()) + \
@@ -87,41 +95,36 @@ def sent_analysis(plaintext,
 
 
 def sent_visualization(ratios,
-                       saveDir='../react-client/src/visualization/sent_results/', fileName='sent_pie',
+                       saveDir='', fileName='sent_pie',
                        legends=['Positive', 'Neutral', 'Negative'],
-                       colors=['#FFBF25', '#D6DFE1', '#272B3A'],
-                       plotType='pie'):
+                       colors=['#7DB3F2', '#D6DFE1', '#E17781']):
+    '''
+    ------------------------------------------------------------------------------
 
-    if plotType == 'pie':
-        label = ["긍정 %s%%" % (ratio) for ratio in ratios]
-        plt.pie(ratios, labels=label, labeldistance=1.2, colors=colors,
-                explode=[0.05, 0.05, 0.05], startangle=90)
-        plt.savefig(saveDir+fileName+'.jpg')
+    긍정,중립,부정의 비율을 받아 파이 차트를 생성, 입력받은 경로에 저장합니다.
 
-    elif plotType == 'bar':
-        cratios = list()
-        for cursor in range(len(ratios)):
-            cratios.append(np.sum(ratios[:cursor+1]))
+    ------------------------------------------------------------------------------
 
-        fig, ax = plt.subplots(figsize=(8, 1))
+    파라미터 설명
 
-        # fig = plt.figure(figsize=(8,1))
-        '''
-        fig.set_figwidth(8)
-        fig.set_figheight(1)
-        '''
+    ratios : list of numbers, 긍정, 중립, 부정의 비율
+    saveDir : str, 저장할 파이차트 이미지 파일 경로, 기본값 ''
+    fileName : str, 저장할 파이차트 이미지 파일 이름, 기본값 'sent_pie'
+    legends : list of strings, 범례, 기본값 ['Positive', 'Neutral', 'Negative']
+    colors : list of strings, 파이차트의 각 범례 별 색, 기본값 ['#7DB3F2','#D6DFE1','#E17781']
 
-        for cursor in range(len(cratios)-1, -1, -1):
-            ax.barh(['ratio'], [cratios[cursor]], color=colors[cursor])
+    ------------------------------------------------------------------------------
+    '''
 
-        plt.xlim(-10, 110)
+    df = pd.DataFrame(zip(legends, ratios), columns=['legends', 'ratios'])
+    df.sort_values('ratios', ascending=False, inplace=True)
+    df.reset_index(drop=True, inplace=True)
 
-        ax.axis('off')
-        ax.margins(0)
+    fig = px.pie(df, values='ratios', names='legends', color='legends',
+                 color_discrete_map={'Positive': '#7DB3F2', 'Neutral': '#D6DFE1', 'Negative': '#E17781'})
 
-        patch = patches.Rectangle(
-            xy=(0, -0.37), width=100, height=0.73, capstyle='round')
-        ax.add_patch(patch)
-        # ax.set_clip_path()
-
-        plt.savefig(saveDir+fileName+'.jpg')
+    fig.update_traces(textposition='outside', textinfo='percent+label',
+                      hole=.4, hoverinfo="label+percent+name", pull=[0.1, 0, 0])
+    fig.update_layout(width=600, height=600, margin=dict(
+        t=0, l=0, r=0, b=0), showlegend=False)
+    fig.write_image(saveDir+fileName+'.png')
