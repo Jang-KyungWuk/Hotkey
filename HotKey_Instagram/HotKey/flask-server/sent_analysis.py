@@ -29,6 +29,7 @@ def sent_analysis(plaintext,
     'IC', 'MAG', 'MM', 'NNB', 'NNG', 'NNP', 'NP', 'NR', 'SL', 'SP', 'SW', 'VA', 'XR'
     '''
     try:
+
         # 감성 사전을 열고 데이터를 불러옴
         with open(sentDictFile, 'rb') as file:
             sentDict = pkl.load(file)
@@ -36,8 +37,8 @@ def sent_analysis(plaintext,
         # 감성 사전과 동일한 기준으로 토큰화 수행
         tokenized = pp.data_tokenize(data=pp.plain_structurize(plaintext),
                                      morphemeAnalyzer=pp.setMorphemeAnalyzer(
-                                         "키위"),
-                                     targetMorphs=sentMorph)
+            "키위"),
+            targetMorphs=sentMorph)
 
         # 긍정 / 중립 / 부정 키워드들을 관리하는 dict
         positiveDict = dict()

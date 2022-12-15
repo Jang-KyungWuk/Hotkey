@@ -17,7 +17,7 @@ const Loading2 = () => {
         <Icondiv>
           <FontAwesomeIcon icon={faHourglassHalf} size="2xl" />
         </Icondiv>
-        <Textdiv>데이터를 수집하고 있습니다</Textdiv>
+        <Textdiv>데이터 수집 완료</Textdiv>
         <Spindiv>
           <FontAwesomeIcon icon={faCircleCheck} size="2xl" />
         </Spindiv>

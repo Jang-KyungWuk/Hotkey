@@ -158,7 +158,7 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
                 dict_word_frequency[topic_terms_sorted[i]
                                     [0]] = topic_terms_sorted[i][1]
             color_map = 'bone'
-            if (idx in [1, 3]):
+            if (idx in [0, 3]):
                 color_map = 'RdGy'
             wc = WordCloud(background_color="white", colormap=color_map, mask=mask[idx], max_words=100,
                            max_font_size=60, min_font_size=11, prefer_horizontal=0.9, font_path='./templates/fonts/NanumGothic.ttf')

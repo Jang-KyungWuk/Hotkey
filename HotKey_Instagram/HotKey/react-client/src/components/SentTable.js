@@ -3,55 +3,32 @@ import styled from "styled-components";
 
 const SentTable = ({ sent_result }) => {
   let res = [];
-  for (let i = 6; i < sent_result.length; i++) {
-    if (sent_result[i][1] < 7) {
-      res = sent_result.slice(0, i);
-      break;
-    }
+  for (let k = 0; k < sent_result.length; k++) {
+    res[k] = [k + 1, sent_result[k][0], sent_result[k][2]];
   }
   //스크롤 기능 추가하기.!
-  console.log(res);
   return (
     <Table>
       <THead>
-        <tr>
+        <Tr>
+          <Td>순위</Td>
           <Td>단어</Td>
-          <Td>빈도</Td>
           <Td>분류</Td>
-        </tr>
+        </Tr>
       </THead>
-      <tbody>
-        <Tr>
-          <Td>{res[0][0]}</Td>
-          <Td>{res[0][1]}</Td>
-          <Tdp>{res[0][2]}</Tdp>
-        </Tr>
-        <Tr>
-          <Td>{res[0][0]}</Td>
-          <Td>{res[0][1]}</Td>
-          <Tdn>부정</Tdn>
-        </Tr>
-        <Tr>
-          <Td>{res[0][0]}</Td>
-          <Td>{res[0][1]}</Td>
-          <Tdnn>중립</Tdnn>
-        </Tr>
-        <Tr>
-          <Td>{res[0][0]}</Td>
-          <Td>{res[0][1]}</Td>
-          <Tdp>{res[0][2]}</Tdp>
-        </Tr>
-        <Tr>
-          <Td>{res[0][0]}</Td>
-          <Td>{res[0][1]}</Td>
-          <Tdp>{res[0][2]}</Tdp>
-        </Tr>
-        <Tr>
-          <td>{res[0][0]}</td>
-          <td>{res[0][1]}</td>
-          <Tdn>부정</Tdn>
-        </Tr>
-      </tbody>
+      <Tbody>
+        {res.map((data) => (
+          <Tr key={data[0]}>
+            <Td>{data[0]}</Td>
+            <Td>{data[1]}</Td>
+            {data[2] === "긍정" ? (
+              <Tdp>긍정</Tdp>
+            ) : (
+              <>{data[2] === "부정" ? <Tdn>부정</Tdn> : <Tdnn>중립</Tdnn>}</>
+            )}
+          </Tr>
+        ))}
+      </Tbody>
     </Table>
   );
 };
@@ -72,9 +49,13 @@ const Table = styled.table`
 const THead = styled.thead`
   font-size: calc(0.7vw + 0.7vh);
   font-weight: bold;
-  height: 15%;
+  height: 13%;
   background-color: black;
   color: white;
+`;
+const Tbody = styled.tbody`
+  height: 87%;
+  width: 100%;
 `;
 const Tr = styled.tr`
   font-size: calc(0.7vw + 0.7vh);

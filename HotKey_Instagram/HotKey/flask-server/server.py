@@ -71,6 +71,7 @@ def analyze(tid):
     # tid를 받아서 분석 후 결과를 jsonify해서 프론트로전달 (이미지의 경우, 경로를 react-client안에 넣어두기?)
     returnstatus = {'keyword': '', 'imagenum': 0, 'get_image': True, 'get_corpus': True, 'preprocess': True, 'wordcloud': True,
                     'barplot': True, 'lda': True, 'topic_num': 0, 'spam_filter': True, 'network': True, 'sent_analysis': True, 'sent_result': []}
+    bf = datetime.now()
     print("analyze API 실행")
     print("get_image 실행")
     status, keyword, imagenum = get_image(tid)
@@ -150,7 +151,7 @@ def analyze(tid):
     if not status:
         print('Error during sent_analysis...')
         returnstatus['sent_analysis'] = False
-    print('분석 완료!')
+    print('분석 완료! : ', datetime.now()-bf)
     return jsonify(returnstatus)
 
 # 실제 검색 -> 크롤링 -> 분석 -> 결과보여주는 API구현할때 무조건 before_search, after_search실행시켜줘야함!! + showaccount, checkavail, keywordsearch(test)

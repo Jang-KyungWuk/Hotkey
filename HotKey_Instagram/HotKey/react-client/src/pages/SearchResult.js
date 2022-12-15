@@ -198,8 +198,20 @@ const SearchResult = () => {
                                   console.log("네트워크 팝업 구현");
                                   //json에서 proxy설정한 것은 리액트 자체에서 request할때만 작용하는 것으로보임, 아래처럼 서버에 직접 접근하려면 서버의 주소를 적어줘야한다.
                                   //팝업창 옵션 (창 크기 조절 등 조정)
+                                  const l = 0.15 * window.innerWidth;
+                                  const w = 0.7 * window.innerWidth;
+                                  const t = 0.05 * window.innerHeight;
+                                  const h = 0.95 * window.innerHeight;
                                   const popupOption =
-                                    "left=800, top=200, width=600, height=600, status=no;";
+                                    "left=" +
+                                    l +
+                                    ", top=" +
+                                    t +
+                                    ", width=" +
+                                    w +
+                                    ", height =" +
+                                    h +
+                                    ", status=no;";
                                   window.open(
                                     "http://localhost:5000/manage/test/network/" +
                                       key_word +
@@ -271,6 +283,13 @@ const SearchResult = () => {
                                 src={require("../visualization/lda_results/" +
                                   topic_list[0] +
                                   ".png")}
+                                onClick={() => {
+                                  window.open(
+                                    require("../visualization/lda_results/" +
+                                      topic_list[0] +
+                                      ".png")
+                                  );
+                                }}
                               ></GridImg>
                             </Grid>
                             <Grid>
@@ -278,6 +297,13 @@ const SearchResult = () => {
                                 src={require("../visualization/lda_results/" +
                                   topic_list[1] +
                                   ".png")}
+                                onClick={() => {
+                                  window.open(
+                                    require("../visualization/lda_results/" +
+                                      topic_list[1] +
+                                      ".png")
+                                  );
+                                }}
                               ></GridImg>
                             </Grid>
                             <Grid>
@@ -285,6 +311,13 @@ const SearchResult = () => {
                                 src={require("../visualization/lda_results/" +
                                   topic_list[2] +
                                   ".png")}
+                                onClick={() => {
+                                  window.open(
+                                    require("../visualization/lda_results/" +
+                                      topic_list[2] +
+                                      ".png")
+                                  );
+                                }}
                               ></GridImg>
                             </Grid>
                             <Grid>
@@ -292,6 +325,13 @@ const SearchResult = () => {
                                 src={require("../visualization/lda_results/" +
                                   topic_list[3] +
                                   ".png")}
+                                onClick={() => {
+                                  window.open(
+                                    require("../visualization/lda_results/" +
+                                      topic_list[3] +
+                                      ".png")
+                                  );
+                                }}
                               ></GridImg>
                             </Grid>
                           </>

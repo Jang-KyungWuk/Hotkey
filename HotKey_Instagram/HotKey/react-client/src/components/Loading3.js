@@ -18,7 +18,7 @@ const Loading3 = () => {
         <Icondiv>
           <FontAwesomeIcon icon={faHourglassHalf} size="2xl" />
         </Icondiv>
-        <Textdiv>데이터를 수집하고 있습니다</Textdiv>
+        <Textdiv>데이터 수집 완료</Textdiv>
         <Spindiv>
           <FontAwesomeIcon icon={faCircleCheck} size="2xl" />
         </Spindiv>
@@ -27,7 +27,7 @@ const Loading3 = () => {
         <Icondiv>
           <FontAwesomeIcon icon={faChartBar} size="2xl" />
         </Icondiv>
-        <Textdiv>수집된 데이터를 분석하고 있습니다</Textdiv>
+        <Textdiv>데이터 분석 완료</Textdiv>
         <Spindiv>
           <FontAwesomeIcon icon={faThumbsUp} size="2xl" />
         </Spindiv>
