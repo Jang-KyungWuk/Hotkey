@@ -141,7 +141,7 @@ const SearchResult = () => {
                         <H1>{key_word}</H1>
                       </Page2211>
                       <Page2212>
-                        <Img
+                        <BarImg
                           src={require("../visualization/barplot/" +
                             key_word +
                             ".png")}
@@ -164,7 +164,7 @@ const SearchResult = () => {
                         </P5>
                       </Page2221>
                       <Page2222>
-                        <Img
+                        <BarImg
                           src={require("../visualization/sent_results/" +
                             key_word +
                             ".png")}
@@ -539,13 +539,31 @@ const Page12221 = styled.div`
   justify-content: center;
   border-radius: 20px;
   border: 1px outset;
-  overflow: hidden;
+  // overflow: hidden;
 `;
 //워드클라우드 이미지
 const Img = styled.img`
   display: block;
   height: 100%;
   cursor: pointer;
+  &:hover {
+    transform: scale(1.5);
+    border: 1px outset;
+    border-radius: 20px;
+  }
+  transition: all 0.2s ease-out;
+`;
+//barplot전용 이미지
+const BarImg = styled.img`
+  display: block;
+  height: 100%;
+  cursor: pointer;
+  &:hover {
+    transform: scale(1.1);
+    border: 1px outset;
+    border-radius: 20px;
+  }
+  transition: all 0.2s ease-out;
 `;
 //Page 1222의 아래쪽, 텍스트
 const Page12222 = styled.div`
@@ -707,6 +725,12 @@ const NetButton = styled.button`
   letter-spacing: 0.2vw;
   cursor: pointer;
   border-radius: calc(0.5vw + 0.5vh);
+  border: 0px solid;
+  transition: all 0.4s ease-out;
+  &:hover {
+    background-color: gray;
+    color: black;
+  }
 `;
 //Page22311오른쪽 (네트워크 보는법 설명)
 const Page223112 = styled.div`
@@ -767,6 +791,10 @@ const Grid = styled.div`
   font-family: chosun;
   font-size: 1.2vw;
   text-align: center;
+  &:hover {
+    transform: scale(1.2);
+  }
+  transition: all 0.2s ease-out;
 `;
 const GridImg = styled.img`
   width: 86%;

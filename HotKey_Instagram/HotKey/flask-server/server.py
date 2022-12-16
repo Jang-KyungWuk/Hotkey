@@ -9,6 +9,8 @@ import shutil
 from preprocess import *
 import time
 import unicodedata
+# 임시,, 삭제해야됨
+import network19t
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False  # 한글 깨짐 방지 (jsonify 사용시)
@@ -134,13 +136,15 @@ def analyze(tid):
     ################
     # network, sentiment_analysis에도 인풋으로 spt가 들어감
     # 네트워크 테스트 : spam_filtering된 plaintext를 인풋으로 받음
+    bff = datetime.now()
     print("network 생성 시작... path : ./templates/networks")
     # 스팸필터링된 plaintext와 LDA 결과값을 인풋으로 받음
-    status = network(
-        spt, lda_result, saveDir='./templates/networks/', saveFilename=keyword)
+    status = network19t.network(
+        spt, lda_result, saveDir='./templates/networks/', saveFilename=keyword, lineSplit=False)
     if not status:
         print('Error during network analysis...')
         returnstatus['network'] = False
+    print('네트워크 소요시간 (linesplit = False) : ', datetime.now()-bff)
     ###############
     ###############
     # 감성분석 테스트 : spam_filtering된 plaintext를 인풋으로 받음

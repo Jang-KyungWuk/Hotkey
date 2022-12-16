@@ -311,6 +311,6 @@ def pyvis_network_html(G, saveDir='./templates/', saveName='network',
 
     nt = pyv.network.Network(
         height=heightPX, width="100%", bgcolor=bgColor, font_color=fontColor)
-    nt.barnes_hut(gravity=-550)
+    # nt.barnes_hut(gravity=-550)
     nt.from_nx(G)
     nt.save_graph(saveDir+saveName+'.html')

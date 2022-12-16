@@ -71,18 +71,30 @@ const Imgdiv = styled.div`
   overflow: hidden;
   border-radius: 5px;
   border: 1px outset;
+  &:hover {
+    transform: scale(1.4);
+  }
+  transition: all 0.2s ease-out;
 `;
 const Imgdiv1 = styled(Imgdiv)`
   grid-row-start: 1;
   grid-row-end: 3;
   grid-column-start: 1;
   grid-column-end: 3;
+  &:hover {
+    transform: scale(1.3);
+  }
+  transition: all 0.2s ease-out;
 `;
 const Imgdiv5 = styled(Imgdiv)`
   grid-row-start: 2;
   grid-row-end: 4;
   grid-column-start: 3;
   grid-column-end: 5;
+  &:hover {
+    transform: scale(1.4);
+  }
+  transition: all 0.2s ease-out;
 `;
 const Img = styled.img`
   height: 100%;

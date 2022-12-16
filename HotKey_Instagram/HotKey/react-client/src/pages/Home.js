@@ -199,7 +199,7 @@ const Button = styled.button`
   background-color: black;
   width: 17%;
   height: 65%;
-  border-width: 1px;
+  border: 0px solid;
   border-radius: 30px;
   font-family: Roboto;
   font-size: 1.3vw;
@@ -208,6 +208,11 @@ const Button = styled.button`
   color: white;
   letter-spacing: 0.2vw;
   box-shadow: 1px 3px 5px 1px gray;
+  &:hover {
+    background-color: white;
+    color: black;
+  }
+  transition: all 0.3s ease-out;
 `;
 //trend 보여줄 Div
 const Div3 = styled.div`
@@ -245,6 +250,11 @@ const Trendbtn = styled.button`
   font-weight: bold;
   border: 0px solid;
   box-shadow: 2px 3px 5px 1px gray;
+  &:hover {
+    background-color: white;
+    color: black;
+  }
+  transition: all 0.2s ease-out;
 `;
 
 export default Home;

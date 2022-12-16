@@ -37,7 +37,7 @@ def frequency(pt):
 
 
 def wordcloud(pt, wc_filename='../react-client/src/visualization/wordcloud/tmp.png', wc_backgroundcolor='white',
-              wc_colormap='copper', font_path='./templates/fonts/NanumGothic.ttf'):
+              wc_colormap='copper', font_path='./templates/fonts/Chosun.ttf'):
     """
     ------------------------------------------------------------------------------
 
@@ -51,7 +51,7 @@ def wordcloud(pt, wc_filename='../react-client/src/visualization/wordcloud/tmp.p
     wc_filename : str, 저장할 wordcloud 이미지 파일의 이름
     wc_backgroundcolor : str, wordcloud 그림파일의 배경색, 기본값은 'white'
     wc_colormap : str, wordcloud 그림파일의 컬러맵(wordcloud 모듈에 저장된), 기본값은 'autumn'
-    font_path : str, wordcloud에 쓰일 폰트, 기본값은 'NanumGothic.ttf'
+    font_path : str, wordcloud에 쓰일 폰트, 기본값은 'Chosun.ttf'
 
     ------------------------------------------------------------------------------
     """

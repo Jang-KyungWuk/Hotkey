@@ -103,7 +103,7 @@ def sent_analysis(plaintext,
 
 def sent_visualization(ratios,
                        saveDir='', fileName='sent_pie',
-                       legends=['Positive', 'Neutral', 'Negative'],
+                       legends=['긍정', '중립', '부정'],
                        colors=['#7DB3F2', '#D6DFE1', '#E17781']):
     '''
     ------------------------------------------------------------------------------
@@ -128,10 +128,10 @@ def sent_visualization(ratios,
     df.reset_index(drop=True, inplace=True)
 
     fig = px.pie(df, values='ratios', names='legends', color='legends',
-                 color_discrete_map={'Positive': '#7DB3F2', 'Neutral': '#D6DFE1', 'Negative': '#E17781'})
+                 color_discrete_map={'긍정': '#7DB3F2', '중립': '#D6DFE1', '부정': '#E17781'})
 
-    fig.update_traces(textposition='outside', textinfo='percent+label',
+    fig.update_traces(textposition='inside', textinfo='percent+label',
                       hole=.4, hoverinfo="label+percent+name", pull=[0.1, 0, 0])
     fig.update_layout(width=600, height=600, margin=dict(
-        t=0, l=0, r=0, b=0), showlegend=False)
+        t=0, l=0, r=0, b=0), font_family='./templates/fonts/Chosun.ttf', font_size=35, showlegend=False)
     fig.write_image(saveDir+fileName+'.png')
