@@ -7,12 +7,15 @@ import Right from "../images/Right.png";
 import Header from "../components/Header.js";
 import Imagegrid from "../components/Imagegrid";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
-import SentTable from "../components/SentTable";
+import SentTable from "../components/SentTable.js";
+import Result2 from "../components/Result2.js";
+import Result3 from "../components/Result3.js";
 import { motion } from "framer-motion";
 
 const bg = [
   require("../images/ResultBackground0.png"), //1페이지백그라운드
   require("../images/ResultBackground1.png"), //2페이지백그라운드
+  require("../images/ResultBackground2.png"), //3페이지백그라운드 (임시)
 ];
 const SearchResult = () => {
   const location = useLocation();
@@ -126,6 +129,40 @@ const SearchResult = () => {
                     ></Direction>
                   </ButtonDiv>
                 </SliderContent1>
+                {/* <SliderContent2>
+                  <Page21>
+                    <Direction
+                      src={Left}
+                      onClick={() => {
+                        setSliderIdx(0);
+                      }}
+                    ></Direction>
+                  </Page21>
+                  <Result2
+                    keyword={key_word}
+                    topic_num={topic_num}
+                    topic_list={topic_list}
+                  />
+                  <Page23>
+                    <Direction
+                      src={Right}
+                      onClick={() => {
+                        setSliderIdx(2);
+                      }}
+                    ></Direction>
+                  </Page23>
+                </SliderContent2>
+                <SliderContent3>
+                  <Page21>
+                    <Direction
+                      src={Left}
+                      onClick={() => {
+                        setSliderIdx(1);
+                      }}
+                    ></Direction>
+                  </Page21>
+                  <Result3 />
+                </SliderContent3> */}
                 <SliderContent2>
                   <Page21>
                     <Direction
@@ -270,13 +307,13 @@ const SearchResult = () => {
                       <Page2232>
                         {topic_num === 2 ? (
                           <>
-                            <Grid>
+                            <Gridx>
                               <GridImg
                                 style={{ height: "65%", width: "55%" }}
                                 src={process.env.PUBLIC_URL + "/searching.png"}
                               ></GridImg>
-                            </Grid>
-                            <Grid>"두 개의 토픽으로 최적화 됩니다"</Grid>
+                            </Gridx>
+                            <Gridx>"두 개의 토픽으로 최적화 됩니다"</Gridx>
                             <Grid>
                               <GridImg
                                 src={require("../visualization/lda_results/" +
@@ -399,7 +436,7 @@ const Wrapper = styled.div`
   width: 100vw;
   background-size: cover;
   background-image: url(${(prop) => prop.url});
-  transition: all 1.5s ease-out;
+  transition: all 1s ease-out;
 `;
 const ResultWrapper = styled.div`
   display: flex;
@@ -411,7 +448,7 @@ const ResultWrapper = styled.div`
 const Slider = styled.div`
   position: relative;
   display: flex;
-  width: calc(2 * 95.5vw);
+  width: calc(3 * 95.5vw);
   height: 100%;
   transition: all 0.5s ease-in;
 `;
@@ -539,6 +576,10 @@ const Page12221 = styled.div`
   justify-content: center;
   border-radius: 20px;
   border: 1px outset;
+  &:hover {
+    border: 0px outset;
+    border-radius: 20px;
+  }
   // overflow: hidden;
 `;
 //워드클라우드 이미지
@@ -547,7 +588,7 @@ const Img = styled.img`
   height: 100%;
   cursor: pointer;
   &:hover {
-    transform: scale(1.5);
+    transform: scale(1.35);
     border: 1px outset;
     border-radius: 20px;
   }
@@ -603,13 +644,32 @@ const Page21 = styled.div`
   width: 4%;
   height: 100%;
 `;
-//결과 들어갈 공간 2페이지 오른쪽
 const Page22 = styled.div`
+  margin-left: 3%;
   display: flex;
   justify-content: space-around;
-  width: 93%;
-  height: 97%;
+  height: 96%;
+  width: 96%;
 `;
+
+//2페이지 오른쪽 버튼 들어갈 공간
+const Page23 = styled.div`
+  display: flex;
+  flex-diretion: column;
+  justify-content: center;
+  align-items: center;
+  width: 4%;
+  height: 100%;
+`;
+//3페이지 slidercontent
+const SliderContent3 = styled.div`
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 95.5vw;
+`;
+
+//////////////
 //2페이지 오른쪽 맨 왼쪽
 const Page221 = styled.div`
   width: 21%;
@@ -795,6 +855,18 @@ const Grid = styled.div`
     transform: scale(1.2);
   }
   transition: all 0.2s ease-out;
+`;
+const Gridx = styled.div`
+  height: 100%;
+  width: 100%;
+  border: 1px outset;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: chosun;
+  font-size: 1.2vw;
+  text-align: center;
 `;
 const GridImg = styled.img`
   width: 86%;
