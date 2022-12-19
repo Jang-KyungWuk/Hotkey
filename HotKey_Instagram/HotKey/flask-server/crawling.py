@@ -9,10 +9,9 @@ import random
 import copy
 from db import *
 
-# total_acc_info를 DB로부터 받아와서 리턴하는 로직
+# 계정 정보를 DB로부터 받아와서 리턴
 
 
-# 키워드 서치중, 어카운트 정보가 DB에 업데이트 되기 전에 다른 쓰레드에서 get_accounts()할 수 없어ㅑ야함.
 def get_accounts(cur):
     print('get_accounts 실행')
     acc_info = []
@@ -27,18 +26,18 @@ def get_accounts(cur):
             tmp['pw'] = row['pw']
             tmp['user_agent'] = row['user_agent']
             tmp['blocked'] = True if row['blocked'] == 1 else False
-            tmp['up_date'] = row['up_date']  # datetime 형식
-            tmp['last_used'] = row['last_used']  # timestamp 형식
-            # 현재 타 쓰레드에서 사용중인지 여부
+            tmp['up_date'] = row['up_date']  # datetime
+            tmp['last_used'] = row['last_used']  # timestamp
+            # 현재 타 세션에서 사용중인지 여부
             tmp['in_use'] = True if row['in_use'] == 1 else False
             if not tmp['blocked']:  # 하나라도 차단되지 않았다면
                 all_blocked = False
             acc_info.append(tmp)
     except:
-        return ([], -1)  # DB관련 에러시 all_blocked에 -1반환... 로직 생각해보기
+        return ([], -1)
     return acc_info, all_blocked
 
-# 현재 가지고 있는(변화된) total_acc_info를 DB에 업데이트하는 로직
+# modified account info를 DB에 업데이트
 
 
 def set_accounts(cur):
@@ -53,10 +52,7 @@ def set_accounts(cur):
         return False
     return True
 
-# all_blocked인 경우에 30분~1시간 정도 주기적으로 로그인 시도(+로그아웃)해보면서 total_acc_info랑 all_blocked수정하기
-# =>  주기적으로 다음 코드 실행
-
-# 매뉴얼하게 실행할 코드
+# 차단된 모든 계정에 대해 차단 여부를 재 확인 후 업데이트
 
 
 def check_avail():
@@ -72,11 +68,10 @@ def check_avail():
                 logout(session)
             time.sleep(random.randint(1, 10))
 
-# 헤더생성함수 => 1201기준, 서비스전에는 반드시 로직 변경해야함!!
+# 요청에 사용할 헤더생성함수
 
 
-def gen_header():  # header에 app_id랑 user-agent만 기본적으로 넣어주는 함수
-    # user-agent id별로 바꾸는 로직 필요!! 나중에!!
+def gen_header():  # header에 app_id랑 user-agent 추가
     header = dict()
     header['user-agent'] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.56'
     header['x-ig-app-id'] = '936619743392459'
@@ -86,7 +81,6 @@ def gen_header():  # header에 app_id랑 user-agent만 기본적으로 넣어주
 
 
 def login(id, pw):
-    # 새로운 헤더, 세션 생성 (새로운 세션 리턴)
     # 헤더, 세션, status를 리턴
     # status = 0 : success , 1 : checkpoint_needed 에러 (수동 인증 필요) 2 : incorrect pw 에러 (임시 차단) 3. CSRF 에러 (IP문제) 4. 그 외
     header, session = gen_header(), Session()
@@ -127,7 +121,6 @@ def login(id, pw):
 
 
 def logout(session):
-    # session을 input으로, output으로 status만..
     # status True : success, False : failure
     url = 'https://www.instagram.com/api/v1/web/accounts/logout/ajax/'
     header = gen_header()
@@ -144,7 +137,6 @@ def logout(session):
             print('!! logout error...')
     except:
         print('logout error...')
-    # print(resp.status_code, resp.content)
 
     return False
 
@@ -156,7 +148,7 @@ def hot_key_instagram_recent(query, session, max_page=40):
     # return (status, recent_list, timestamp, image_list)
     # status = 0 : success, 1 : 크롤링 중 문제 발생 (CSRF error), code는 200 , 2 : 400error - 계정에 checkpoint 필요
     # 3 : 검열 혹은 페이지 x,  4 : 그 외, 5 : 인스타그램에서 최근 게시물을 제공하지 않는 태그 ( len(recent_list[0]) == 0 )
-    postcnt = 0  # 포스트 수 카운팅, 300개 되면 stop.
+    postcnt = 0  # 포스트 수 카운팅
     timestamp = 0
 
     before = datetime.now()
@@ -194,37 +186,33 @@ def hot_key_instagram_recent(query, session, max_page=40):
         return (1, recent_list, timestamp)
     #################################################
 
-    # recent 돌기
-
-    # print('\n최근 게시물: 1페이지....')
     recent_list.append([])
     for i in resource['data']['recent']['sections']:  # 0~8
         for k in i['layout_content']['medias']:
             if (k['media']['caption'] != None):
                 if 'text' in k['media']['caption'].keys():
                     recent_list[0].append(
-                        emoji.demojize(k['media']['caption']['text']))  # 이모티콘 제거 ###########################
+                        emoji.demojize(k['media']['caption']['text']))  # 이모티콘 제거
                     timestamp = max(timestamp, k['media']['caption'][
-                        'created_at_utc'])  # 최신 포스트의 현재 시간 1669098438 ##############################
+                        'created_at_utc'])  # 최신 포스트의 현재 시간
                     postcnt += 1
     print(g.thread, ': 누적 게시물 수 :', postcnt)
     time.sleep(random.uniform(1, 5))
 
-    # recent기준 다음 페이지 관련 정보
+    # 다음 페이지 관련 정보
     recent_info = {'max_id': '', 'page': '', 'isnext': False}
     if resource['data']['recent']['more_available']:
         recent_info['max_id'], recent_info['page'], recent_info['isnext'] = \
             resource['data']['recent']['next_max_id'], resource['data']['recent']['next_page'], True
 
-    # 그 다음 페이지부터 recent 돌기
+    # 그 다음 페이지부터 반복 크롤링
     url = 'https://i.instagram.com/api/v1/tags/{}/sections/'.format(
         parse.quote(query))
     data = {'max_id': recent_info['max_id'],
             'page': recent_info['page'], 'surface': 'grid', 'tab': 'recent'}
 
     while (recent_info['isnext'] == True and data['page'] < max_page):
-        # print('\n최근 게시물: {}페이지....'.format(data['page']+1))
-        headers['x-csrftoken'] = session.cookies['csrftoken']  # 매번 재설정해주기
+        headers['x-csrftoken'] = session.cookies['csrftoken']  # csrf token 재설정
         resp = session.post(url, data=data, headers=headers)
         # 스크롤 시작 이후 로그인 소요 발생 시 예외 처리
         if (resp.status_code != 200):  # 응답 에러
@@ -235,7 +223,6 @@ def hot_key_instagram_recent(query, session, max_page=40):
             print('Crawling error : unknown..., resp.code :', resp.status_code)
             print(resp.text)
             return (4, recent_list, timestamp)  # 계정바꿔서 재시도
-        ##########################################################################
         # 비정상입력 예외처리
         try:
             resource = resp.json()
@@ -244,14 +231,13 @@ def hot_key_instagram_recent(query, session, max_page=40):
             print("Crawling error : 응답 코드는 정상이나, 비정상적인 데이터 형식 반환됨")
             # print(resp.content)
             return (1, recent_list, timestamp)
-        #################################################
         recent_list.append([])
         for i in resource['sections']:  # 0~8
             for k in i['layout_content']['medias']:  # 0~2
                 if (k['media']['caption'] != None):
                     if 'text' in k['media']['caption'].keys():
                         recent_list[data['page']].append(
-                            emoji.demojize(k['media']['caption']['text']))  # 이모티콘 제거 ###############
+                            emoji.demojize(k['media']['caption']['text']))  # 이모티콘 제거
                         postcnt += 1
                         if (postcnt >= 300):
                             print(g.thread, ': 누적 게시물 수 :', postcnt)
@@ -279,18 +265,15 @@ def hot_key_instagram_recent(query, session, max_page=40):
     return (0, recent_list, timestamp)
 
 
-def check_session():  # 1210 수정 코드 // True or False 반환
-    # 가장 사용한지 오래된 계정부터 로그인 시도, 최대 2개의 세션 생성
-
-    # account읽어온뒤 가용가능한 세션찾고 in_use업데이트하는 것하고 commit까지 하나 트랜잭션으로 만들기
-    # start transaction ~ 디비에서 total_Acc_info 받아오기~아래 로직 실행~set_accounts()
+def check_session():
+    # 가장 사용한지 오래된 계정부터 로그인 시도, 최대 2개의 세션 생성, True or False 반환
     conn, cur = access_db()
     print('DB 트랜잭션 시작, 계정정보 받아오기')
     cur.execute('set autocommit=0;')
     cur.execute('set session transaction isolation level serializable;')
     cur.execute('start transaction;')  # 트랜잭션 시작
+    # Explicit lock, 여러 쓰레드가 동시에 같은 세션을 사용하는 것을 방지
     print(g.thread, ": 트랜잭션 선언완료")
-    # # 명시적으로 Lock 걸기 (트랜잭션 전체에 걸쳐서 락이 걸림 -> 여러 쓰레드가 동시에 같은 세션을 사용하는 것을 방지 => 1211수정)
     cur.execute('UPDATE accounts SET aid=3 WHERE aid=3;')
     print(g.thread, ": check_session, 업데이트문 실행완료")
 
@@ -318,7 +301,6 @@ def check_session():  # 1210 수정 코드 // True or False 반환
         if len(g.acc_inuse) >= 2:  # 최대 두개까지 추가
             break
     # 세션 생성 끝
-    #print('g.mapping :', g.mapping)
     # 전체 계정정보 업데이트 + 사용중여부 업데이트하기 + (all_blocked 업데이트)
     status = set_accounts(cur)
     if not status:
@@ -327,13 +309,12 @@ def check_session():  # 1210 수정 코드 // True or False 반환
             print("(check_session_setDB) : DB 트랜잭션 에러...")
             conn.close()
             return False
-    close_db(conn)  # 트랜잭션 끝 (commit; and close;)
+    close_db(conn)  # 트랜잭션 끝 (commit, close)
     return True
 
-# 메인) Single_Search Algorithm
+# 성공여부와 tid를 반환. ex) (True, tid) 혹은 (False, -1)
 
 
-# 성공여부와 tid를 반환. ex) (True, 1) 혹은 (False, -1) => 없는 경우 tid는 -1이다.
 def single_search(keyword, enforce=False):
     # DB에서만 리턴되는 경우 server.py에서의 에러 방지
     g.acc_inuse, g.total_acc_info = [], []
@@ -355,14 +336,13 @@ def single_search(keyword, enforce=False):
         conn.close()
         return (True, tid)
     conn.close()  # 일단 conn.close()
-    ######################## DB에 존재하지 않을경우, 크롤링->DB적재->값 반환#####################
+    ######################## DB에 존재하지 않을경우, 크롤링->DB적재->값 반환 #####################
     delimiter = 'HOTKEY123!@#'
 
-    status = check_session()  # 가용가능한 세션이있는지 확인, g.acc_inuse에 가용가능한 세션 정보 들어있음.
+    status = check_session()  # 가용가능한 세션이있는지 확인, g.acc_inuse에 가용가능한 세션 정보 할당
     if not status:
         print("single_search_check_session : DB 트랜잭션 에러...")
         return (False, -1)
-    # check_session에서 account읽어온뒤 가용가능한 세션찾고 in_use업데이트하는 것하고 commit까지 하나 트랜잭션으로 만들기.
 
     if g.all_blocked:  # 전부 막혔으면
         print('All accounts are blocked by instagram.. please try "check_avail" manually later..')
@@ -378,11 +358,6 @@ def single_search(keyword, enforce=False):
         tmp.append(i['aid'])
     print('가용중인 세션 (aid) :', tmp)
 
-    # 세션 두개로 다 시도해봤는데 에러가 뜨면, ㅈㅈ
-    # 중간에 오류나는 경우 세션 만료시키고 account block 처리할것.
-
-    # total_acc_info가 check_session할때 sorting되므로
-    # g.mapping : {9: 0, 8: 1, 4: 2, 6: 3, 5: 4, 10: 5} aid와 idx에 대해 mapping되는 정보 (check_session에서 생성)
     # g.mapping['aid'] = 현재 total_acc_info에서의 index번호
     map = g.mapping
     for s in copy.deepcopy(g.acc_inuse):  # 가용가능한 세션을 돌면서
@@ -395,7 +370,7 @@ def single_search(keyword, enforce=False):
         g.total_acc_info[map[s['aid']]]['last_used'] = int(
             datetime.now().timestamp())
 
-        # status 상태 따라서 분기. 0이나 3이나 5면 계정문제 x, 1이나 2면 계정문제 o, 4는 그 외.
+        # status 상태 따라서 분기
         if status == 0:
             # 정상적으로 크롤링에 성공한 경우
             # db에 적재하고 tid반환
@@ -451,10 +426,11 @@ def single_search(keyword, enforce=False):
             # account block됨. => block로직 (total_acc_info에서 block으로 바꾸기)
             g.total_acc_info[map[s['aid']]]['blocked'] = True
             g.total_acc_info[map[s['aid']]]['in_use'] = False
-            # 디비에 차단 정보 업데이트
-
-            # session로그아웃, 세션 정보 변경
-            # logout(s['session']) 자동으로 세션이 만료되므로 로그아웃할필요가 없어보임 (status가 1인 경우...)
+            # 디비에 차단 정보 바로 업데이트
+            conn, cur = access_db()
+            cur.execute('update accounts set blocked=(%s), up_date=(%s), last_used=(%s), in_use=(%s) where id=(%s);',
+                        (1, str(time.strftime('%Y-%m-%d %H:%M:%S')), g.total_acc_info[map[s['aid']]]['last_used'], 0, g.total_acc_info[map[s['aid']]]['id']))
+            close_db(conn)
             # acc_inuse에서 삭제
             for i, a in enumerate(g.acc_inuse):
                 if a['aid'] == s['aid']:
@@ -479,12 +455,12 @@ def single_search(keyword, enforce=False):
         # 세션 교체 (while문 복귀)
         time.sleep(random.uniform(5, 10))
 
-    # 여기까지 왔으면, 가용가능한 세션을 다 썼지만 결과 도출이 되지않았음.
+    # 가용가능한 세션을 다 썼지만 결과 도출이 되지 않은 경우
     print('to client : 현재 서비스가 원활하지 않습니다. 나중에 다시 시도하세요..')
     return (False, -1)
 
 
-# 클라이언트에게 페이지 띄울때 필요
+# 구글 트렌드에서 실시간 검색어 가져오기
 def trend_crawler_client():  # 7개 리턴.
     tmplist = list()
     session = Session()
@@ -495,15 +471,235 @@ def trend_crawler_client():  # 7개 리턴.
         for i in page['trendingSearches']:
             tmplist.append(i['title']['query'])
     # 중복제거해서 7개 리턴
+    tmp = list()
+    for i in tmplist:
+        if i not in tmp:
+            tmp.append(i)
     trendlist = list()
     for i in tmplist:
-        if i not in trendlist:
+        print(i.split())
+        if len(i.split()) == 1:
             trendlist.append(i)
-        if len(trendlist) == 7:
-            break
-    return trendlist
-# 로그인 없이 top_image가져오는 것이 가능!
-# 중간에 끊기더라도 일단 리턴하니까, 나중에 image_list[:9]해서 사용하면 됨.(인덱스 에러 따로 안남) => 프론트가 받아서 부족한 만큼 그냥 디폴트로 채우면 됨. 최대 2번 시도.
+    idx = len(trendlist) - 1
+    while len(trendlist) <= 5:
+        if len(trendlist[idx]) > 7:
+            trendlist.pop(idx)
+    return trendlist[:5]
+
+
+def get_guest_token(session):
+    headers = {
+     'authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA'
+    }
+    resp = session.post('https://api.twitter.com/1.1/guest/activate.json', headers = headers)
+    print('guest_token 설정 완료.....')
+    return session, resp.json()['guest_token']
+
+def set_params(keyword, session): #header와 parameter값을 설정해준다.
+    params = {'include_profile_interstitial_type': '1',
+ 'include_blocking': '1',
+ 'include_blocked_by': '1',
+ 'include_followed_by': '1',
+ 'include_want_retweets': '1',
+ 'include_mute_edge': '1',
+ 'include_can_dm': '1',
+ 'include_can_media_tag': '1',
+ 'include_ext_has_nft_avatar': '1',
+ 'skip_status': '1',
+ 'cards_platform': 'Web-12',
+ 'include_cards': '1',
+ 'include_ext_alt_text': 'true',
+ 'include_ext_limited_action_results': 'false',
+ 'include_quote_count': 'true',
+ 'include_reply_count': '1',
+ 'tweet_mode': 'extended',
+ 'include_ext_collab_control': 'true',
+ 'include_entities': 'true',
+ 'include_user_entities': 'true',
+ 'include_ext_media_color': 'true',
+ 'include_ext_media_availability': 'true',
+ 'include_ext_sensitive_media_warning': 'true',
+ 'include_ext_trusted_friends_metadata': 'true',
+ 'send_error_codes': 'true',
+ 'simple_quoted_tweet': 'true',
+ 'q': '',
+ 'tweet_search_mode': 'live',
+ 'count': '20',
+ 'query_source': 'recent_search_click',
+ 'pc': '1',
+ 'spelling_corrections': '1',
+ 'include_ext_edit_control': 'true',
+ 'ext': 'mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2Cenrichments%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl%2Ccollab_control%2Cvibe'}
+    
+    headers = {'authority': 'twitter.com',
+ 'method': 'GET',
+ #'path': '/i/api/2/search/adaptive.json?include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&skip_status=1&cards_platform=Web-12&include_cards=1&include_ext_alt_text=true&include_ext_limited_action_results=false&include_quote_count=true&include_reply_count=1&tweet_mode=extended&include_ext_collab_control=true&include_entities=true&include_user_entities=true&include_ext_media_color=true&include_ext_media_availability=true&include_ext_sensitive_media_warning=true&include_ext_trusted_friends_metadata=true&send_error_codes=true&simple_quoted_tweet=true&q=%23%EB%83%89%EB%8F%99%EB%A7%8C%EB%91%90&tweet_search_mode=live&count=20&query_source=recent_search_click&pc=1&spelling_corrections=1&include_ext_edit_control=true&ext=mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2Cenrichments%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl%2Ccollab_control%2Cvibe',
+ 'scheme': 'https',
+ 'accept': '*/*',
+ 'accept-encoding': '',
+ 'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6',
+ 'authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
+ #'cookie': 'guest_id_marketing=v1%3A166667526885979112; guest_id_ads=v1%3A166667526885979112; _ga=GA1.2.90083710.1666675272; _gid=GA1.2.208720928.1666675272; kdt=haoAurXsKba1QzgQArmyjksDpPIxI2NgYdsKXgdi; dnt=1; _sl=1; personalization_id="v1_s+fyK3WK3jNZxdSZKpb+4g=="; guest_id=v1%3A166676189695496518; ct0=c957e33ed33737a2fbe46ccce2767ad1; gt=1585140401979412480; g_state={"i_l":1,"i_p":1666769101996}',
+ 'referer': 'https://twitter.com/search?q={}&src=recent_search_click&f=live'.format(parse.quote('#'+keyword)), # 해쉬태그로 검색할경우
+ 'sec-ch-ua': '"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"',
+ 'sec-ch-ua-mobile': '?0',
+ 'sec-ch-ua-platform': '"Windows"',
+ 'sec-fetch-dest': 'empty',
+ 'sec-fetch-mode': 'cors',
+ 'sec-fetch-site': 'same-origin',
+ 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
+ #csrf가 없어도되는지?
+ #'x-csrf-token': 'c957e33ed33737a2fbe46ccce2767ad1',
+ 'x-guest-token': '',
+ 'x-twitter-active-user': 'yes',
+ 'x-twitter-client-language': 'ko'}
+
+    params['q'] = parse.quote('#'+keyword)
+    #headers의 accept-encoding을 json으로 교체
+    headers['accept-encoding'] = 'json'
+    
+    #headers의 x-guest-token 채우기
+    #guest-token받아오기
+    session, headers['x-guest-token'] = get_guest_token(session)
+    
+    #headers, parameters 설정 끝
+    print('헤더 및 파라미터 설정 완료.....')
+    return (params, headers, session)
+
+def t_crawler(keyword, nposts = 600): #keyword는 검색할 변수, nposts는 크롤링하고자하는 게시물 수
+    print('Start Crawling... keyword : ', keyword)
+    
+    totalbf = datetime.now()
+    nopostcnt = 0
+    #반환할 textlist
+    textlist = list()
+    ncrawled = 0
+    #session 생성
+    session = Session()
+    #parameter 초기값 받아오기
+    params, headers, session = set_params(keyword, session)
+    
+    #session 인스턴스 생성
+    
+    request_url = 'https://twitter.com/i/api/2/search/adaptive.json'
+    
+    #get 요청을 보낼 url 완성
+    keys = list(params.keys())
+    values = list(params.values())
+    get_request_url = request_url+'?'
+    for cursor in range(len(keys)):
+        get_request_url+='%s=%s&'%(keys[cursor],values[cursor]) 
+    get_request_url = get_request_url[:-1]
+    
+    #headers의 'path' 변수 변경
+    headers['path'] = get_request_url[19:]
+    
+    #1페이지 검색
+    #get 요청 보내기 (1페이지)
+    try:
+        resp = session.get(get_request_url,headers=headers)
+        respjson = resp.json()
+        ncontents = len(respjson['globalObjects']['tweets'].keys())
+    
+        if ncontents == 0 :
+            nopostcnt += 1
+        
+        tmpcrawled = ncrawled
+        textlist.append(list())
+        for i in respjson['globalObjects']['tweets'].keys():
+            textlist[0].append(respjson['globalObjects']['tweets'][i]['full_text'])
+            ncrawled+=1
+            if ncrawled >= nposts:
+                print('수집 완료! 수집한 총 게시물 수 :', ncrawled)
+                print('총 소요시간 :', datetime.now()-totalbf)
+                return textlist
+        print('수집된 개시물 개수 :', ncrawled)
+        #다음 페이지 가르키는 커서 변수에 값 넣어주기
+        next_pg = respjson['timeline']['instructions'][0]['addEntries']['entries'][-1]['content']['operation']['cursor']['value']
+    except:
+        print('\n\n\n!!!!!!!!!!!!!!!******알 수 없는 에러입니다******!!!!!!!!!!!!!!!\n\n\n')
+        print('수집한 총 게시물 수 :', ncrawled)
+        print('총 소요시간 :', datetime.now()-totalbf)
+        return textlist
+    
+    #2페이지부터 추가 검색
+    cur_page = 2
+    while True:
+        try :
+            tmpcrawled = ncrawled
+            params['cursor'] = next_pg
+            get_request_url = request_url+'?'
+            keys = list(params.keys())
+            values = list(params.values())
+            for cursor in range(len(keys)):
+                get_request_url+='%s=%s&'%(keys[cursor],values[cursor]) 
+            get_request_url = get_request_url[:-1]
+            resp = session.get(get_request_url,headers=headers)
+            respjson = resp.json()
+            ncontents = len(respjson['globalObjects']['tweets'].keys())
+            if ncontents == 0 : #5페이지 연속으로 빈페이지가 나오는경우
+                if nopostcnt > 5:
+                    print('더 이상 수집할 게시물이 없습니다.')
+                    print('수집한 총 게시물 수 :', ncrawled)
+                    print('총 소요시간 :', datetime.now()-totalbf)
+                    return textlist
+                nopostcnt += 1
+            else:
+                nopostcnt = 0
+        
+            next_pg = respjson['timeline']['instructions'][-1]['replaceEntry']['entry']['content']['operation']['cursor']['value']
+        
+            textlist.append(list())
+            for i in respjson['globalObjects']['tweets'].keys():
+                textlist[-1].append(respjson['globalObjects']['tweets'][i]['full_text'])
+                ncrawled+=1
+                if ncrawled >= nposts:
+                    print('수집 완료! 수집한 총 게시물 수 :', ncrawled)
+                    print('총 소요시간 :', datetime.now()-totalbf)
+                    return textlist
+            print('수집된 개시물 개수 :', ncrawled)
+            cur_page+=1
+        except:
+            print('\n\n\n!!!!!!!!!!!!!!!******알 수 없는 에러입니다******!!!!!!!!!!!!!!!\n\n\n')
+            print('수집한 총 게시물 수 :', ncrawled)
+            print('총 소요시간 :', datetime.now()-totalbf)
+            return textlist
+
+def t_search(keyword):
+
+     # db연결
+    conn, cur = access_db()
+    cur.execute(
+    'SELECT tid FROM is_tag WHERE tname = (%s);', (keyword))
+    res = cur.fetchall()
+    # DB에 존재할 경우
+    if len(res) >= 1:
+        print('DB에서 해당 키워드를 찾았습니다.. keyword :', keyword)
+        tid = res[0]['tid']
+        conn.close()
+        return (True, tid)
+    close_db(conn)
+    ######################## DB에 존재하지 않을경우, 크롤링->DB적재->값 반환 #####################
+    delimiter = 'HOTKEY123!@#'
+    textlist = t_crawler(keyword)
+    corpus = ''
+    delimiter = 'HOTKEY123!@#'
+    for page in textlist:
+        for post in page:
+            corpus += delimiter + post
+    conn, cur = access_db()
+    cur.execute('insert into is_tag (tname) values (%s);', keyword)
+    cur.execute('SELECT tid FROM is_tag WHERE tname = (%s);', keyword)
+    tid = cur.fetchone()['tid']
+    # tag_info에 저장
+    cur.execute('insert into tag_info (tid, ttable, up_date, time_stamp) values (%s, %s, %s, %s);',
+                        (tid, 3, time.strftime('%Y-%m-%d'), datetime.now().timestamp()))
+    # n_corpus에 저장
+    cur.execute('insert into n_corpus (tid, corpus) values (%s, %s);', (tid, corpus[12:]))
+    close_db(conn)
+    return (True, tid)
+
+# 인스타그램 인기게시물 사진 가져오기
 
 
 def top_image(query):

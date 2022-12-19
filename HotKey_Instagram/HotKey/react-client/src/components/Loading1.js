@@ -1,61 +1,61 @@
 import React from "react";
 import styled from "styled-components";
-import PacmanLoader from "react-spinners/PacmanLoader";
-import crawling from "../images/crawling.jpg";
+import { PulseLoader } from "react-spinners";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHourglassHalf } from "@fortawesome/free-regular-svg-icons";
 
 const Loading1 = () => {
   return (
-    <>
-      <Load1>
-        <Load11>
-          <Load111>
-            <PacmanLoader size={"2vw"} color={"#DAE2F1"} />
-          </Load111>
-          <Load112>
-            <Img src={crawling}></Img>
-          </Load112>
-        </Load11>
-      </Load1>
-    </>
+    <Div>
+      <Div1>
+        <Icondiv>
+          <FontAwesomeIcon icon={faHourglassHalf} size="2xl" />
+        </Icondiv>
+        <Textdiv>데이터를 수집하고 있습니다</Textdiv>
+        <Spindiv>
+          <PulseLoader size={8} />
+        </Spindiv>
+      </Div1>
+    </Div>
   );
 };
-//loading div1 => 로딩중 action 구현
-const Load1 = styled.div`
+//전체 감싸는 Div
+const Div = styled.div`
+  margin-top: 10%;
+  margin-left: 5%;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  width: 100%;
   height: 40%;
+  width: 90%;
+  border-radius: 20px;
 `;
-//loading div1-1 => 각 loading section (총 3개)
-const Load11 = styled.div`
+//첫번째 칸
+const Div1 = styled.div`
   display: flex;
-  height: 100%;
-  width: 60%;
+  height: 30%;
+`;
+//아이콘 들어갈 칸
+const Icondiv = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 15%;
+`;
+//텍스트 들어갈 칸
+const Textdiv = styled.div`
+  display: flex;
   align-items: center;
   justify-content: center;
+  width: 70%;
+  font-family: chosun;
+  font-size: calc(1.2vw + 1.2vh);
 `;
-//loading div1-1-1 => Load11내부에서 Pacman이 들어갈 div
-const Load111 = styled.div`
+//spinner 들어갈 칸
+const Spindiv = styled.div`
   display: flex;
-  height: 100%;
   align-items: center;
   justify-content: center;
-`;
-//loading div1-1-2 => Load12내부에서 Text Img가 들어갈 div
-const Load112 = styled.div`
-  display: flex;
-  margin-left: 10%;
-  width: 65%;
-  height: 100%;
-  align-items: center;
-  justify-content: center;
-`;
-//로딩 중 텍스트 이미지
-const Img = styled.img`
-  margin-left: 15%;
-  height: 16%;
-  border: 0px solid;
+  width: 15%;
 `;
 export default Loading1;

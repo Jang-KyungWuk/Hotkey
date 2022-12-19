@@ -1,29 +1,45 @@
-
 from db import *
 from urllib import request
 from crawling import *
+from sent_analysis import *
+from preprocess import *
+from lda import *
+from network import *
+from visualization import *
+
+# tid를 전달받으면 db에서 corpus를 꺼내오는 함수, (성공여부, corpus)를 반환
 
 
-# tid를 전달받으면 db에서 corpus랑 image꺼내오는 함수
 def get_corpus(tid):
-    conn, cur = access_db()
-    # 여기서 구현
     corpus = ''  # 임시
+    conn, cur = access_db()
+    try:
+        cur.execute('select tname from is_tag where tid = (%s)', (tid))
+        keyword = cur.fetchone()['tname']
+        cur.execute(
+            'select ttable FROM tag_info WHERE tid= (%s)', (tid))
+        ttable = cur.fetchone()['ttable']
+        if ttable == 1:  # s_corpus
+            cur.execute('select corpus from s_corpus where tid=(%s)', (tid))
+            corpus = cur.fetchone()['corpus']
+        elif ttable == 2:  # t_corpus
+            cur.execute('select corpus from t_corpus where tid=(%s)', (tid))
+            corpus = cur.fetchone()['corpus']
+        else:  # n_corpus
+            cur.execute('select corpus from n_corpus where tid=(%s)', (tid))
+            corpus = cur.fetchone()['corpus']
+        if (len(corpus) == 0):
+            close_db(conn)
+            print("get_corpus error...")
+            return (False, '', '')
+    except:
+        close_db(conn)
+        print("get_corpus error...")
+        return (False, '', '')
     close_db(conn)
-    return corpus
+    return (True, keyword, corpus)
 
-
-"""
-single search를 수행하면 서버에는 tid만 전달된다.
-프론트에 이미지가 전달되려면,
-tid를 받아서 tname을 찾고
-디렉토리에 top_image를 실행해서 이미지들을 저장한 뒤
-경로들을 리스트로 만들기. 리스트로 리턴해주기
-"""
 # tid를 받아서 이미지를 저장하고, 폴더에 저장된 이미지 이름 리스트를 반환하는 함수
-# //default image 생성해두기
-# DB에서 image테이블없애기,,
-# blob 인사이트 생각 => DB에 blob형태로 저장하면 서버에 저장할 필요가 없음. (이건 일단 서버에 저장하는 걸로 구현하되, 발표할때는 blob으로 DB활용하는 아이디어 생각.)
 
 
 def get_image(tid):
@@ -37,11 +53,11 @@ def get_image(tid):
         if (status):
             break
     if not status:
-        return (False, [])
-    image_name = []
+        return (False, '', 0)
+    imagenum = 0
     for idx, url in enumerate(images):
         filename = tname+str(idx)
         save_path = '../react-client/src/top_imgs/'+filename+'.jpg'
         request.urlretrieve(url, save_path)
-        image_name.append(filename+'.jpg')
-    return (True, image_name)
+        imagenum += 1
+    return (True, tname, imagenum)

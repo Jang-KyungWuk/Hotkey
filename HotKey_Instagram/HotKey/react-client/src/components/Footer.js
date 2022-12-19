@@ -5,16 +5,21 @@ import Footer_image from "../images/Footer_image.jpg";
 const Footer = () => {
   return (
     <Foot>
-      <Img src={Footer_image}></Img>
+      <Img
+        src={Footer_image}
+        onClick={() => {
+          window.open("https://inisw.ictest.kr/");
+        }}
+      ></Img>
     </Foot>
   );
 };
 
 const Foot = styled.div`
   display: flex;
-  height: 60px;
+  height: 7vh;
   width: 100vw;
-  border-top: 2px solid;
+  border-top: 1px solid;
   // position: absolute;
   left: 2px;
   background-color: white;
@@ -25,6 +30,7 @@ const Img = styled.img`
   margin-left: 1.5%;
   height: 90%;
   border: 0px solid;
+  cursor: pointer;
 `;
 
 export default Footer;

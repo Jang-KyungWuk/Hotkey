@@ -2,10 +2,62 @@ import React from "react";
 import styled from "styled-components";
 
 const Imagegrid = ({ image }) => {
-  //   return <img src={require("../top_imgs/" + image)}></img>;
+  //모든 파일은 jpg로 저장된다고 가정
+  //이미지 number
+
+  if (image.slice(-1) === "0")
+    return (
+      <>
+        {image.slice(0, -1) === "dddefault" ? (
+          <Imgdiv1>
+            <Img src={process.env.PUBLIC_URL + "/default.jpg"}></Img>
+          </Imgdiv1>
+        ) : (
+          <Imgdiv1>
+            <Img
+              src={require("../top_imgs/" + image + ".jpg")}
+              onClick={() => {
+                window.open(require("../top_imgs/" + image + ".jpg"));
+              }}
+            />
+          </Imgdiv1>
+        )}
+      </>
+    );
+  else if (image.slice(-1) === "5")
+    return (
+      <>
+        {image.slice(0, -1) === "dddefault" ? (
+          <Imgdiv5>
+            <Img src={process.env.PUBLIC_URL + "/default.jpg"}></Img>
+          </Imgdiv5>
+        ) : (
+          <Imgdiv5>
+            <Img
+              src={require("../top_imgs/" + image + ".jpg")}
+              onClick={() => {
+                window.open(require("../top_imgs/" + image + ".jpg"));
+              }}
+            />
+          </Imgdiv5>
+        )}
+      </>
+    );
+
+  if (image.slice(0, -1) === "dddefault")
+    return (
+      <Imgdiv>
+        <Img src={process.env.PUBLIC_URL + "/default.jpg"}></Img>
+      </Imgdiv>
+    );
   return (
     <Imgdiv>
-      <Img src={require("../top_imgs/" + image)} />
+      <Img
+        src={require("../top_imgs/" + image + ".jpg")}
+        onClick={() => {
+          window.open(require("../top_imgs/" + image + ".jpg"));
+        }}
+      />
     </Imgdiv>
   );
 };
@@ -16,10 +68,39 @@ const Imgdiv = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  overflow: hidden;
+  border-radius: 5px;
+  border: 1px outset;
+  &:hover {
+    transform: scale(1.4);
+  }
+  transition: all 0.2s ease-out;
+`;
+const Imgdiv1 = styled(Imgdiv)`
+  grid-row-start: 1;
+  grid-row-end: 3;
+  grid-column-start: 1;
+  grid-column-end: 3;
+  &:hover {
+    transform: scale(1.3);
+  }
+  transition: all 0.2s ease-out;
+`;
+const Imgdiv5 = styled(Imgdiv)`
+  grid-row-start: 2;
+  grid-row-end: 4;
+  grid-column-start: 3;
+  grid-column-end: 5;
+  &:hover {
+    transform: scale(1.4);
+  }
+  transition: all 0.2s ease-out;
 `;
 const Img = styled.img`
-  height: 88%;
-  width: 88%;
-  border-radius: 10px;
+  height: 100%;
+  width: 100%;
+  border-radius: 0px;
+  opacity: 1;
+  cursor: pointer;
 `;
 export default Imagegrid;
