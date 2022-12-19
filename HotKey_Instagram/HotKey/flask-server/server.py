@@ -197,16 +197,38 @@ def checkavail():
     return jsonify('check_avail()실행 후 DB 반영 완료')
 
 
-@app.route('/manage/delete_image')
+@app.route('/manage/delete_results')
 def del_img():
-    dir_path = '../react-client/public/top_imgs'
+    dir_path = '../react-client/src/top_imgs'
     if os.path.exists(dir_path):
         shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
-        print('top_imgs 폴더 삭제..')
-
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-        print('top_imgs 폴더 생성..')
+    dir_path = '../react-client/src/visualization/barplot'
+    if os.path.exists(dir_path):
+        shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    dir_path = '../react-client/src/visualization/wordcloud'
+    if os.path.exists(dir_path):
+        shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    dir_path = '../react-client/src/visualization/lda_results'
+    if os.path.exists(dir_path):
+        shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    dir_path = '../react-client/src/visualization/sent_results'
+    if os.path.exists(dir_path):
+        shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+    dir_path = './templates/networks'
+    if os.path.exists(dir_path):
+        shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
     return jsonify(1)
 
 

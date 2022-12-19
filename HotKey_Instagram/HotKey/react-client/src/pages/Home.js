@@ -75,7 +75,7 @@ const Home = () => {
               }}
               onKeyPress={(e) => {
                 if (e.key === "Enter") {
-                  if (query.length == 0)
+                  if (query.length === 0)
                     alert("검색어를 한글자 이상 입력하세요");
                   else if (query.split(" ").length > 1)
                     alert("공백문자를 제거한 뒤 다시 검색해주세요");
@@ -86,7 +86,7 @@ const Home = () => {
           </Inputdiv>
           <Button
             onClick={() => {
-              if (query.length == 0) alert("검색어를 한글자 이상 입력하세요");
+              if (query.length === 0) alert("검색어를 한글자 이상 입력하세요");
               else if (query.split(" ").length > 1)
                 alert("공백문자를 제거한 뒤 다시 검색해주세요");
               else onClick(query);

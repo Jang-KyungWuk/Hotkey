@@ -12,7 +12,7 @@ import SentTable from "../components/SentTable.js";
 const bg = [
   require("../images/ResultBackground0.png"), //1페이지백그라운드
   require("../images/ResultBackground1.png"), //2페이지백그라운드
-  require("../images/ResultBackground2.png"), //3페이지백그라운드 (임시)
+  require("../images/ResultBackground2.png"), //3페이지백그라운드
 ];
 const SearchResult = () => {
   const location = useLocation();
@@ -32,7 +32,7 @@ const SearchResult = () => {
     "dddefault8",
   ];
   for (let i = 0; i < image_num; i++) {
-    image_list[i] = key_word + i;
+    image_list[i] = key_word.toLowerCase() + i;
   }
   let topic_list = ["dddefault0", "dddefault1", "dddefault2", "dddefault3"];
   for (let i = 0; i < topic_num; i++) {
