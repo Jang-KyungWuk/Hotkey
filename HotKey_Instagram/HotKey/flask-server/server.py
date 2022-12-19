@@ -1,16 +1,18 @@
 from flask import Flask, jsonify, request, g, render_template
+from flask_cors import CORS
 # customized modules import (사용 라이브러리들 포함)
 from crawling import *
 from db import *
 from analyze import *
 import os
 import shutil
-#from visualization import *
+# from visualization import *
 from preprocess import *
 import time
 import unicodedata
 
 app = Flask(__name__)
+CORS(app)
 app.config['JSON_AS_ASCII'] = False  # 한글 깨짐 방지 (jsonify 사용시)
 
 # single_search시, before_request (+ + showaccount, checkavail, keywordsearch(test) 시에도 사용해야함!!!)
@@ -67,8 +69,8 @@ def keyword_search(keyword):
 @app.route('/analyze/<tid>')
 def analyze(tid):
     # tid를 받아서 분석 후 결과를 jsonify해서 프론트로전달 (이미지의 경우, 경로를 react-client안에 넣어두기?)
-    returnstatus = {'keyword': '', 'imagenum': 0, 'get_image': True, 'get_corpus': True, 'preprocess': True, 'wordcloud': True,
-                    'barplot': True, 'lda': True, 'topic_num': 0, 'spam_filter': True, 'network': True, 'sent_analysis': True, 'sent_result': []}
+    returnstatus = {'keyword': '', 'imagenum': 0, 'get_image': True,
+                    'topic_num': 0, 'sent_result': [], 'status': True}
     bf = datetime.now()
     print("analyze API 실행")
     status, keyword, imagenum = get_image(tid)
@@ -79,7 +81,9 @@ def analyze(tid):
     print("1. get_image :", status)
     status, keyword, corpus = get_corpus(tid)
     if not status:
-        returnstatus['get_corpus'] = False
+        print("get_corpus 실패.. return False")
+        returnstatus['status'] = False
+        return (jsonify(returnstatus))
     print("2. get_corpus :", status)
     ##################
     corpus = unicodedata.normalize('NFC', corpus)  # 자모음 분리현상 해결
@@ -90,31 +94,30 @@ def analyze(tid):
     spt, status = spam_filter(corpus)
     if not status:
         print("전처리 실패.. return False")
-        return jsonify({'keyword': keyword, 'imagenum': 0, 'get_image': True, 'get_corpus': True, 'preprocess': False, 'wordcloud': False,
-                        'barplot': False, 'lda': False, 'topic_num': 0, 'spam_filter': False, 'network': False, 'sent_analysis': False, 'sent_result': []})
+        returnstatus['status'] = False
+        return (jsonify(returnstatus))
     try:
         tpt = data_tokenize(plain_structurize(
             spt), setMorphemeAnalyzer('okt'))  # 스팸필터링된 spt로 token화된 pt생성
     except:
-        print("Error during data tokenizing...")
-        for key in returnstatus.keys():
-            if key in ['preprocess', 'wordcloud', 'barplot', 'lda', 'spam_filter', 'network', 'sent_analysis']:
-                returnstatus[key] = False
-        returnstatus['sent_result'] = []
-        return(jsonify(returnstatus))
+        print("전처리 실패.. return False")
+        returnstatus['status'] = False
+        return (jsonify(returnstatus))
     print("3. preprocess, spam_filtering : True")
     ################
     status = wordcloud(
         tpt, wc_filename='../react-client/src/visualization/wordcloud/'+keyword+'.png')
     if not status:
         print('wordcloud 생성 중 에러...')
-        returnstatus['wordcloud'] = False
+        returnstatus['status'] = False
+        return (jsonify(returnstatus))
     print("4. wordcloud :", status)
     status = barplot(
         tpt, bp_filename='../react-client/src/visualization/barplot/'+keyword+'.png')
     if not status:
         print('barplot 생성 중 에러..')
-        returnstatus['barplot'] = False
+        returnstatus['status'] = False
+        return (jsonify(returnstatus))
     print("5. barplot :", status)
     ################
     status, lda_result, topic_num = sklda(
@@ -122,14 +125,16 @@ def analyze(tid):
     returnstatus['topic_num'] = topic_num
     if not status:
         print('LDA 분석 중 에러..')
-        returnstatus['lda'] = False
+        returnstatus['status'] = False
+        return (jsonify(returnstatus))
     print("6. lda :", status)
     ################
     status = network(
         spt, lda_result, saveDir='./templates/networks/', saveFilename=keyword, lineSplit=True)
     if not status:
         print('네트워크 생성 중 에러..')
-        returnstatus['network'] = False
+        returnstatus['status'] = False
+        return (jsonify(returnstatus))
     print("7. network :", status)
     ###############
     sent_result, status = sent_analysis(spt, saveDir='../react-client/src/visualization/sent_results/',
@@ -137,7 +142,8 @@ def analyze(tid):
     returnstatus['sent_result'] = sent_result
     if not status:
         print('Error during sent_analysis...')
-        returnstatus['sent_analysis'] = False
+        returnstatus['status'] = False
+        return (jsonify(returnstatus))
     print("8. sentiment analysis :", status)
     print("분석 완료, 총 소요시간 :", datetime.now()-bf)
     return jsonify(returnstatus)
@@ -249,4 +255,5 @@ def search2(keyword):
 
 # ---------------------------------------------------------------------
 if __name__ == '__main__':
-    app.run(debug=False)  # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..
+    # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..
+    app.run(host='0.0.0.0', port=5000, debug=False)

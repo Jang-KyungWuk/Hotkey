@@ -19,15 +19,16 @@ const SearchFetch = () => {
   useEffect(() => {
     if (keyword) {
       setLstate(0);
-      // fetch("/keyword_search/" + keyword.toLowerCase())
-      fetch("/manage/t_search/" + keyword.toLowerCase())
+
+      // fetch("http://localhost:5000/manage/t_search/" + keyword.toLowerCase())
+      fetch("http://localhost:5000/keyword_search/" + keyword.toLowerCase())
         .then((res) => res.json())
         .then((data) => {
           console.log("keyword_search response : ", data);
           if (data.status) {
             //키워드 corpus가 정상적으로 생성된 경우
             setLstate(1);
-            fetch("/analyze/" + data.tid)
+            fetch("http://localhost:5000/analyze/" + data.tid)
               .then((res2) => res2.json())
               .then((data2) => {
                 console.log("analyze response : ", data2);
@@ -41,6 +42,7 @@ const SearchFetch = () => {
                         image_num: data2.imagenum,
                         topic_num: data2.topic_num,
                         sent_result: data2.sent_result,
+                        status: data2.status,
                       },
                     });
                   }, 2000);
@@ -76,7 +78,6 @@ const SearchFetch = () => {
     );
   //분기 : keyword가 존재하는 경우 => loading이 있는가? -> lstate에 따라 분기. (3항 연산자 중첩 사용하거나? 어떻게 할지 생각..ㅇㅇ 최대한 state안꼬이게)
   else {
-    console.log(lstate);
     return (
       <>
         <Header loading={true} />

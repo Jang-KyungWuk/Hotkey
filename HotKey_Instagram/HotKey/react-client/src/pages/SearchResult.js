@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import Left from "../images/Left.png";
 import Right from "../images/Right.png";
@@ -16,10 +16,21 @@ const bg = [
 ];
 const SearchResult = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const key_word = location.state?.key_word;
   const image_num = location.state?.image_num;
   const topic_num = location.state?.topic_num;
   const sent_result = location.state?.sent_result;
+  const status = location.state?.status;
+  const [sliderIdx, setSliderIdx] = useState(0);
+  useEffect(() => {
+    console.log("status :", status);
+    if (location.state && status === false) {
+      alert("데이터 분석에 실패했습니다. 잠시 후에 다시 시도해주세요");
+      navigate("/");
+    }
+  }, []);
+
   let image_list = [
     "dddefault0",
     "dddefault1",
@@ -39,7 +50,6 @@ const SearchResult = () => {
     topic_list[i] = key_word.toLowerCase() + i;
   }
 
-  const [sliderIdx, setSliderIdx] = useState(0);
   console.log("image_list :", image_list);
   console.log("topic_list :", topic_list);
   console.log("topic_num :", topic_num);
@@ -49,7 +59,7 @@ const SearchResult = () => {
   const sent1 = "지금 이 시간 당신이 궁금한 '" + key_word + "'";
   return (
     <>
-      {location.state ? (
+      {status === true ? (
         <>
           <Header />
           <Wrapper url={bg[sliderIdx]}>

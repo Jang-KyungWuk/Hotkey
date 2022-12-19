@@ -15,7 +15,7 @@ const Home = () => {
   //레이아웃 테스트용
   const [candidates, setCandidates] = useState(0);
   useEffect(() => {
-    fetch("/trend_client")
+    fetch("http://localhost:5000/trend_client")
       .then((res) => res.json())
       .then((data) => {
         setTrendList(data);
@@ -31,7 +31,6 @@ const Home = () => {
     }, 7000);
   }, [candidates]);
   const onClick = (word) => {
-    console.log("분석요청 페이지로 이동");
     navigate("/fetch", {
       state: { keyword: word },
     });

@@ -242,8 +242,6 @@ def hot_key_instagram_recent(query, session, max_page=40):
                         if (postcnt >= 300):
                             print(g.thread, ': 누적 게시물 수 :', postcnt)
                             print(g.thread, ': 최근 게시물 수집 완료!')
-                            print(g.thread, ': 총 소요시간 : ',
-                                  datetime.now() - before, '\n\n')
                             return (0, recent_list, timestamp)
 
         if resource['more_available']:
@@ -261,7 +259,6 @@ def hot_key_instagram_recent(query, session, max_page=40):
 
     print(g.thread, ': 누적 게시물 수 :', postcnt)
     print(g.thread, ': 최근 게시물 수집 완료!')
-    print(g.thread, ': 총 소요시간 : ', datetime.now() - before, '\n\n')
     return (0, recent_list, timestamp)
 
 
@@ -489,215 +486,218 @@ def trend_crawler_client():  # 7개 리턴.
 
 def get_guest_token(session):
     headers = {
-     'authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA'
+        'authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA'
     }
-    resp = session.post('https://api.twitter.com/1.1/guest/activate.json', headers = headers)
+    resp = session.post(
+        'https://api.twitter.com/1.1/guest/activate.json', headers=headers)
     print('guest_token 설정 완료.....')
     return session, resp.json()['guest_token']
 
-def set_params(keyword, session): #header와 parameter값을 설정해준다.
+
+def set_params(keyword, session):  # header와 parameter값을 설정해준다.
     params = {'include_profile_interstitial_type': '1',
- 'include_blocking': '1',
- 'include_blocked_by': '1',
- 'include_followed_by': '1',
- 'include_want_retweets': '1',
- 'include_mute_edge': '1',
- 'include_can_dm': '1',
- 'include_can_media_tag': '1',
- 'include_ext_has_nft_avatar': '1',
- 'skip_status': '1',
- 'cards_platform': 'Web-12',
- 'include_cards': '1',
- 'include_ext_alt_text': 'true',
- 'include_ext_limited_action_results': 'false',
- 'include_quote_count': 'true',
- 'include_reply_count': '1',
- 'tweet_mode': 'extended',
- 'include_ext_collab_control': 'true',
- 'include_entities': 'true',
- 'include_user_entities': 'true',
- 'include_ext_media_color': 'true',
- 'include_ext_media_availability': 'true',
- 'include_ext_sensitive_media_warning': 'true',
- 'include_ext_trusted_friends_metadata': 'true',
- 'send_error_codes': 'true',
- 'simple_quoted_tweet': 'true',
- 'q': '',
- 'tweet_search_mode': 'live',
- 'count': '20',
- 'query_source': 'recent_search_click',
- 'pc': '1',
- 'spelling_corrections': '1',
- 'include_ext_edit_control': 'true',
- 'ext': 'mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2Cenrichments%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl%2Ccollab_control%2Cvibe'}
-    
+              'include_blocking': '1',
+              'include_blocked_by': '1',
+              'include_followed_by': '1',
+              'include_want_retweets': '1',
+              'include_mute_edge': '1',
+              'include_can_dm': '1',
+              'include_can_media_tag': '1',
+              'include_ext_has_nft_avatar': '1',
+              'skip_status': '1',
+              'cards_platform': 'Web-12',
+              'include_cards': '1',
+              'include_ext_alt_text': 'true',
+              'include_ext_limited_action_results': 'false',
+              'include_quote_count': 'true',
+              'include_reply_count': '1',
+              'tweet_mode': 'extended',
+              'include_ext_collab_control': 'true',
+              'include_entities': 'true',
+              'include_user_entities': 'true',
+              'include_ext_media_color': 'true',
+              'include_ext_media_availability': 'true',
+              'include_ext_sensitive_media_warning': 'true',
+              'include_ext_trusted_friends_metadata': 'true',
+              'send_error_codes': 'true',
+              'simple_quoted_tweet': 'true',
+              'q': '',
+              'tweet_search_mode': 'live',
+              'count': '20',
+              'query_source': 'recent_search_click',
+              'pc': '1',
+              'spelling_corrections': '1',
+              'include_ext_edit_control': 'true',
+              'ext': 'mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2Cenrichments%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl%2Ccollab_control%2Cvibe'}
+
     headers = {'authority': 'twitter.com',
- 'method': 'GET',
- #'path': '/i/api/2/search/adaptive.json?include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&skip_status=1&cards_platform=Web-12&include_cards=1&include_ext_alt_text=true&include_ext_limited_action_results=false&include_quote_count=true&include_reply_count=1&tweet_mode=extended&include_ext_collab_control=true&include_entities=true&include_user_entities=true&include_ext_media_color=true&include_ext_media_availability=true&include_ext_sensitive_media_warning=true&include_ext_trusted_friends_metadata=true&send_error_codes=true&simple_quoted_tweet=true&q=%23%EB%83%89%EB%8F%99%EB%A7%8C%EB%91%90&tweet_search_mode=live&count=20&query_source=recent_search_click&pc=1&spelling_corrections=1&include_ext_edit_control=true&ext=mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2Cenrichments%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl%2Ccollab_control%2Cvibe',
- 'scheme': 'https',
- 'accept': '*/*',
- 'accept-encoding': '',
- 'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6',
- 'authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
- #'cookie': 'guest_id_marketing=v1%3A166667526885979112; guest_id_ads=v1%3A166667526885979112; _ga=GA1.2.90083710.1666675272; _gid=GA1.2.208720928.1666675272; kdt=haoAurXsKba1QzgQArmyjksDpPIxI2NgYdsKXgdi; dnt=1; _sl=1; personalization_id="v1_s+fyK3WK3jNZxdSZKpb+4g=="; guest_id=v1%3A166676189695496518; ct0=c957e33ed33737a2fbe46ccce2767ad1; gt=1585140401979412480; g_state={"i_l":1,"i_p":1666769101996}',
- 'referer': 'https://twitter.com/search?q={}&src=recent_search_click&f=live'.format(parse.quote('#'+keyword)), # 해쉬태그로 검색할경우
- 'sec-ch-ua': '"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"',
- 'sec-ch-ua-mobile': '?0',
- 'sec-ch-ua-platform': '"Windows"',
- 'sec-fetch-dest': 'empty',
- 'sec-fetch-mode': 'cors',
- 'sec-fetch-site': 'same-origin',
- 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
- #csrf가 없어도되는지?
- #'x-csrf-token': 'c957e33ed33737a2fbe46ccce2767ad1',
- 'x-guest-token': '',
- 'x-twitter-active-user': 'yes',
- 'x-twitter-client-language': 'ko'}
+               'method': 'GET',
+               # 'path': '/i/api/2/search/adaptive.json?include_profile_interstitial_type=1&include_blocking=1&include_blocked_by=1&include_followed_by=1&include_want_retweets=1&include_mute_edge=1&include_can_dm=1&include_can_media_tag=1&include_ext_has_nft_avatar=1&skip_status=1&cards_platform=Web-12&include_cards=1&include_ext_alt_text=true&include_ext_limited_action_results=false&include_quote_count=true&include_reply_count=1&tweet_mode=extended&include_ext_collab_control=true&include_entities=true&include_user_entities=true&include_ext_media_color=true&include_ext_media_availability=true&include_ext_sensitive_media_warning=true&include_ext_trusted_friends_metadata=true&send_error_codes=true&simple_quoted_tweet=true&q=%23%EB%83%89%EB%8F%99%EB%A7%8C%EB%91%90&tweet_search_mode=live&count=20&query_source=recent_search_click&pc=1&spelling_corrections=1&include_ext_edit_control=true&ext=mediaStats%2ChighlightedLabel%2ChasNftAvatar%2CvoiceInfo%2Cenrichments%2CsuperFollowMetadata%2CunmentionInfo%2CeditControl%2Ccollab_control%2Cvibe',
+               'scheme': 'https',
+               'accept': '*/*',
+               'accept-encoding': '',
+               'accept-language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7,ja;q=0.6',
+               'authorization': 'Bearer AAAAAAAAAAAAAAAAAAAAANRILgAAAAAAnNwIzUejRCOuH5E6I8xnZz4puTs%3D1Zv7ttfk8LF81IUq16cHjhLTvJu4FA33AGWWjCpTnA',
+               # 'cookie': 'guest_id_marketing=v1%3A166667526885979112; guest_id_ads=v1%3A166667526885979112; _ga=GA1.2.90083710.1666675272; _gid=GA1.2.208720928.1666675272; kdt=haoAurXsKba1QzgQArmyjksDpPIxI2NgYdsKXgdi; dnt=1; _sl=1; personalization_id="v1_s+fyK3WK3jNZxdSZKpb+4g=="; guest_id=v1%3A166676189695496518; ct0=c957e33ed33737a2fbe46ccce2767ad1; gt=1585140401979412480; g_state={"i_l":1,"i_p":1666769101996}',
+               # 해쉬태그로 검색할경우
+               'referer': 'https://twitter.com/search?q={}&src=recent_search_click&f=live'.format(parse.quote('#'+keyword)),
+               'sec-ch-ua': '"Chromium";v="106", "Google Chrome";v="106", "Not;A=Brand";v="99"',
+               'sec-ch-ua-mobile': '?0',
+               'sec-ch-ua-platform': '"Windows"',
+               'sec-fetch-dest': 'empty',
+               'sec-fetch-mode': 'cors',
+               'sec-fetch-site': 'same-origin',
+               'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36',
+               # csrf가 없어도되는지?
+               # 'x-csrf-token': 'c957e33ed33737a2fbe46ccce2767ad1',
+               'x-guest-token': '',
+               'x-twitter-active-user': 'yes',
+               'x-twitter-client-language': 'ko'}
 
     params['q'] = parse.quote('#'+keyword)
-    #headers의 accept-encoding을 json으로 교체
+    # headers의 accept-encoding을 json으로 교체
     headers['accept-encoding'] = 'json'
-    
-    #headers의 x-guest-token 채우기
-    #guest-token받아오기
+
+    # headers의 x-guest-token 채우기
+    # guest-token받아오기
     session, headers['x-guest-token'] = get_guest_token(session)
-    
-    #headers, parameters 설정 끝
+
+    # headers, parameters 설정 끝
     print('헤더 및 파라미터 설정 완료.....')
     return (params, headers, session)
 
-def t_crawler(keyword, nposts = 600): #keyword는 검색할 변수, nposts는 크롤링하고자하는 게시물 수
+
+def t_crawler(keyword, nposts=450):  # keyword는 검색할 변수, nposts는 크롤링하고자하는 게시물 수
     print('Start Crawling... keyword : ', keyword)
-    
+
     totalbf = datetime.now()
     nopostcnt = 0
-    #반환할 textlist
+    # 반환할 textlist
     textlist = list()
     ncrawled = 0
-    #session 생성
+    # session 생성
     session = Session()
-    #parameter 초기값 받아오기
+    # parameter 초기값 받아오기
     params, headers, session = set_params(keyword, session)
-    
-    #session 인스턴스 생성
-    
+
+    # session 인스턴스 생성
+
     request_url = 'https://twitter.com/i/api/2/search/adaptive.json'
-    
-    #get 요청을 보낼 url 완성
+
+    # get 요청을 보낼 url 완성
     keys = list(params.keys())
     values = list(params.values())
     get_request_url = request_url+'?'
     for cursor in range(len(keys)):
-        get_request_url+='%s=%s&'%(keys[cursor],values[cursor]) 
+        get_request_url += '%s=%s&' % (keys[cursor], values[cursor])
     get_request_url = get_request_url[:-1]
-    
-    #headers의 'path' 변수 변경
+
+    # headers의 'path' 변수 변경
     headers['path'] = get_request_url[19:]
-    
-    #1페이지 검색
-    #get 요청 보내기 (1페이지)
+
+    # 1페이지 검색
+    # get 요청 보내기 (1페이지)
     try:
-        resp = session.get(get_request_url,headers=headers)
+        resp = session.get(get_request_url, headers=headers)
         respjson = resp.json()
         ncontents = len(respjson['globalObjects']['tweets'].keys())
-    
-        if ncontents == 0 :
+
+        if ncontents == 0:
             nopostcnt += 1
-        
+
         tmpcrawled = ncrawled
         textlist.append(list())
         for i in respjson['globalObjects']['tweets'].keys():
-            textlist[0].append(respjson['globalObjects']['tweets'][i]['full_text'])
-            ncrawled+=1
+            textlist[0].append(respjson['globalObjects']
+                               ['tweets'][i]['full_text'])
+            ncrawled += 1
             if ncrawled >= nposts:
                 print('수집 완료! 수집한 총 게시물 수 :', ncrawled)
-                print('총 소요시간 :', datetime.now()-totalbf)
                 return textlist
-        print('수집된 개시물 개수 :', ncrawled)
-        #다음 페이지 가르키는 커서 변수에 값 넣어주기
+        # 다음 페이지 가르키는 커서 변수에 값 넣어주기
         next_pg = respjson['timeline']['instructions'][0]['addEntries']['entries'][-1]['content']['operation']['cursor']['value']
     except:
         print('\n\n\n!!!!!!!!!!!!!!!******알 수 없는 에러입니다******!!!!!!!!!!!!!!!\n\n\n')
         print('수집한 총 게시물 수 :', ncrawled)
-        print('총 소요시간 :', datetime.now()-totalbf)
         return textlist
-    
-    #2페이지부터 추가 검색
+
+    # 2페이지부터 추가 검색
     cur_page = 2
     while True:
-        try :
+        try:
             tmpcrawled = ncrawled
             params['cursor'] = next_pg
             get_request_url = request_url+'?'
             keys = list(params.keys())
             values = list(params.values())
             for cursor in range(len(keys)):
-                get_request_url+='%s=%s&'%(keys[cursor],values[cursor]) 
+                get_request_url += '%s=%s&' % (keys[cursor], values[cursor])
             get_request_url = get_request_url[:-1]
-            resp = session.get(get_request_url,headers=headers)
+            resp = session.get(get_request_url, headers=headers)
             respjson = resp.json()
             ncontents = len(respjson['globalObjects']['tweets'].keys())
-            if ncontents == 0 : #5페이지 연속으로 빈페이지가 나오는경우
+            if ncontents == 0:  # 5페이지 연속으로 빈페이지가 나오는경우
                 if nopostcnt > 5:
                     print('더 이상 수집할 게시물이 없습니다.')
                     print('수집한 총 게시물 수 :', ncrawled)
-                    print('총 소요시간 :', datetime.now()-totalbf)
                     return textlist
                 nopostcnt += 1
             else:
                 nopostcnt = 0
-        
+
             next_pg = respjson['timeline']['instructions'][-1]['replaceEntry']['entry']['content']['operation']['cursor']['value']
-        
+
             textlist.append(list())
             for i in respjson['globalObjects']['tweets'].keys():
-                textlist[-1].append(respjson['globalObjects']['tweets'][i]['full_text'])
-                ncrawled+=1
+                textlist[-1].append(respjson['globalObjects']
+                                    ['tweets'][i]['full_text'])
+                ncrawled += 1
                 if ncrawled >= nposts:
                     print('수집 완료! 수집한 총 게시물 수 :', ncrawled)
-                    print('총 소요시간 :', datetime.now()-totalbf)
                     return textlist
-            print('수집된 개시물 개수 :', ncrawled)
-            cur_page+=1
+            cur_page += 1
         except:
             print('\n\n\n!!!!!!!!!!!!!!!******알 수 없는 에러입니다******!!!!!!!!!!!!!!!\n\n\n')
             print('수집한 총 게시물 수 :', ncrawled)
-            print('총 소요시간 :', datetime.now()-totalbf)
             return textlist
 
-def t_search(keyword):
 
-     # db연결
-    conn, cur = access_db()
-    cur.execute(
-    'SELECT tid FROM is_tag WHERE tname = (%s);', (keyword))
-    res = cur.fetchall()
-    # DB에 존재할 경우
-    if len(res) >= 1:
-        print('DB에서 해당 키워드를 찾았습니다.. keyword :', keyword)
-        tid = res[0]['tid']
-        conn.close()
+def t_search(keyword):
+    try:
+        # db연결
+        conn, cur = access_db()
+        cur.execute(
+            'SELECT tid FROM is_tag WHERE tname = (%s);', (keyword))
+        res = cur.fetchall()
+        # DB에 존재할 경우
+        if len(res) >= 1:
+            print('DB에서 해당 키워드를 찾았습니다.. keyword :', keyword)
+            tid = res[0]['tid']
+            conn.close()
+            return (True, tid)
+        close_db(conn)
+        ######################## DB에 존재하지 않을경우, 크롤링->DB적재->값 반환 #####################
+        delimiter = 'HOTKEY123!@#'
+        textlist = t_crawler(keyword)
+        corpus = ''
+        delimiter = 'HOTKEY123!@#'
+        for page in textlist:
+            for post in page:
+                corpus += delimiter + post
+        conn, cur = access_db()
+        cur.execute('insert into is_tag (tname) values (%s);', keyword)
+        cur.execute('SELECT tid FROM is_tag WHERE tname = (%s);', keyword)
+        tid = cur.fetchone()['tid']
+        # tag_info에 저장
+        cur.execute('insert into tag_info (tid, ttable, up_date, time_stamp) values (%s, %s, %s, %s);',
+                    (tid, 3, time.strftime('%Y-%m-%d'), datetime.now().timestamp()))
+        # n_corpus에 저장
+        cur.execute(
+            'insert into n_corpus (tid, corpus) values (%s, %s);', (tid, corpus[12:]))
+        close_db(conn)
         return (True, tid)
-    close_db(conn)
-    ######################## DB에 존재하지 않을경우, 크롤링->DB적재->값 반환 #####################
-    delimiter = 'HOTKEY123!@#'
-    textlist = t_crawler(keyword)
-    corpus = ''
-    delimiter = 'HOTKEY123!@#'
-    for page in textlist:
-        for post in page:
-            corpus += delimiter + post
-    conn, cur = access_db()
-    cur.execute('insert into is_tag (tname) values (%s);', keyword)
-    cur.execute('SELECT tid FROM is_tag WHERE tname = (%s);', keyword)
-    tid = cur.fetchone()['tid']
-    # tag_info에 저장
-    cur.execute('insert into tag_info (tid, ttable, up_date, time_stamp) values (%s, %s, %s, %s);',
-                        (tid, 3, time.strftime('%Y-%m-%d'), datetime.now().timestamp()))
-    # n_corpus에 저장
-    cur.execute('insert into n_corpus (tid, corpus) values (%s, %s);', (tid, corpus[12:]))
-    close_db(conn)
-    return (True, tid)
+    except:
+        return (False, -1)
 
 # 인스타그램 인기게시물 사진 가져오기
 
