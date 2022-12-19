@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
-import NewLogo from "../images/NewLogo.png";
 import BlackLogo from "../images/BlackLogo.png";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -20,7 +19,6 @@ const Home = () => {
       .then((res) => res.json())
       .then((data) => {
         setTrendList(data);
-        console.log(data);
       })
       .catch((err) => {
         console.log(err);
@@ -77,16 +75,21 @@ const Home = () => {
               }}
               onKeyPress={(e) => {
                 if (e.key === "Enter") {
-                  if (query.length >= 1) onClick(query);
-                  else alert("검색어를 한 글자 이상 입력하세요");
+                  if (query.length == 0)
+                    alert("검색어를 한글자 이상 입력하세요");
+                  else if (query.split(" ").length > 1)
+                    alert("공백문자를 제거한 뒤 다시 검색해주세요");
+                  else onClick(query);
                 }
               }}
             ></Input>
           </Inputdiv>
           <Button
             onClick={() => {
-              if (query.length >= 1) onClick(query);
-              else alert("검색어를 한 글자 이상 입력하세요");
+              if (query.length == 0) alert("검색어를 한글자 이상 입력하세요");
+              else if (query.split(" ").length > 1)
+                alert("공백문자를 제거한 뒤 다시 검색해주세요");
+              else onClick(query);
             }}
           >
             SEARCH

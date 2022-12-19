@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import PacmanLoader from "react-spinners/PacmanLoader";
 import { PulseLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {

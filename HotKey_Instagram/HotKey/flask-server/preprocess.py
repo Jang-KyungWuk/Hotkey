@@ -1,6 +1,3 @@
-# !/usr/bin/env python
-# coding: utf-8
-
 # Morpheme Analyze
 from kiwipiepy import Kiwi
 import konlpy
@@ -13,18 +10,6 @@ import emoji
 # BM25
 from math import log1p
 import numpy as np
-
-
-def spam_filter(plaintext):
-    # 1211추가 - seyun
-    # db로 부터 말뭉치를 받아서 스팸을 제거하고 다시 플레인텍스트 반환
-    status = True
-    pt = ''
-    try:
-        pt = preprocess(plaintext, returnPlain=True)
-    except:
-        status = False
-    return (pt, status)
 
 
 class nltkMA:
@@ -252,11 +237,11 @@ def preprocess(plaintext, sep='HOTKEY123!@#',
                multiReturn=False,
                removeHashTag=True,
                kwdMinLen=2,
-               morphemeAnalyzer='kiwi', morphemeAnalyzerParams=None, targetMorphs=['NNP', 'NNG'],
-               returnEnglishMorph=True, EETagRule={'NLTK_NNP': 'NNP', 'NLTK_NN': 'NNG', 'R_W_HASHTAG': 'W_HASHTAG'},
+               morphemeAnalyzer='okt', morphemeAnalyzerParams=None, targetMorphs=['Noun'],
+               returnEnglishMorph=True, EETagRule={'NLTK_NNP': 'Noun', 'NLTK_NN': 'Noun', 'R_W_HASHTAG': 'W_HASHTAG', 'R_W_EMJ': 'EMJ'},
                enMorphemeAnalyzerParams=None,
-               filterMorphemeAnalyzer='kiwi', filterMorphemeAnalyzerParams=None, filterTargetMorphs=['NNP', 'NNG', 'W_HASHTAG'],
-               filterEnglishMorph=True, filterEETagRule={'NLTK_NNP': 'NNP', 'NLTK_NN': 'NNG', 'R_W_HASHTAG': 'W_HASHTAG'},
+               filterMorphemeAnalyzer='okt', filterMorphemeAnalyzerParams=None, filterTargetMorphs=['Noun', 'W_HASHTAG'],
+               filterEnglishMorph=True, filterEETagRule={'NLTK_NNP': 'Noun', 'NLTK_NN': 'Noun', 'R_W_HASHTAG': 'W_HASHTAG'},
                filterEnMorphemeAnalyzerParams=None,
                k_1Filter=1.5, bFilter=0.75, filterThreshold=2.5):
     '''
@@ -512,19 +497,43 @@ def plain_structurize(plaintext, sep='HOTKEY123!@#', lineSplit=False):
 
 
 def data_tokenize(data, morphemeAnalyzer,
-                  targetMorphs=['NNP', 'NNG'],
+                  targetMorphs=['Noun'],
                   returnMorph=False,
                   returnEnglishMorph=False,
                   morphemeAnalyzerEN=nltkMA(),
-                  eeTagRule={'NLTK_NNP': 'NNP',
-                             'NLTK_NN': 'NNG',
-                             'R_W_HASHTAG': 'W_HASHTAG'},
+                  eeTagRule={'NLTK_NNP': 'Noun', 'NLTK_NN': 'Noun',
+                             'R_W_HASHTAG': 'W_HASHTAG', 'R_W_EMJ': 'EMJ'},
                   kwdMinLen=2,
-                  lineSplit=False):
+                  lineSplit=False,
+                  lineSplitADV=False):
     '''
     데이터를 주어진 형태소 분석기 인스턴스로 분석하고 정해진 품사를 반환
     '''
     returnData = list()
+
+    if lineSplitADV == True:
+        for post in data:
+            tokenizedData = split_tokenize(
+                post, morphemeAnalyzer, morphemeAnalyzerEN)
+
+            postResult = []
+            for line in tokenizedData:
+                lineResult = []
+                for tok in line:
+                    text = tok[0]
+                    morph = tok[1]
+                    if len(text) < kwdMinLen:
+                        continue
+                    if morph in eeTagRule:
+                        morph = eeTagRule[morph]
+                    if morph in targetMorphs:
+                        if returnMorph == True:
+                            lineResult.append([text, morph])
+                        else:
+                            lineResult.append(text)
+                postResult.append(lineResult)
+            returnData.append(postResult)
+        return returnData
 
     if lineSplit == True:
         for post in data:
@@ -532,10 +541,14 @@ def data_tokenize(data, morphemeAnalyzer,
             for line in post:
                 partialReturn = list()
                 if returnEnglishMorph == True:
-                    tokenizedData = HEMEK_tokenize(remove_stopwords(
-                        line), morphemeAnalyzer, morphemeAnalyzerEN)
+                    filteredLine = remove_stopwords(line)
+                    if re.fullmatch('[ㄱ-ㅎ가-힣0-9\,\.\/\\\;\'\[\]\`\-\=\<\>\?\:\"\{\}\|\~\!\$\%\^\&\*\(\)\_\+\"\' ]+', filteredLine):
+                        tokenizedData = morphemeAnalyzer(filteredLine)
+                    else:
+                        tokenizedData = HEMEK_tokenize(
+                            filteredLine, morphemeAnalyzer, morphemeAnalyzerEN)
                 else:
-                    tokenizedData = morphemeAnalyzer(remove_stopwords(line))
+                    tokenizedData = morphemeAnalyzer(filteredLine)
 
                 for tok in tokenizedData:
                     if len(tok[0]) < kwdMinLen:
@@ -557,8 +570,14 @@ def data_tokenize(data, morphemeAnalyzer,
         for post in data:
             partialReturn = list()
             if returnEnglishMorph == True:
-                tokenizedData = HEMEK_tokenize(remove_stopwords(
-                    post), morphemeAnalyzer, morphemeAnalyzerEN)  # 영문 분석
+
+                filteredPost = remove_stopwords(post)
+                if re.fullmatch('[ㄱ-ㅎ가-힣0-9\,\.\/\\\;\'\[\]\`\-\=\<\>\?\:\"\{\}\|\~\!\$\%\^\&\*\(\)\_\+\"\' ]+', filteredPost):
+                    tokenizedData = morphemeAnalyzer(filteredPost)
+                else:
+                    tokenizedData = HEMEK_tokenize(
+                        filteredPost, morphemeAnalyzer, morphemeAnalyzerEN)
+
             else:
                 tokenizedData = morphemeAnalyzer(remove_stopwords(post))
 
@@ -790,3 +809,637 @@ def BM25(data, postLens, k_1=1.5, b=0.75):
 
     return filterScores
 
+
+def spam_filter(plaintext):
+    # 1211추가 - seyun
+    # db로 부터 말뭉치를 받아서 스팸을 제거하고 다시 플레인텍스트 반환
+    status = True
+    pt = ''
+    try:
+        pt = preprocess(plaintext, returnPlain=True)
+    except:
+        status = False
+    return (pt, status)
+
+
+def HEMKEN_tokenize(text, KRmorphemeAnalyzer, NKRmorphemeAnalyzer):
+    '''
+    이모티콘, 해쉬태그, 맨션, 영어, 한글로 나눠서 영어와 한글을 각기 다른 형태소 분석기로 처리하고 그 결과를 반환
+    결과는 [[토큰1, 품사1], [토큰2, 품사2], ...] 형식으로 반환
+    '''
+
+    chunks = regexp_spliter(
+        text, '[\.\?\!] |[\\n]|[\n]|[\\\\]n', ['lsc'], 'CHUNK')
+
+    lsChunks = list()
+    for chunk in chunks:
+        if chunk[1] == 'CHUNK':
+            lsChunks += regexp_spliter(chunk[0], [':[^: ]+:'],
+                                       ['R_W_EMJ'], 'CHUNK', [get_demojized_set()])
+        else:
+            lsChunks.append(chunk)
+
+    # Hashtag Emoji Mention chunk
+    HEMc = list()
+    for chunk in lsChunks:
+        if chunk[1] == 'CHUNK':
+            HEMc += regexp_spliter(chunk[0], ['[#][^#@ ]+|#$', '[@][^#@ㄱ-ㅎ가-힣 ]+|@$'], [
+                                   'R_W_HASHTAG', 'R_W_MENTION'], 'CHUNK')
+        else:
+            HEMc.append(chunk)
+
+    '''
+    해쉬태그, 맨션 안에는 이모티콘이 들어갈 수 있기 때문에 해쉬태그, 맨션 직후 이모티콘이 나오면 이를 해쉬태그, 맨션에 붙은 것으로 처리
+    '''
+    cursor = 0
+    flag = False
+    lenHEMc = len(HEMc)
+    while cursor < lenHEMc:  # 인덱스가 아직 전체 길이 안에 있는 동안 while 안을 반복
+        # 지금 인덱스에 있는 데이텅의 라벨이 해쉬태그 혹은 맨션일 시
+        if HEMc[cursor][1] in ('R_W_HASHTAG', 'R_W_MENTION'):
+            if flag == True:  # 이미 이전에 해쉬태그나 맨션이 있어서 이어지는 이모티콘들을 갖고 있으면 이를 하나로 처리
+                for merge in range(mergeCount):
+                    HEMc[mergePos][0] += HEMc.pop(mergePos+1)[0]
+                cursor -= mergeCount
+                lenHEMc -= mergeCount
+
+            mergePos = cursor*1
+            mergeCount = 0
+            flag = True  # flag 변수를 True로 지정
+
+        elif HEMc[cursor][1] == 'R_W_EMJ':  # 만약 이모티콘이 나왔다면
+            if flag == True:  # flag 변수가 True 라면 == 앞에서 해쉬태그, 맨션이 나왔고 이전에 이모티콘들만 나온 경우
+                mergeCount += 1  # 이것도 이모티콘이니 합칠 대상으로 판정
+        else:
+            if flag == True:  # 이모티콘, 맨션, 해쉬태그가 아니면 == 하나로 합치면 안 되는 데이터일 경우
+                # 앞에서 찾은 이모티콘의 개수만큼 전체 인덱스, 현재 인덱스를 빼고 해쉬태그/맨션에 이모티콘 병합
+                for merge in range(mergeCount):
+                    HEMc[mergePos][0] += HEMc.pop(mergePos+1)[0]
+                cursor -= mergeCount
+                lenHEMc -= mergeCount
+                flag = False
+        cursor += 1
+
+    if flag == True:  # 만약 모든 데이터를 확인했는데 flag가 여전히 True면 == 해쉬태그/맨션이 나오고 계속 이모티콘이 나오다 끝난 경우
+        for merge in range(mergeCount):  # 동일한 과정으로 처리한다.
+            tok, morph = HEMc.pop(mergePos+1)
+            HEMc[mergePos][0] += tok
+
+    # Hashtag Emoji Mention English Korean
+    HEMEK = list()
+    for chunk in HEMc:
+        if chunk[1] == 'CHUNK':
+            HEMEK += regexp_spliter(chunk[0],
+                                    ['[ㄱ-ㅎ가-힣0-9\,\.\/\\\;\'\[\]\`\-\=\<\>\?\:\"\{\}\|\~\!\@\#\$\%\^\&\*\(\)\_\+\"\' ]+'],
+                                    ['KR_CHUNK'], 'NKR_CHUNK')
+        else:
+            HEMEK.append(chunk)
+
+    result = list()
+    partialResult = list()
+    partialFlag = False
+    for chunk in HEMEK:
+        text = chunk[0]
+        ctype = chunk[1]
+
+        if ctype == 'lsc':
+            result.append(partialResult)
+            partialResult = list()
+            partialFlag = True
+
+        elif re.fullmatch('[ ]+||[\n]+', text):  # 비어있는
+            partialFlag = False
+            continue
+        elif ctype == 'KR_CHUNK':  # 한글 덩어리면 한글 형태소 분석기 적용
+            for token in KRmorphemeAnalyzer(text):
+                partialResult.append([token[0], token[1]])
+            partialFlag = False
+        elif ctype == 'NKR_CHUNK':  # 한글이 아니면 (주로 영어 예상) 이면 영문 형태소 분석기 적용
+            for token in NKRmorphemeAnalyzer(text):
+                partialResult.append([token[0], token[1]])
+            partialFlag = False
+        else:
+            partialResult.append(chunk)
+            partialFlag = False
+
+    if partialFlag == False:
+        result.append(partialResult)
+
+    return result
+
+
+def char_type(char):
+    cord = ord(char)
+
+    # 한글
+    if cord in range(12593, 12643):
+        return "KR"
+    elif cord in range(44032, 55204):
+        return "KR"
+
+    # 숫자
+    elif cord in range(48, 58):
+        return "NUM"
+
+    # 문장 구성
+    elif cord == 32:
+        return "blank"
+    elif cord == 10:
+        return "lineChange"
+    elif cord == 92:
+        return "backslash"
+
+    # 해쉬태그, 맨션, 이모티콘
+    elif cord == 58:
+        return "colon"
+    elif cord == 35:
+        return "sharp"
+    elif cord == 64:
+        return "at"
+
+    elif cord == 95:
+        return "underBar"
+
+    # 해쉬태그, 맨션 가능, 구두점
+    elif cord == 46:
+        return "punctuation"
+
+    # 해쉬태그, 맨션 불가, 구두점
+    elif cord == 63:
+        return "question"
+    elif cord == 33:
+        return "exclamation"
+
+    # 해쉬태그, 맨션 불가
+    elif cord == 123:
+        return "brace"
+    elif cord == 125:
+        return "brace"
+
+    else:
+        return "NKR"
+
+
+def split_tokenize(text, ma=setMorphemeAnalyzer('okt'), enma=nltkMA()):
+    result = []
+    resultLine = []
+    textLen = len(text)
+
+    prevType = None
+    cursor = 0
+    anchor = 0
+
+    special = None
+    specialAnchor = None
+    specialSubAnchor = None
+    specialPrevType = None
+
+    while cursor < textLen:
+        char = text[cursor]
+        ctype = char_type(char)
+
+        if special == None:  # 이전에 태그,멘션,이모티콘 시작이 없었음
+            if ctype in ("colon", "sharp", "at"):  # 태그, 맨션, 이모티콘 시작
+                special = ctype  # 타입 저장
+                specialAnchor = cursor  # 현재 위치 저장
+                specialPrevType = prevType  # 직전 타입 등록
+            elif ctype == 'lineChange':  # 줄바꿈 문자
+                if prevType == 'KR':
+                    resultLine.extend(ma(text[anchor:cursor]))
+                else:
+                    resultLine.extend(enma(text[anchor:cursor]))
+                result.append(resultLine)
+                resultLine = []
+                cursor += 1
+                anchor = cursor
+                prevType = None
+                continue
+            elif ctype == 'backslash':  # 역슬래쉬가 나오면 뒤에 n이 이어서 나오면 줄을 바꿔줌
+                try:  # 다음 값을 찾는 과정에서 Out of Index 에러 발생 가능성이 있음 그럴 시 단순 종료
+                    if text[cursor+1] == 'n':
+                        if prevType == 'KR':
+                            resultLine.extend(ma(text[anchor:cursor]))
+                        else:
+                            resultLine.extend(enma(text[anchor:cursor]))
+                        result.append(resultLine)
+                        resultLine = []
+                        cursor += 2  # 뒤의 줄바꿈 문자와 묶어서 두 칸 전진
+                        anchor = cursor
+                        prevType = None
+                        continue
+                except:
+                    ctype = prevType
+                    cursor += 1
+                    pass
+                ctype = prevType  # 아닐 시 단순 해프닝으로 처리하고 동일한 타입으로 가정
+
+            elif ctype in ("punctuation", "question", "exclamation"):
+                try:  # 다음 값을 찾는 과정에서 Out of Index 에러 발생 가능성이 있음 그럴 시 단순 종료
+                    if text[cursor+1] == ' ':  # 구두점 후 다음이 비어있으면 줄바꿈으로 간주한다.
+                        if prevType == 'KR':
+                            resultLine.extend(ma(text[anchor:cursor]))
+                        else:
+                            resultLine.extend(enma(text[anchor:cursor]))
+                        result.append(resultLine)
+                        resultLine = []
+                        cursor += 2
+                        anchor = cursor
+                        prevType = None
+                        continue
+                    else:
+                        ctype = prevType
+                        cursor += 1
+                        continue
+                except:
+                    ctype = prevType
+                    cursor += 1
+                    continue
+
+            else:
+                if ctype in ("underBar", "NUM"):  # 언더바, 숫자는 이전과 같은 타입의 데이터 취급
+                    ctype = prevType
+                    pass
+
+                elif ctype != prevType and ctype != None:  # 그 외에 다른 경우에서 현재 타입이 이전 타입과 다를경우 지금까지의 결과를 형태소 분석
+                    if prevType == 'KR':
+                        resultLine.extend(ma(text[anchor:cursor]))
+                    else:
+                        resultLine.extend(enma(text[anchor:cursor]))
+                    anchor = cursor
+                    prevType = ctype
+                    pass
+
+        else:  # 만약 특수 문자로 해쉬태그,맨션,이모티콘 등이 시작되었다면
+            if special == "sharp":  # 해쉬태그일 시
+                if ctype in ('blank', 'exclamation', 'question', 'brace', 'lineChange', 'backslash'):  # 그냥 종료
+                    if prevType == 'KR':
+                        if specialSubAnchor == None:
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:cursor], 'W_HASHTAG'])
+                        else:
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_HASHTAG'])
+                            resultLine.extend(
+                                enma(text[specialSubAnchor:cursor]))
+                    elif prevType == 'NKR':
+                        if specialSubAnchor == None:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:cursor], 'W_HASHTAG'])
+                        else:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_HASHTAG'])
+                            resultLine.extend(
+                                enma(text[specialSubAnchor:cursor]))
+                    else:
+                        pass
+
+                    special = None
+                    specialAnchor = None
+                    specialPrevType = None
+                    anchor = cursor
+                    prevType = ctype
+                    cursor += 1
+
+                    if ctype == 'lineChange':
+                        result.append(resultLine)
+                        resultLine = []
+                        continue
+
+                    elif ctype == 'backslash':
+                        try:
+                            if text[cursor+1] == 'n':
+                                cursor += 1
+                                anchor += 1
+                                result.append(resultLine)
+                                resultLine = []
+                                continue
+                            else:
+                                continue
+                        except:
+                            continue
+
+                    elif ctype in ('question', 'exclamation'):
+                        try:
+                            if text[cursor] == ' ':
+                                cursor += 1
+                                anchor += 1
+                                result.append(resultLine)
+                                resultLine = []
+                                continue
+                            else:
+                                continue
+                        except:
+                            continue
+
+                    else:
+                        continue
+
+                elif ctype in "KR":  # 한글이 나올 시 specialSubAnchor 가 있다면 이모티콘이 성립하지 않으므로 이모티콘 전까지 처리
+                    if specialSubAnchor != None:
+                        if specialPrevType == 'KR':
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_HASHTAG'])
+                            resultLine.extend(enma(text[specialAnchor:cursor]))
+                        else:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_HASHTAG'])
+                            resultLine.extend(enma(text[specialAnchor:cursor]))
+                        special = None
+                        specialAnchor = None
+                        specialSubAnchor = None
+                        specialPrevType = None
+                        anchor = cursor
+                        prevType = ctype
+                        cursor += 1
+                        continue
+
+                elif ctype == 'colon':
+                    if specialSubAnchor != None:  # 콜론이 이미 전에 나왔고 문제없이 여기까지 왔다면 해당 콜론구는 이모티콘
+                        specialSubAnchor = None
+                    else:
+                        specialSubAnchor = cursor
+
+                elif ctype in ('at', 'sharp'):  # 이어서 새로운 맨션이 시작되는 경우
+                    if specialPrevType == 'KR':
+                        if specialSubAnchor == None:
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:cursor], 'W_HASHTAG'])
+                        else:
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_HASHTAG'])
+                            resultLine.extend(
+                                enma(text[specialSubAnchor:cursor]))
+                    else:
+                        if specialSubAnchor == None:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:cursor], 'W_HASHTAG'])
+                        else:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_HASHTAG'])
+                            resultLine.extend(
+                                enma(text[specialSubAnchor:cursor]))
+
+                    special = ctype
+                    specialAnchor = cursor
+                    specialSubAnchor = None
+                    specialPrevType = None
+                    anchor = cursor
+                    prevType = ctype
+                    cursor += 1
+                    continue
+
+            elif special == "at":  # 맨션일 시 (한글 사용 불가능 / 이모티콘 추가 가능)
+                if ctype in ('blank', 'KR', 'exclamation', 'question', 'brace', 'lineChange', 'backslash'):  # 그냥 종료
+                    if specialPrevType == 'KR':
+                        if specialSubAnchor == None:
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:cursor], 'W_MENTION'])
+                        else:
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_MENTION'])
+                            resultLine.extend(
+                                enma(text[specialSubAnchor:cursor]))
+                    else:
+                        if specialSubAnchor == None:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:cursor], 'W_MENTION'])
+                        else:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_MENTION'])
+                            resultLine.extend(
+                                enma(text[specialSubAnchor:cursor]))
+
+                    special = None
+                    specialAnchor = None
+                    specialPrevType = None
+                    anchor = cursor
+                    prevType = ctype
+                    cursor += 1
+
+                    if ctype == 'lineChange':
+                        result.append(resultLine)
+                        resultLine = []
+                        continue
+
+                    elif ctype == 'backslash':
+                        try:
+                            if text[cursor] == 'n':
+                                cursor += 1
+                                anchor += 1
+                                result.append(resultLine)
+                                resultLine = []
+                                continue
+                            else:
+                                continue
+                        except:
+                            continue
+
+                    elif ctype in ('question', 'exclamation'):
+                        try:
+                            if text[cursor] == ' ':
+                                cursor += 1
+                                anchor += 1
+                                result.append(resultLine)
+                                resultLine = []
+                                continue
+                            else:
+                                continue
+                        except:
+                            continue
+
+                    else:
+                        continue
+
+                if ctype == 'colon':  # 해쉬태그에는 이모티콘이 들어갈 수 있음
+                    if specialSubAnchor != None:
+                        specialSubAnchor = None
+                    else:
+                        specialSubAnchor = cursor
+
+                if ctype in ('sharp', 'at'):
+                    if prevType == 'KR':
+                        if specialSubAnchor == None:
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:cursor], 'W_MENTION'])
+                        else:
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_MENTION'])
+                            resultLine.extend(
+                                enma(text[specialSubAnchor:cursor]))
+                    else:
+                        if specialSubAnchor == None:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:cursor], 'W_MENTION'])
+                        else:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:specialSubAnchor], 'W_MENTION'])
+                            resultLine.extend(
+                                enma(text[specialSubAnchor:cursor]))
+
+                    cursor += 1
+                    anchor = cursor
+                    special = ctype
+                    specialAnchor = cursor
+                    specialPrevType = None
+                    specialSubAnchor = None
+                    prevType = ctype
+                    continue
+
+            elif special == 'colon':  # 이모티콘 관련해서 보고 있을 때
+                if ctype == 'colon':
+                    if prevType == 'colon':  # 이전도 콜론인데 지금도 콜론이면 앞의 콜론은 무시
+                        special = ctype
+                        specialAnchor = cursor
+                        pass
+                    else:  # 이전에 콜론이 나왔지만 직전값은 콜론이 아닌채로 통과한 경우
+                        if specialPrevType == 'KR':
+                            resultLine.extend(ma(text[anchor:specialAnchor]))
+                            # 이모티콘은 자기자신을 포함
+                            resultLine.append(
+                                [text[specialAnchor:cursor+1], 'EMJ'])
+                        else:
+                            resultLine.extend(enma(text[anchor:specialAnchor]))
+                            resultLine.append(
+                                [text[specialAnchor:cursor+1], 'EMJ'])
+
+                    cursor += 1  # 이모티콘은 자기자신 콜론까지 포함
+                    anchor = cursor
+                    special = None
+                    specialPrevType = None
+                    specialSubAnchor = None
+                    prevType = ctype
+                    continue
+
+                elif ctype in ('sharp', 'at'):  # 이전에 콜론이 있었는데 지금 샵이나 엣이 나온다면 이전 콜론은 의미없는 콜론
+                    special = ctype
+                    if specialPrevType == 'KR':
+                        resultLine.extend(ma(text[anchor:specialAnchor]))
+                        resultLine.extend(enma(text[specialAnchor:cursor]))
+                    else:
+                        resultLine.extend(enma(text[anchor:cursor]))
+
+                    anchor = cursor
+                    specialAnchor = cursor
+                    specialPrevType = None
+                    specialSubAnchor = None
+                    prevType = ctype
+                    cursor += 1
+                    continue
+
+                elif ctype in ('blank', 'KR', 'exclamation', 'question', 'brace', 'lineChange', 'backslash'):
+                    if specialPrevType == 'KR':
+                        resultLine.extend(ma(text[anchor:specialAnchor]))
+                        resultLine.extend(enma(text[specialAnchor:cursor]))
+                    else:
+                        resultLine.extend(enma(text[anchor:cursor]))
+
+                    anchor = cursor
+                    special = None
+                    specialAnchor = cursor
+                    specialPrevType = None
+                    specialSubAnchor = None
+                    prevType = ctype
+                    cursor += 1
+                    if ctype == 'backslash':
+                        try:
+                            if text[cursor] == 'n':
+                                cursor += 1
+                                anchor += 1
+                                result.append(resultLine)
+                                resultLine = []
+                                continue
+                            else:
+                                continue
+                        except:
+                            continue
+
+                    elif ctype in ('question', 'exclamation'):
+                        try:
+                            if text[cursor] == ' ':
+                                cursor += 1
+                                anchor += 1
+                                result.append(resultLine)
+                                resultLine = []
+                                continue
+                            else:
+                                continue
+                        except:
+                            continue
+                    continue
+
+        cursor += 1
+        prevType = ctype
+
+    # 다 끝나고 마지막으로 추가
+    if special != None:
+        if specialSubAnchor != None:
+            if specialPrevType == 'KR':
+                if special in ('sharp', 'at'):
+                    resultLine.extend(ma(text[anchor:specialAnchor]))
+                    if special == 'sharp':
+                        resultLine.append(
+                            [text[specialAnchor:specialSubAnchor], 'W_HASHTAG'])
+                        resultLine.extend(enma(text[specialSubAnchor:]))
+                    else:
+                        resultLine.append([text[specialAnchor:], 'W_MENTION'])
+                        resultLine.extend(enma(text[specialSubAnchor:]))
+                else:
+                    resultLine.extend(enma(text[anchor:]))
+            else:
+                if special in ('sharp', 'at'):
+                    resultLine.extend(enma(text[anchor:specialAnchor]))
+                    if special == 'sharp':
+                        resultLine.append([text[specialAnchor:], 'W_HASHTAG'])
+                    else:
+                        resultLine.append([text[specialAnchor:], 'W_MENTION'])
+                else:
+                    resultLine.extend(enma(text[anchor:]))
+
+        else:
+            if specialPrevType == 'KR':
+                if special in ('sharp', 'at'):
+                    resultLine.extend(ma(text[anchor:specialAnchor]))
+                    if special == 'sharp':
+                        resultLine.append([text[specialAnchor:], 'W_HASHTAG'])
+                    else:
+                        resultLine.append([text[specialAnchor:], 'W_MENTION'])
+                else:
+                    resultLine.extend(ma(text[anchor:specialAnchor]))
+                    resultLine.extend(enma(text[specialAnchor:]))
+            else:
+                if special in ('sharp', 'at'):
+                    resultLine.extend(enma(text[anchor:specialAnchor]))
+                    if special == 'sharp':
+                        resultLine.append([text[specialAnchor:], 'W_HASHTAG'])
+                    else:
+                        resultLine.append([text[specialAnchor:], 'W_MENTION'])
+                else:
+                    resultLine.extend(enma(text[anchor:]))
+
+    elif anchor != textLen:
+        if prevType == 'KR':
+            resultLine.extend(ma(text[anchor:cursor]))
+        else:
+            resultLine.extend(enma(text[anchor:cursor]))
+    if resultLine != []:
+        result.append(resultLine)
+
+    return result

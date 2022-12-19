@@ -8,9 +8,6 @@ import Header from "../components/Header.js";
 import Imagegrid from "../components/Imagegrid";
 import HotKey_Logo from "../images/HotKey_Logo.jpg";
 import SentTable from "../components/SentTable.js";
-import Result2 from "../components/Result2.js";
-import Result3 from "../components/Result3.js";
-import { motion } from "framer-motion";
 
 const bg = [
   require("../images/ResultBackground0.png"), //1페이지백그라운드
@@ -23,7 +20,6 @@ const SearchResult = () => {
   const image_num = location.state?.image_num;
   const topic_num = location.state?.topic_num;
   const sent_result = location.state?.sent_result;
-  console.log(sent_result);
   let image_list = [
     "dddefault0",
     "dddefault1",
@@ -40,7 +36,7 @@ const SearchResult = () => {
   }
   let topic_list = ["dddefault0", "dddefault1", "dddefault2", "dddefault3"];
   for (let i = 0; i < topic_num; i++) {
-    topic_list[i] = key_word + i;
+    topic_list[i] = key_word.toLowerCase() + i;
   }
 
   const [sliderIdx, setSliderIdx] = useState(0);
@@ -98,12 +94,12 @@ const SearchResult = () => {
                           <Page12221>
                             <Img
                               src={require("../visualization/wordcloud/" +
-                                key_word +
+                                key_word.toLowerCase() +
                                 ".png")}
                               onClick={() => {
                                 window.open(
                                   require("../visualization/wordcloud/" +
-                                    key_word +
+                                    key_word.toLowerCase() +
                                     ".png")
                                 );
                               }}
@@ -129,40 +125,6 @@ const SearchResult = () => {
                     ></Direction>
                   </ButtonDiv>
                 </SliderContent1>
-                {/* <SliderContent2>
-                  <Page21>
-                    <Direction
-                      src={Left}
-                      onClick={() => {
-                        setSliderIdx(0);
-                      }}
-                    ></Direction>
-                  </Page21>
-                  <Result2
-                    keyword={key_word}
-                    topic_num={topic_num}
-                    topic_list={topic_list}
-                  />
-                  <Page23>
-                    <Direction
-                      src={Right}
-                      onClick={() => {
-                        setSliderIdx(2);
-                      }}
-                    ></Direction>
-                  </Page23>
-                </SliderContent2>
-                <SliderContent3>
-                  <Page21>
-                    <Direction
-                      src={Left}
-                      onClick={() => {
-                        setSliderIdx(1);
-                      }}
-                    ></Direction>
-                  </Page21>
-                  <Result3 />
-                </SliderContent3> */}
                 <SliderContent2>
                   <Page21>
                     <Direction
@@ -180,12 +142,12 @@ const SearchResult = () => {
                       <Page2212>
                         <BarImg
                           src={require("../visualization/barplot/" +
-                            key_word +
+                            key_word.toLowerCase() +
                             ".png")}
                           onClick={() => {
                             window.open(
                               require("../visualization/barplot/" +
-                                key_word +
+                                key_word.toLowerCase() +
                                 ".png")
                             );
                           }}
@@ -203,12 +165,12 @@ const SearchResult = () => {
                       <Page2222>
                         <BarImg
                           src={require("../visualization/sent_results/" +
-                            key_word +
+                            key_word.toLowerCase() +
                             ".png")}
                           onClick={() => {
                             window.open(
                               require("../visualization/sent_results/" +
-                                key_word +
+                                key_word.toLowerCase() +
                                 ".png")
                             );
                           }}
@@ -249,8 +211,8 @@ const SearchResult = () => {
                                     h +
                                     ", status=no;";
                                   window.open(
-                                    "http://localhost:5000/manage/test/network/" +
-                                      key_word +
+                                    "http://localhost:5000/network/" +
+                                      key_word.toLowerCase() +
                                       ".html",
                                     "",
                                     popupOption
@@ -650,23 +612,6 @@ const Page22 = styled.div`
   justify-content: space-around;
   height: 96%;
   width: 96%;
-`;
-
-//2페이지 오른쪽 버튼 들어갈 공간
-const Page23 = styled.div`
-  display: flex;
-  flex-diretion: column;
-  justify-content: center;
-  align-items: center;
-  width: 4%;
-  height: 100%;
-`;
-//3페이지 slidercontent
-const SliderContent3 = styled.div`
-  display: flex;
-  flex-direction: row;
-  height: 100%;
-  width: 95.5vw;
 `;
 
 //////////////

@@ -1,11 +1,9 @@
 import React from "react";
 import styled from "styled-components";
-import PacmanLoader from "react-spinners/PacmanLoader";
 import { PulseLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faHourglassHalf,
-  faFileLines,
   faChartBar,
   faCircleCheck,
 } from "@fortawesome/free-regular-svg-icons";
@@ -84,12 +82,6 @@ const Div2 = styled.div`
   height: 30%;
   border-radius: 20px;
   margin-top: 2%;
-`;
-//세번째 칸
-const Div3 = styled.div`
-  display: flex;
-  height: 30%;
-  border-radius: 20px;
 `;
 
 export default Loading2;

@@ -155,6 +155,4 @@ const Tdnn = styled(Th)`
   height: 100%;
 `;
 
-//긍 7DB3F2 / 부 E17781 / 중립 D6DFE1
-
 export default SentTable;

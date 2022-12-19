@@ -71,12 +71,8 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
 
     # 가장 낮은 perplexity 값을 가지는 최적의 토픽 수로 저장
         n_topics = perplexity.index(min(perplexity))+2
-        print(perplexity)
-        print(f"the optimal number of topics is {n_topics}")
 
     # 최적의 토픽 수로 lda분석
-        # print("\nFitting LDA models with Okt features, number of topics=%d, max_iter=%d" % (
-        #     n_topics, n_iter))
         t0 = time()
         lda = LatentDirichletAllocation(
             n_components=n_topics,
@@ -94,7 +90,6 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
             top_features_ind = topic.argsort()[: -n_top_words - 1: -1]
             top_features = [okt_feature_names[i] for i in top_features_ind]
             topic_list.append(top_features)
-            #print('Topic {}: {}'.format(topic_idx+1, ' '.join(top_features)))
 
         t0 = time()
 
@@ -136,7 +131,6 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
         # terms_count = 200 #1212수정 - 세윤
 
         for idx, topic in enumerate(lda.components_):
-            print('Topic# ', idx+1)
             abs_topic = abs(topic)
             topic_terms = [[terms[i], topic[i]]
                            for i in abs_topic.argsort()[:-len(topic)-1:-1]]
@@ -145,7 +139,6 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
             topic_words = []
             for i in range(len(topic)):
                 topic_words.append(topic_terms_sorted[i][0])
-            # print(','.join(word for word in topic_words))
             dict_word_frequency = {}
 
             for i in range(len(topic)):
@@ -161,7 +154,6 @@ def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', k
             # 1212수정_세윤
             wc.to_file(filename=filedir+keyword+str(idx)+'.png')
 
-        print("in total, %0.3fs." % (time() - t1))
         # 1214수정 세윤 => topic 개수도 리턴
         return True, topic_list, len(lda.components_)
     except:

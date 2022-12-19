@@ -14,20 +14,13 @@ return True
 
 
 def sent_analysis(plaintext,
-                  sentMorph=['IC', 'MAG', 'MM', 'NNB', 'NNG', 'NNP',
-                             'NP', 'NR', 'SL', 'SP', 'SW', 'VA', 'XR'],
+                  sentMorph=['Adjective', 'Adverb', 'Alpha', 'Eomi',
+                             'KoreanParticle', 'Noun', 'Punctuation', 'Verb'],
                   saveDir='./templates/', fileName='sent_pie',
                   sentDictFile='sent_dict.pkl',
                   colors=['#FFBF25', '#D6DFE1', '#272B3A'],
                   fontPath=None,
                   topSentReturn=12):
-    '''
-    multi tok sent
-    NNG,EFN,VV,VA,XR,ECS,EMO,ETD,VXV,VXA,JC,MAG,ECD,XR,ECE,JKG,MDT,JKO,NNB,NNP,JKS,JKM,ETN,XSV,XSA,XSN,NP,IC,VCN,NNM,MDN,JX
-
-    single tok sent
-    'IC', 'MAG', 'MM', 'NNB', 'NNG', 'NNP', 'NP', 'NR', 'SL', 'SP', 'SW', 'VA', 'XR'
-    '''
 
     # 감성 사전을 열고 데이터를 불러옴
     with open(sentDictFile, 'rb') as file:
@@ -36,8 +29,8 @@ def sent_analysis(plaintext,
     # 감성 사전과 동일한 기준으로 토큰화 수행
     tokenized = pp.data_tokenize(data=pp.plain_structurize(plaintext),
                                  morphemeAnalyzer=pp.setMorphemeAnalyzer(
-        "키위"),
-        targetMorphs=sentMorph)
+                                     "okt"),
+                                 targetMorphs=sentMorph, lineSplitADV=True)
 
     # 긍정 / 중립 / 부정 키워드들을 관리하는 dict
     positiveDict = dict()
@@ -46,28 +39,29 @@ def sent_analysis(plaintext,
 
     # 포스트별, 토큰별로 돌면서 감성 사전에 등재된 단어인지 체크하고 등재된 단어일 시 점수에 따라 긍정/중립/부정 dict에 추가
     for post in tokenized:
-        for kwd in post:
-            if kwd in sentDict:
-                if sentDict[kwd] > 0:
-                    try:
-                        positiveDict[kwd] += 1
-                    except:
-                        positiveDict[kwd] = 1
+        for line in post:
+            for kwd in line:
+                if kwd in sentDict:
+                    if sentDict[kwd] > 0:
+                        try:
+                            positiveDict[kwd] += 1
+                        except:
+                            positiveDict[kwd] = 1
 
-                elif sentDict[kwd] == 0:
-                    try:
-                        neutralDict[kwd] += 1
-                    except:
-                        neutralDict[kwd] = 1
-                else:
-                    try:
-                        negativeDict[kwd] += 1
-                    except:
-                        negativeDict[kwd] = 1
+                    elif sentDict[kwd] == 0:
+                        try:
+                            neutralDict[kwd] += 1
+                        except:
+                            neutralDict[kwd] = 1
+                    else:
+                        try:
+                            negativeDict[kwd] += 1
+                        except:
+                            negativeDict[kwd] = 1
 
     # 예외 처리 1
     if positiveDict == {} and neutralDict == {} and negativeDict == {}:
-        return (False, [])
+        return (list(), True)
     # 예외 처리 1
 
     # 비율 계산
@@ -89,16 +83,18 @@ def sent_analysis(plaintext,
         list(neutralDict.values())+list(negativeDict.values())
 
     results = list()
+
     # 예외 처리 2
     if topSentReturn > len(sentKwdCounts):
         topSentReturn = len(sentKwdCounts)
     # 예외 처리 2
+
     for got in range(topSentReturn):
         idx = sentKwdCounts.index(max(sentKwdCounts))
         results.append(
             (sentKwds.pop(idx), sentKwdCounts.pop(idx), sentLabels.pop(idx)))
 
-    return (True, results)
+    return (results, True)
 
 
 def sent_visualization(ratios,
@@ -122,16 +118,14 @@ def sent_visualization(ratios,
 
     ------------------------------------------------------------------------------
     '''
-
     df = pd.DataFrame(zip(legends, ratios), columns=['legends', 'ratios'])
     df.sort_values('ratios', ascending=False, inplace=True)
     df.reset_index(drop=True, inplace=True)
 
     fig = px.pie(df, values='ratios', names='legends', color='legends',
                  color_discrete_map={'긍정': '#7DB3F2', '중립': '#D6DFE1', '부정': '#E17781'})
-
     fig.update_traces(textposition='inside', textinfo='percent+label',
                       hole=.4, hoverinfo="label+percent+name", pull=[0.1, 0, 0])
-    fig.update_layout(width=600, height=600, margin=dict(
-        t=0, l=0, r=0, b=0), font_family='./templates/fonts/Chosun.ttf', font_size=35, showlegend=False)
+    fig.update_layout(width=800, height=600, margin=dict(t=0, l=0, r=0, b=0), font_family="조선일보명조", font_color='blue',
+                      font_size=30, showlegend=False)
     fig.write_image(saveDir+fileName+'.png')

@@ -2,12 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { PulseLoader } from "react-spinners";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faHourglassHalf,
-  faFileLines,
-  faChartBar,
-} from "@fortawesome/free-regular-svg-icons";
-import { CircleProgress } from "react-gradient-progress";
+import { faHourglassHalf } from "@fortawesome/free-regular-svg-icons";
 
 const Loading1 = () => {
   return (
@@ -21,18 +16,6 @@ const Loading1 = () => {
           <PulseLoader size={8} />
         </Spindiv>
       </Div1>
-      {/* <Div2>
-        <Icondiv>
-          <FontAwesomeIcon icon={faChartBar} size="2xl" />
-        </Icondiv>
-        <Textdiv><PulseLoader size={10} /></Textdiv>
-      </Div2>
-      <Div3>
-        <Icondiv>
-          <FontAwesomeIcon icon={faFileLines} size="2xl" />
-        </Icondiv>
-        <Textdiv><PulseLoader size={10} /></Textdiv>
-      </Div3> */}
     </Div>
   );
 };
@@ -74,17 +57,5 @@ const Spindiv = styled.div`
   align-items: center;
   justify-content: center;
   width: 15%;
-`;
-//두번째 칸
-const Div2 = styled.div`
-  display: flex;
-  height: 30%;
-  border-radius: 20px;
-`;
-//세번째 칸
-const Div3 = styled.div`
-  display: flex;
-  height: 30%;
-  border-radius: 20px;
 `;
 export default Loading1;

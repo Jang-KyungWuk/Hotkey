@@ -55,27 +55,29 @@ def wordcloud(pt, wc_filename='../react-client/src/visualization/wordcloud/tmp.p
 
     ------------------------------------------------------------------------------
     """
+    try:
+        # frequency함수를 통해 빈도 딕셔너리 가져오기
+        voca = frequency(pt)
 
-    # frequency함수를 통해 빈도 딕셔너리 가져오기
-    voca = frequency(pt)
+        # 이미지 파일 읽어오기
+        im = Image.open('./templates/masks/mask_camera.png')
 
-    # 이미지 파일 읽어오기
-    im = Image.open('./templates/masks/mask_camera.png')
+        # 이미지 파일 전처리
+        mask = Image.new("RGB", im.size, (255, 255, 255))
+        mask.paste(im)
+        mask = np.array(mask)
 
-    # 이미지 파일 전처리
-    mask = Image.new("RGB", im.size, (255, 255, 255))
-    mask.paste(im)
-    mask = np.array(mask)
+        # wordcloud 이미지 생성
+        wc = WordCloud(background_color=wc_backgroundcolor,
+                       colormap=wc_colormap, font_path=font_path, mask=mask, min_font_size=11)
+        wc = wc.generate_from_frequencies(voca)
 
-    # wordcloud 이미지 생성
-    wc = WordCloud(background_color=wc_backgroundcolor,
-                   colormap=wc_colormap, font_path=font_path, mask=mask, min_font_size=11)
-    wc = wc.generate_from_frequencies(voca)
+        # 입력받은 경로에 저장
+        wc.to_file(filename=f'{wc_filename}')
 
-    # 입력받은 경로에 저장, 파일이름 중복될 경우 덮어쓰여짐
-    wc.to_file(filename=f'{wc_filename}')
-
-    return True
+        return True
+    except:
+        return False
 
 
 def barplot(pt, bp_filename='../react-client/src/visualization/barplot/tmp.png'):
