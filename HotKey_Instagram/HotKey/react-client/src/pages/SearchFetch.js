@@ -19,9 +19,8 @@ const SearchFetch = () => {
   useEffect(() => {
     if (keyword) {
       setLstate(0);
-
-      // fetch("http://localhost:5000/manage/t_search/" + keyword.toLowerCase())
       fetch("http://localhost:5000/keyword_search/" + keyword.toLowerCase())
+        // fetch("http://localhost:5000/manage/t_search/" + keyword.toLowerCase())
         .then((res) => res.json())
         .then((data) => {
           console.log("keyword_search response : ", data);
