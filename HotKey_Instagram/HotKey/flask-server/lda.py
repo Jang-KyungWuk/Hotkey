@@ -9,7 +9,7 @@ from preprocess import *
 # input수정 (filedir, keyword) 추가
 
 
-def sklda(plaintext, filedir='../react-client/src/visualization/lda_results/', keyword='tmp', n_top_words=300, n_iter=30):
+def sklda(plaintext, filedir='./images/visualization/lda_results/', keyword='tmp', n_top_words=300, n_iter=30):
     """
     ------------------------------------------------------------------------------
 

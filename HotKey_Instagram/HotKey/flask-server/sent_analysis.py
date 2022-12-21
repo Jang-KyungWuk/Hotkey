@@ -16,7 +16,7 @@ return True
 def sent_analysis(plaintext,
                   sentMorph=['Adjective', 'Adverb', 'Alpha', 'Eomi',
                              'KoreanParticle', 'Noun', 'Punctuation', 'Verb'],
-                  saveDir='./templates/', fileName='sent_pie',
+                  saveDir='./images/visualization/sent_results/', fileName='sent_pie',
                   sentDictFile='sent_dict.pkl',
                   colors=['#FFBF25', '#D6DFE1', '#272B3A'],
                   fontPath=None,

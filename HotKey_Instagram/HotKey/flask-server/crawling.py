@@ -490,7 +490,6 @@ def get_guest_token(session):
     }
     resp = session.post(
         'https://api.twitter.com/1.1/guest/activate.json', headers=headers)
-    print('guest_token 설정 완료.....')
     return session, resp.json()['guest_token']
 
 
@@ -563,7 +562,6 @@ def set_params(keyword, session):  # header와 parameter값을 설정해준다.
     session, headers['x-guest-token'] = get_guest_token(session)
 
     # headers, parameters 설정 끝
-    print('헤더 및 파라미터 설정 완료.....')
     return (params, headers, session)
 
 

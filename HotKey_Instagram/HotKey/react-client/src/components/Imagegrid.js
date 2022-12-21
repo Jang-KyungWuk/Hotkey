@@ -15,9 +15,17 @@ const Imagegrid = ({ image }) => {
         ) : (
           <Imgdiv1>
             <Img
-              src={require("../top_imgs/" + image + ".jpg")}
+              src={
+                "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/top_imgs/0/" +
+                image +
+                ".jpg"
+              }
               onClick={() => {
-                window.open(require("../top_imgs/" + image + ".jpg"));
+                window.open(
+                  "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/top_imgs/0/" +
+                    image +
+                    ".jpg"
+                );
               }}
             />
           </Imgdiv1>
@@ -34,9 +42,17 @@ const Imagegrid = ({ image }) => {
         ) : (
           <Imgdiv5>
             <Img
-              src={require("../top_imgs/" + image + ".jpg")}
+              src={
+                "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/top_imgs/0/" +
+                image +
+                ".jpg"
+              }
               onClick={() => {
-                window.open(require("../top_imgs/" + image + ".jpg"));
+                window.open(
+                  "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/top_imgs/0/" +
+                    image +
+                    ".jpg"
+                );
               }}
             />
           </Imgdiv5>
@@ -53,9 +69,17 @@ const Imagegrid = ({ image }) => {
   return (
     <Imgdiv>
       <Img
-        src={require("../top_imgs/" + image + ".jpg")}
+        src={
+          "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/top_imgs/0/" +
+          image +
+          ".jpg"
+        }
         onClick={() => {
-          window.open(require("../top_imgs/" + image + ".jpg"));
+          window.open(
+            "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/top_imgs/0/" +
+              image +
+              ".jpg"
+          );
         }}
       />
     </Imgdiv>

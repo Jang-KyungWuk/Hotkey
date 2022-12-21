@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, g, render_template
+from flask import Flask, jsonify, g, send_from_directory
 from flask_cors import CORS
 # customized modules import (사용 라이브러리들 포함)
 from crawling import *
@@ -106,14 +106,14 @@ def analyze(tid):
     print("3. preprocess, spam_filtering : True")
     ################
     status = wordcloud(
-        tpt, wc_filename='../react-client/src/visualization/wordcloud/'+keyword+'.png')
+        tpt, wc_filename='./images/visualization/wordcloud/'+keyword+'.png')
     if not status:
         print('wordcloud 생성 중 에러...')
         returnstatus['status'] = False
         return (jsonify(returnstatus))
     print("4. wordcloud :", status)
     status = barplot(
-        tpt, bp_filename='../react-client/src/visualization/barplot/'+keyword+'.png')
+        tpt, bp_filename='./images/visualization/barplot/'+keyword+'.png')
     if not status:
         print('barplot 생성 중 에러..')
         returnstatus['status'] = False
@@ -121,7 +121,7 @@ def analyze(tid):
     print("5. barplot :", status)
     ################
     status, lda_result, topic_num = sklda(
-        spt, filedir='../react-client/src/visualization/lda_results/', keyword=keyword)
+        spt, filedir='./images/visualization/lda_results/', keyword=keyword)
     returnstatus['topic_num'] = topic_num
     if not status:
         print('LDA 분석 중 에러..')
@@ -137,7 +137,7 @@ def analyze(tid):
         return (jsonify(returnstatus))
     print("7. network :", status)
     ###############
-    sent_result, status = sent_analysis(spt, saveDir='../react-client/src/visualization/sent_results/',
+    sent_result, status = sent_analysis(spt, saveDir='./images/visualization/sent_results/',
                                         fileName=keyword)
     returnstatus['sent_result'] = sent_result
     if not status:
@@ -167,6 +167,18 @@ def js(a, b):
         file = fp.read()
     return file
 
+
+@app.route('/images/<path1>/<path2>/<fileName>')
+def sendimg(path1, path2, fileName):
+    # images내부의 디렉토리를 포함한 filepath를 입력으로 받아 파일을 전송
+    # directory=' 이미지의 파일 위치', filename='출력할 파일 이름'
+    if path1 == 'top_imgs':
+        return send_from_directory('images/top_imgs', fileName)
+    else:
+        try:
+            return send_from_directory('images/'+path1+'/'+path2, fileName)
+        except:
+            return jsonify('file not found')
 # ---------------------------관리/테스트용 API-------------------------------
 
 
@@ -205,27 +217,27 @@ def checkavail():
 
 @app.route('/manage/delete_results')
 def del_img():
-    dir_path = '../react-client/src/top_imgs'
+    dir_path = './images/top_imgs'
     if os.path.exists(dir_path):
         shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    dir_path = '../react-client/src/visualization/barplot'
+    dir_path = './images/visualization/barplot'
     if os.path.exists(dir_path):
         shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    dir_path = '../react-client/src/visualization/wordcloud'
+    dir_path = './images/visualization/wordcloud'
     if os.path.exists(dir_path):
         shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    dir_path = '../react-client/src/visualization/lda_results'
+    dir_path = './images/visualization/lda_results'
     if os.path.exists(dir_path):
         shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
-    dir_path = '../react-client/src/visualization/sent_results'
+    dir_path = './images/visualization/sent_results'
     if os.path.exists(dir_path):
         shutil.rmtree(dir_path)  # 폴더 포함, 내부 파일 모두 삭제
     if not os.path.exists(dir_path):
@@ -256,4 +268,4 @@ def search2(keyword):
 # ---------------------------------------------------------------------
 if __name__ == '__main__':
     # 배포시 디버그 옵션 없애야함, 크롤링 시 debug 옵션 False로 해두기..
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5000, debug=True)

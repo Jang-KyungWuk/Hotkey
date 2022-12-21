@@ -36,7 +36,7 @@ def frequency(pt):
     return voca
 
 
-def wordcloud(pt, wc_filename='../react-client/src/visualization/wordcloud/tmp.png', wc_backgroundcolor='white',
+def wordcloud(pt, wc_filename='./images/visualization/wordcloud/tmp.png', wc_backgroundcolor='white',
               wc_colormap='copper', font_path='./templates/fonts/Chosun.ttf'):
     """
     ------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ def wordcloud(pt, wc_filename='../react-client/src/visualization/wordcloud/tmp.p
         return False
 
 
-def barplot(pt, bp_filename='../react-client/src/visualization/barplot/tmp.png'):
+def barplot(pt, bp_filename='./images/visualization/barplot/tmp.png'):
     """
     ------------------------------------------------------------------------------
 

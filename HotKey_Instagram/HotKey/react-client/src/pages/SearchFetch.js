@@ -19,15 +19,24 @@ const SearchFetch = () => {
   useEffect(() => {
     if (keyword) {
       setLstate(0);
-      fetch("http://localhost:5000/keyword_search/" + keyword.toLowerCase())
-        // fetch("http://localhost:5000/manage/t_search/" + keyword.toLowerCase())
+      // fetch(
+      //   "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/keyword_search/" +
+      //     keyword.toLowerCase()
+      // )
+      fetch(
+        "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/manage/t_search/" +
+          keyword.toLowerCase()
+      )
         .then((res) => res.json())
         .then((data) => {
           console.log("keyword_search response : ", data);
           if (data.status) {
             //키워드 corpus가 정상적으로 생성된 경우
             setLstate(1);
-            fetch("http://localhost:5000/analyze/" + data.tid)
+            fetch(
+              "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/analyze/" +
+                data.tid
+            )
               .then((res2) => res2.json())
               .then((data2) => {
                 console.log("analyze response : ", data2);

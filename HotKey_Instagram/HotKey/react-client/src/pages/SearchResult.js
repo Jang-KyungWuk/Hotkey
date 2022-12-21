@@ -103,14 +103,16 @@ const SearchResult = () => {
                         <Page1222>
                           <Page12221>
                             <Img
-                              src={require("../visualization/wordcloud/" +
+                              src={
+                                "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/wordcloud/" +
                                 key_word.toLowerCase() +
-                                ".png")}
+                                ".png"
+                              }
                               onClick={() => {
                                 window.open(
-                                  require("../visualization/wordcloud/" +
+                                  "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/wordcloud/" +
                                     key_word.toLowerCase() +
-                                    ".png")
+                                    ".png"
                                 );
                               }}
                             ></Img>
@@ -151,14 +153,16 @@ const SearchResult = () => {
                       </Page2211>
                       <Page2212>
                         <BarImg
-                          src={require("../visualization/barplot/" +
+                          src={
+                            "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/barplot/" +
                             key_word.toLowerCase() +
-                            ".png")}
+                            ".png"
+                          }
                           onClick={() => {
                             window.open(
-                              require("../visualization/barplot/" +
+                              "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/barplot/" +
                                 key_word.toLowerCase() +
-                                ".png")
+                                ".png"
                             );
                           }}
                         />
@@ -174,14 +178,16 @@ const SearchResult = () => {
                       </Page2221>
                       <Page2222>
                         <BarImg
-                          src={require("../visualization/sent_results/" +
+                          src={
+                            "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/sent_results/" +
                             key_word.toLowerCase() +
-                            ".png")}
+                            ".png"
+                          }
                           onClick={() => {
                             window.open(
-                              require("../visualization/sent_results/" +
+                              "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/sent_results/" +
                                 key_word.toLowerCase() +
-                                ".png")
+                                ".png"
                             );
                           }}
                         />
@@ -221,7 +227,7 @@ const SearchResult = () => {
                                     h +
                                     ", status=no;";
                                   window.open(
-                                    "http://localhost:5000/network/" +
+                                    "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/network/" +
                                       key_word.toLowerCase() +
                                       ".html",
                                     "",
@@ -288,28 +294,32 @@ const SearchResult = () => {
                             <Gridx>"두 개의 토픽으로 최적화 됩니다"</Gridx>
                             <Grid>
                               <GridImg
-                                src={require("../visualization/lda_results/" +
+                                src={
+                                  "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                   topic_list[0] +
-                                  ".png")}
+                                  ".png"
+                                }
                                 onClick={() => {
                                   window.open(
-                                    require("../visualization/lda_results/" +
+                                    "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                       topic_list[0] +
-                                      ".png")
+                                      ".png"
                                   );
                                 }}
                               ></GridImg>
                             </Grid>
                             <Grid>
                               <GridImg
-                                src={require("../visualization/lda_results/" +
+                                src={
+                                  "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                   topic_list[1] +
-                                  ".png")}
+                                  ".png"
+                                }
                                 onClick={() => {
                                   window.open(
-                                    require("../visualization/lda_results/" +
+                                    "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                       topic_list[1] +
-                                      ".png")
+                                      ".png"
                                   );
                                 }}
                               ></GridImg>
@@ -319,56 +329,64 @@ const SearchResult = () => {
                           <>
                             <Grid>
                               <GridImg
-                                src={require("../visualization/lda_results/" +
+                                src={
+                                  "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                   topic_list[0] +
-                                  ".png")}
+                                  ".png"
+                                }
                                 onClick={() => {
                                   window.open(
-                                    require("../visualization/lda_results/" +
+                                    "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                       topic_list[0] +
-                                      ".png")
+                                      ".png"
                                   );
                                 }}
                               ></GridImg>
                             </Grid>
                             <Grid>
                               <GridImg
-                                src={require("../visualization/lda_results/" +
+                                src={
+                                  "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                   topic_list[1] +
-                                  ".png")}
+                                  ".png"
+                                }
                                 onClick={() => {
                                   window.open(
-                                    require("../visualization/lda_results/" +
+                                    "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                       topic_list[1] +
-                                      ".png")
+                                      ".png"
                                   );
                                 }}
                               ></GridImg>
                             </Grid>
                             <Grid>
                               <GridImg
-                                src={require("../visualization/lda_results/" +
+                                src={
+                                  "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                   topic_list[2] +
-                                  ".png")}
+                                  ".png"
+                                }
                                 onClick={() => {
                                   window.open(
-                                    require("../visualization/lda_results/" +
+                                    "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                       topic_list[2] +
-                                      ".png")
+                                      ".png"
                                   );
                                 }}
                               ></GridImg>
                             </Grid>
                             <Grid>
                               <GridImg
-                                src={require("../visualization/lda_results/" +
+                                src={
+                                  "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                   topic_list[3] +
-                                  ".png")}
+                                  ".png"
+                                }
                                 onClick={() => {
                                   window.open(
-                                    require("../visualization/lda_results/" +
+                                    "http://ec2-13-209-21-117.ap-northeast-2.compute.amazonaws.com:5000/images/visualization/lda_results/" +
                                       topic_list[3] +
-                                      ".png")
+                                      ".png"
                                   );
                                 }}
                               ></GridImg>
